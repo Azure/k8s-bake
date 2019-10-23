@@ -1,0 +1,42 @@
+name: 'Deploy to Kubernetes cluster'
+description: 'Deploy to Kubernetes cluster'
+inputs: 
+# Please ensure you have used either azure/aks-set-context or azure/k8s-set-context in the workflow before this action
+  renderEngine:
+    description: 'Acceptable values: helm2 or kompose or kustomize'
+    required: true
+  helmChart: 
+    description: 'Required if renderEngine == helm2. Helm chart to bake.'
+    required: false
+  overrideFiles:
+    description: 'Relevant if renderEngine == helm2. Array of path to override files. Each path should be mentioned on a newline'
+    required: false
+  overrides:
+    description: 'Relevant if renderEngine == helm2. Override values to set.'
+    required: false
+  releaseName:
+    description: 'Relevant if renderEngine == helm2. Release name to be used for Helm option.'
+    required: false
+  kustomizationPath:
+    description: 'Required if renderEngine == kustomization. Path to directory or the Git repository containing kustomization.yaml file.'
+    required: false
+  dockerComposeFile:
+    description: 'Required if renderEngine == kompose. Path(s) to Docker compose files'
+    required: false
+  helm-version:
+      description: 'Version of kubectl. Installs a specific version of helm binary'
+      required: false
+  kubectl-version:
+      description: 'Version of kubectl. Installs a specific version of kubectl binary'
+      required: false
+  kompose-version:
+      description: 'Version of kubectl. Installs a specific version of kompose binary'
+      required: false
+outputs:
+  manifestsBundle:
+    description: 'The location of the manifest bundles created by bake action'
+branding:
+  color: 'green' # optional, decorates the entry in the GitHub Marketplace
+runs:
+  using: 'node12'
+  main: 'lib/run.js'
