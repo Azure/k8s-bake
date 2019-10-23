@@ -17,12 +17,10 @@ abstract class RenderEngine {
     public bake!: () => Promise<any>;
     protected getTemplatePath = () => {
         const tempDirectory = process.env['RUNNER_TEMP'];
-        if(!!tempDirectory)
-        {
+        if(!!tempDirectory) {
             return path.join(tempDirectory, 'baked-template-' + utilities.getCurrentTime().toString() + '.yaml');
         }
-        else
-        {
+        else {
             throw Error("Unable to create temp directory.");
         }
     }
@@ -94,7 +92,7 @@ class HelmRenderEngine extends RenderEngine {
                 });
             }
         }
-        
+
         return args;
     }
 }
@@ -103,7 +101,7 @@ class KomposeRenderEngine extends RenderEngine {
     public bake = async (): Promise<any> => {
         var dockerComposeFilePath = core.getInput('dockerComposeFile', { required : true });
         if( !ioUtil.exists(dockerComposeFilePath) ) {
-            throw Error("Please");
+            throw Error(util.format("Docker compose file path %s does not exist. Please check the path specified", dockerComposeFilePath));
         }
 
         const komposePath = await getKomposePath(); 
@@ -150,7 +148,6 @@ class KustomizeRenderEngine extends RenderEngine {
 }
 
 async function run() {
-    utilities.checkClusterContext();
     const renderType = core.getInput('renderEngine', { required: true });
     let renderEngine: RenderEngine;
     switch (renderType) {

@@ -38,8 +38,7 @@ function getHelmDownloadURL(version: string): string {
 async function getStableHelmVersion(): Promise<string> {
     return toolCache.downloadTool(helmLatestReleaseUrl).then((downloadPath) => {
         const response = JSON.parse(fs.readFileSync(downloadPath, 'utf8').toString().trim());
-        if (!response.tag_name)
-        {
+        if (!response.tag_name) {
             return stableHelmVersion;
         }
         
@@ -78,7 +77,7 @@ async function downloadHelm(version: string): Promise<string> {
         try {
             helmDownloadPath = await toolCache.downloadTool(getHelmDownloadURL(version));
         } catch (exception) {
-            throw new Error(util.format("Failed to download Helm from location ", getHelmDownloadURL(version)));
+            throw new Error(util.format("Failed to download Helm from location %s. Error: %s ", getHelmDownloadURL(version), exception));
         }
 
         fs.chmodSync(helmDownloadPath, '777');

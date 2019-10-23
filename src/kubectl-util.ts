@@ -51,7 +51,7 @@ async function downloadKubectl(version: string): Promise<string> {
         try {
             kubectlDownloadPath = await toolCache.downloadTool(getkubectlDownloadURL(version));
         } catch (exception) {
-            throw new Error(util.format("Cannot download the kubectl client of version %s. Check if the version is correct https://github.com/kubernetes/kubernetes/releases", version));
+            throw new Error(util.format("Cannot download the kubectl client of version %s. Check if the version is correct https://github.com/kubernetes/kubernetes/releases. Error: %s", version, exception));
         }
 
         cachedToolpath = await toolCache.cacheFile(kubectlDownloadPath, kubectlToolName + getExecutableExtension(), kubectlToolName, version);

@@ -1,7 +1,6 @@
 name: 'Deploy to Kubernetes cluster'
 description: 'Deploy to Kubernetes cluster'
 inputs: 
-# Please ensure you have used either azure/aks-set-context or azure/k8s-set-context in the workflow before this action
   renderEngine:
     description: 'Acceptable values: helm2 or kompose or kustomize'
     required: true

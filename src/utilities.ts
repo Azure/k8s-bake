@@ -11,12 +11,6 @@ export interface ExecResult {
     stderr: string
 }
 
-export function checkClusterContext() {
-    if (!process.env["KUBECONFIG"]) {
-        throw new Error('Cluster context not set. Use k8ssetcontext action to set cluster context');
-    }
-}
-
 export function getCurrentTime(): number {
     return new Date().getTime();
 }
@@ -50,12 +44,10 @@ export async function execCommand(toolPath: string, args: string[], options: Exe
     let toolRunner = new ToolRunner(toolPath, args, options);
     const result = await toolRunner.exec();
     if (result != 0) {
-        if (!!execResult.stderr)
-        {
+        if (!!execResult.stderr) {
             throw Error(execResult.stderr);
         }
-        else
-        {
+        else {
             throw Error(util.format("%s exited with result code %s", toolPath, result));
         }
     }

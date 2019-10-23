@@ -37,6 +37,56 @@ Sets output variable 'manifestsBundle' which contains the location of the manife
 ```
 Refer to the action metadata file for details about all the inputs https://github.com/Azure/k8s-bake/blob/master/action.yml
 
+## End to end workflow for building container images and deploying to a Kubernetes cluster
+
+```yaml
+on: [push]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@master
+    
+    - uses: Azure/docker-login@v1
+      with:
+        login-server: contoso.azurecr.io
+        username: ${{ secrets.REGISTRY_USERNAME }}
+        password: ${{ secrets.REGISTRY_PASSWORD }}
+    
+    - run: |
+        docker build . -t contoso.azurecr.io/k8sdemo:${{ github.sha }}
+        docker push contoso.azurecr.io/k8sdemo:${{ github.sha }}
+      
+    - uses: Azure/k8s-set-context@v1
+      with:
+        kubeconfig: ${{ secrets.KUBE_CONFIG }}
+        
+    - uses: Azure/k8s-create-secret@v1
+      with:
+        container-registry-url: contoso.azurecr.io
+        container-registry-username: ${{ secrets.REGISTRY_USERNAME }}
+        container-registry-password: ${{ secrets.REGISTRY_PASSWORD }}
+        secret-name: demo-k8s-secret
+
+    - uses: azure/k8s-bake@v1
+      with:
+        renderEngine: 'helm2'
+        helmChart: './aks-helloworld/' 
+        overrideFiles: './aks-helloworld/values-override.yaml'
+        overrides: |     
+          replicas:2
+        helm-version: 'latest' 
+      id: bake
+
+    - uses: Azure/k8s-deploy@v1
+      with:
+        manifests: ${{ steps.bake.outputs.manifestsBundle }}
+        images: |
+          demo.azurecr.io/k8sdemo:${{ github.sha }}
+        imagepullsecrets: |
+          demo-k8s-secret
+```
 # Contributing
 
 This project welcomes contributions and suggestions.  Most contributions require you to agree to a
