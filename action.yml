@@ -1,5 +1,5 @@
-name: 'Deploy to Kubernetes cluster'
-description: 'Deploy to Kubernetes cluster'
+name: 'Kubernetes bake'
+description: 'Use this action to bake manifest file to be used for deployments using helm2, kustomize or kompose'
 inputs: 
   renderEngine:
     description: 'Acceptable values: helm2 or kompose or kustomize'
