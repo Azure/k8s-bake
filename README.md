@@ -1,7 +1,5 @@
 # Kubernetes bake action
-Use this action to bake manifest file to be used for deployments using helm2, kustomize or kompose
-
-Assumes that the deployment target K8s cluster context was set earlier in the workflow by using either Azure/aks-set-context or Azure/k8s-set-context 
+Use this action to bake manifest file to be used for deployments using helm2, kustomize or kompose 
 
 Sets output variable 'manifestsBundle' which contains the location of the manifest bundles created by bake action
 
