@@ -31,17 +31,21 @@ class HelmRenderEngine extends RenderEngine {
         const helmPath = await getHelmPath();
 
         const chartPath = core.getInput('helmChart', {required : true});
+        const options = {
+            silent: true
+        } as ExecOptions;
+
+        var dependencyArgs = this.getDependencyArgs(chartPath);
+        
         core.debug("Running helm dependency update command..");
-        await utilities.execCommand(helmPath, ['dependency update', chartPath]);
+        await utilities.execCommand(helmPath, dependencyArgs, options);
 
         core.debug("Creating the template argument string..");
         var args = this.getTemplateArgs(chartPath)
-         const options = {
-            silent: true
-         } as ExecOptions;
         
         core.debug("Running helm template command..");
         var result = await utilities.execCommand(helmPath, args, options)
+        
         const pathToBakedManifest = this.getTemplatePath();
         fs.writeFileSync(pathToBakedManifest, result.stdout);
         core.setOutput('manifestsBundle', pathToBakedManifest);
@@ -60,6 +64,15 @@ class HelmRenderEngine extends RenderEngine {
         });
 
         return overrideValues;
+    }
+
+    private getDependencyArgs(chartPath: string): string[] {
+        let args: string[] = [];
+        args.push('dependency');
+        args.push('update');
+        args.push(chartPath);
+
+        return args;
     }
 
     private getTemplateArgs(chartPath: string): string[] {
