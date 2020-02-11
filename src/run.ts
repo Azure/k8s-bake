@@ -29,8 +29,13 @@ abstract class RenderEngine {
 class HelmRenderEngine extends RenderEngine {
     public bake = async (): Promise<any> => {
         const helmPath = await getHelmPath();
+
+        const chartPath = core.getInput('helmChart', {required : true});
+        core.debug("Running helm dependency update command..");
+        await utilities.execCommand(helmPath, ['dependency update', chartPath]);
+
         core.debug("Creating the template argument string..");
-        var args = this.getTemplateArgs()
+        var args = this.getTemplateArgs(chartPath)
          const options = {
             silent: true
          } as ExecOptions;
@@ -57,9 +62,8 @@ class HelmRenderEngine extends RenderEngine {
         return overrideValues;
     }
 
-    private getTemplateArgs(): string[] {
+    private getTemplateArgs(chartPath: string): string[] {
         const releaseName = core.getInput('releaseName', {required : false});
-        const chartPath = core.getInput('helmChart', {required : true});
 
         let args: string[] = [];
         args.push('template');
