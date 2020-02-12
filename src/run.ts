@@ -37,13 +37,13 @@ class HelmRenderEngine extends RenderEngine {
 
         var dependencyArgs = this.getDependencyArgs(chartPath);
         
-        core.debug("Running helm dependency update command..");
+        console.log("Running helm dependency update command..");
         await utilities.execCommand(helmPath, dependencyArgs, options);
 
-        core.debug("Creating the template argument string..");
+        console.log("Creating the template argument string..");
         var args = this.getTemplateArgs(chartPath)
         
-        core.debug("Running helm template command..");
+        console.log("Running helm template command..");
         var result = await utilities.execCommand(helmPath, args, options)
         
         const pathToBakedManifest = this.getTemplatePath();
