@@ -29,10 +29,14 @@ abstract class RenderEngine {
 class HelmRenderEngine extends RenderEngine {
     public bake = async (): Promise<any> => {
         const helmPath = await getHelmPath();
-
         const chartPath = core.getInput('helmChart', {required : true});
+
+        var isSilent = true;
+        var silentInput = core.getInput('silent', {required : false});
+        if(silentInput && silentInput == 'false')
+            isSilent = false;
         const options = {
-            silent: true
+            silent: isSilent
         } as ExecOptions;
 
         var dependencyArgs = this.getDependencyArgs(chartPath);
@@ -138,8 +142,12 @@ class KustomizeRenderEngine extends RenderEngine {
             throw Error(util.format("kustomizationPath %s does not exist. Please check whether file exists or not.", kustomizationPath));
         }
         
+        var isSilent = true;
+        var silentInput = core.getInput('silent', {required : false});
+        if(silentInput && silentInput == 'false')
+            isSilent = false;
         const options = {
-            silent: true
+            silent: isSilent
         } as ExecOptions;
 
         core.debug("Running kubectl kustomize command..");
