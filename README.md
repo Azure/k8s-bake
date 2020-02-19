@@ -13,6 +13,7 @@ Sets output variable 'manifestsBundle' which contains the location of the manife
       overrides: |     
           replicas:2
       helm-version: 'latest' 
+      silent: 'false'
 ```
 
 #### Bake using Kompose

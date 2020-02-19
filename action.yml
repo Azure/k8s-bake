@@ -31,6 +31,9 @@ inputs:
   kompose-version:
       description: 'Version of kubectl. Installs a specific version of kompose binary'
       required: false
+  silent:
+      description: 'When set to true, the output of the bake command would not be shown.'
+      required: false
 outputs:
   manifestsBundle:
     description: 'The location of the manifest bundles created by bake action'
