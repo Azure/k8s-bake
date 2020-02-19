@@ -14,10 +14,10 @@ import { getKomposePath } from "./kompose-util"
 
 
 abstract class RenderEngine {
-    public bake!: () => Promise<any>;
+    public bake!: (isSilent: boolean) => Promise<any>;
     protected getTemplatePath = () => {
         const tempDirectory = process.env['RUNNER_TEMP'];
-        if(!!tempDirectory) {
+        if (!!tempDirectory) {
             return path.join(tempDirectory, 'baked-template-' + utilities.getCurrentTime().toString() + '.yaml');
         }
         else {
@@ -27,29 +27,25 @@ abstract class RenderEngine {
 }
 
 class HelmRenderEngine extends RenderEngine {
-    public bake = async (): Promise<any> => {
+    public bake = async (isSilent: boolean): Promise<any> => {
         const helmPath = await getHelmPath();
-        const chartPath = core.getInput('helmChart', {required : true});
+        const chartPath = core.getInput('helmChart', { required: true });
 
-        var isSilent = true;
-        var silentInput = core.getInput('silent', {required : false});
-        if(silentInput && silentInput == 'false')
-            isSilent = false;
         const options = {
             silent: isSilent
         } as ExecOptions;
 
         var dependencyArgs = this.getDependencyArgs(chartPath);
-        
+
         console.log("Running helm dependency update command..");
         await utilities.execCommand(helmPath, dependencyArgs, options);
 
         console.log("Creating the template argument string..");
         var args = this.getTemplateArgs(chartPath)
-        
+
         console.log("Running helm template command..");
         var result = await utilities.execCommand(helmPath, args, options)
-        
+
         const pathToBakedManifest = this.getTemplatePath();
         fs.writeFileSync(pathToBakedManifest, result.stdout);
         core.setOutput('manifestsBundle', pathToBakedManifest);
@@ -69,7 +65,7 @@ class HelmRenderEngine extends RenderEngine {
 
         return overrideValues;
     }
-    
+
     private getDependencyArgs(chartPath: string): string[] {
         let args: string[] = [];
         args.push('dependency');
@@ -80,8 +76,8 @@ class HelmRenderEngine extends RenderEngine {
     }
 
     private getTemplateArgs(chartPath: string): string[] {
-        const releaseName = core.getInput('releaseName', {required : false});
-        
+        const releaseName = core.getInput('releaseName', { required: false });
+
         let args: string[] = [];
         args.push('template');
         args.push(chartPath);
@@ -119,33 +115,33 @@ class HelmRenderEngine extends RenderEngine {
 }
 
 class KomposeRenderEngine extends RenderEngine {
-    public bake = async (): Promise<any> => {
-        var dockerComposeFilePath = core.getInput('dockerComposeFile', { required : true });
-        if( !ioUtil.exists(dockerComposeFilePath) ) {
+    public bake = async (isSilent: boolean): Promise<any> => {
+        var dockerComposeFilePath = core.getInput('dockerComposeFile', { required: true });
+        if (!ioUtil.exists(dockerComposeFilePath)) {
             throw Error(util.format("Docker compose file path %s does not exist. Please check the path specified", dockerComposeFilePath));
         }
 
-        const komposePath = await getKomposePath(); 
+        const options = {
+            silent: isSilent
+        } as ExecOptions;
+
+        const komposePath = await getKomposePath();
         const pathToBakedManifest = this.getTemplatePath();
         core.debug("Running kompose command..");
-        await utilities.execCommand(komposePath, ['convert', '-f', dockerComposeFilePath, '-o', pathToBakedManifest])
+        await utilities.execCommand(komposePath, ['convert', '-f', dockerComposeFilePath, '-o', pathToBakedManifest], options)
         core.setOutput('manifestsBundle', pathToBakedManifest);
     }
 }
 
 class KustomizeRenderEngine extends RenderEngine {
-    public bake = async () => {
+    public bake = async (isSilent: boolean) => {
         const kubectlPath = await getKubectlPath();
         await this.validateKustomize(kubectlPath);
         var kustomizationPath = core.getInput('kustomizationPath', { required: true });
-        if( !ioUtil.exists(kustomizationPath) ) {
+        if (!ioUtil.exists(kustomizationPath)) {
             throw Error(util.format("kustomizationPath %s does not exist. Please check whether file exists or not.", kustomizationPath));
         }
-        
-        var isSilent = true;
-        var silentInput = core.getInput('silent', {required : false});
-        if(silentInput && silentInput == 'false')
-            isSilent = false;
+
         const options = {
             silent: isSilent
         } as ExecOptions;
@@ -160,11 +156,11 @@ class KustomizeRenderEngine extends RenderEngine {
 
     private async validateKustomize(kubectlPath: string) {
         var result = await utilities.execCommand(kubectlPath, ['version', '--client=true', '-o', 'json']);
-        if(!!result.stdout) {
+        if (!!result.stdout) {
             const clientVersion = JSON.parse(result.stdout).clientVersion;
             if (clientVersion && parseInt(clientVersion.major) >= 1 && parseInt(clientVersion.minor) >= 14) {
                 // Do nothing
-            } 
+            }
             else {
                 throw new Error("kubectl client version equal to v1.14 or higher is required to use kustomize features");
             }
@@ -189,10 +185,15 @@ async function run() {
             throw Error("Unknown render engine");
     }
 
+    var isSilent = true;
+    var silentInput = core.getInput('silent', { required: false });
+    if (silentInput && silentInput == 'false')
+        isSilent = false;
+
     try {
-        await renderEngine.bake();
+        await renderEngine.bake(isSilent);
     }
-    catch(err) {
+    catch (err) {
         throw Error(util.format("Failed to run bake action. Error: %s", err));
     }
 }
