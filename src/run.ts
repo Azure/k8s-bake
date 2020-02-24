@@ -40,8 +40,10 @@ class HelmRenderEngine extends RenderEngine {
         console.log("Running helm dependency update command..");
         await utilities.execCommand(helmPath, dependencyArgs, options);
 
+        let isV3 = await this.isHelmV3(helmPath);
+
         console.log("Creating the template argument string..");
-        var args = this.getTemplateArgs(chartPath)
+        var args = this.getTemplateArgs(chartPath, isV3)
 
         console.log("Running helm template command..");
         var result = await utilities.execCommand(helmPath, args, options)
@@ -75,16 +77,24 @@ class HelmRenderEngine extends RenderEngine {
         return args;
     }
 
-    private getTemplateArgs(chartPath: string): string[] {
+    private getTemplateArgs(chartPath: string, isV3: boolean): string[] {
         const releaseName = core.getInput('releaseName', { required: false });
 
         let args: string[] = [];
         args.push('template');
-        args.push(chartPath);
-        if (releaseName) {
-            args.push('--name');
-            args.push(releaseName);
+        if (isV3) {
+            if (releaseName) {
+                args.push(releaseName);
+            }
+            args.push(chartPath);
+        } else {
+            args.push(chartPath);
+            if (releaseName) {
+                args.push('--name');
+                args.push(releaseName);
+            }    
         }
+        
         var overrideFilesInput = core.getInput('overrideFiles', { required: false });
         if (!!overrideFilesInput) {
             core.debug("Adding overrides file inputs");
@@ -111,6 +121,11 @@ class HelmRenderEngine extends RenderEngine {
         }
 
         return args;
+    }
+
+    private async isHelmV3(path: string) {
+        let result = await utilities.execCommand(path, ["template", "version", "--template", "{{.Version}}"]);
+        return result.stdout.split('.')[0] === 'v3';
     }
 }
 
