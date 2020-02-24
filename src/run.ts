@@ -40,7 +40,8 @@ class HelmRenderEngine extends RenderEngine {
         console.log("Running helm dependency update command..");
         await utilities.execCommand(helmPath, dependencyArgs, options);
 
-        let isV3 = await this.isHelmV3(helmPath);
+        let isV3 = true;
+        await this.isHelmV3(helmPath).then(() => { isV3 = true }).catch(() => { isV3 = false });
 
         console.log("Creating the template argument string..");
         var args = this.getTemplateArgs(chartPath, isV3)
