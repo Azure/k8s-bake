@@ -92,9 +92,9 @@ class HelmRenderEngine extends RenderEngine {
             if (releaseName) {
                 args.push('--name');
                 args.push(releaseName);
-            }    
+            }
         }
-        
+
         var overrideFilesInput = core.getInput('overrideFiles', { required: false });
         if (!!overrideFilesInput) {
             core.debug("Adding overrides file inputs");
@@ -124,7 +124,7 @@ class HelmRenderEngine extends RenderEngine {
     }
 
     private async isHelmV3(path: string) {
-        let result = await utilities.execCommand(path, ["template", "version", "--template", "{{.Version}}"]);
+        let result = await utilities.execCommand(path, ["version", "--template", "{{.Version}}"]);
         return result.stdout.split('.')[0] === 'v3';
     }
 }
