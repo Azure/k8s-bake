@@ -1,13 +1,13 @@
 # Kubernetes bake action
-Use this action to bake manifest file to be used for deployments using helm2, kustomize or kompose 
+Use this action to bake manifest file to be used for deployments using helm, kustomize or kompose 
 
 Sets output variable 'manifestsBundle' which contains the location of the manifest bundles created by bake action
 
-#### Bake using Helm2
+#### Bake using helm
 ```yaml
 - uses: azure/k8s-bake@v1
    with:
-      renderEngine: 'helm2'
+      renderEngine: 'helm'
       helmChart: './aks-helloworld/' 
       overrideFiles: './aks-helloworld/values-override.yaml'
       overrides: |     
@@ -70,7 +70,7 @@ jobs:
 
     - uses: azure/k8s-bake@v1
       with:
-        renderEngine: 'helm2'
+        renderEngine: 'helm'
         helmChart: './aks-helloworld/' 
         overrideFiles: './aks-helloworld/values-override.yaml'
         overrides: |     

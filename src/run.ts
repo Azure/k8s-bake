@@ -189,6 +189,7 @@ async function run() {
     const renderType = core.getInput('renderEngine', { required: true });
     let renderEngine: RenderEngine;
     switch (renderType) {
+        case 'helm':
         case 'helm2':
             renderEngine = new HelmRenderEngine();
             break;
