@@ -37,6 +37,9 @@ class HelmRenderEngine extends RenderEngine {
 
         var dependencyArgs = this.getDependencyArgs(chartPath);
 
+        console.log("Running helm init..");
+        await utilities.execCommand(helmPath, ['init', '--client-only'], options);
+
         console.log("Running helm dependency update command..");
         await utilities.execCommand(helmPath, dependencyArgs, options);
 
