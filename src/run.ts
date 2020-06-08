@@ -43,6 +43,14 @@ class HelmRenderEngine extends RenderEngine {
         console.log("Getting helm verion..");
         let isV3 = true;
         await this.isHelmV3(helmPath).then(() => { isV3 = true }).catch(() => { isV3 = false });
+        
+        try {
+            if (!isV3) {
+                await utilities.execCommand(helmPath, ['init', '--client-only'], options);
+            }
+        } catch (ex) {
+            core.warning(util.format('Could not run helm init command: ', ex));
+        }
 
         console.log("Creating the template argument string..");
         var args = this.getTemplateArgs(chartPath, isV3)
