@@ -17,7 +17,7 @@ abstract class RenderEngine {
     public bake!: () => Promise<any>;
     protected getTemplatePath = () => {
         const tempDirectory = process.env['RUNNER_TEMP'];
-        if(!!tempDirectory) {
+        if (!!tempDirectory) {
             return path.join(tempDirectory, 'baked-template-' + utilities.getCurrentTime().toString() + '.yaml');
         }
         else {
@@ -30,22 +30,34 @@ class HelmRenderEngine extends RenderEngine {
     public bake = async (): Promise<any> => {
         const helmPath = await getHelmPath();
 
-        const chartPath = core.getInput('helmChart', {required : true});
+        const chartPath = core.getInput('helmChart', { required: true });
         const options = {
             silent: true
         } as ExecOptions;
 
         var dependencyArgs = this.getDependencyArgs(chartPath);
-        
+
         console.log("Running helm dependency update command..");
         await utilities.execCommand(helmPath, dependencyArgs, options);
 
+        console.log("Getting helm verion..");
+        let isV3 = true;
+        await this.isHelmV3(helmPath).then(() => { isV3 = true }).catch(() => { isV3 = false });
+
+        try {
+            if (!isV3) {
+                await utilities.execCommand(helmPath, ['init', '--client-only'], options);
+            }
+        } catch (ex) {
+            core.warning(util.format('Could not run helm init command: ', ex));
+        }
+
         console.log("Creating the template argument string..");
         var args = this.getTemplateArgs(chartPath)
-        
+
         console.log("Running helm template command..");
         var result = await utilities.execCommand(helmPath, args, options)
-        
+
         const pathToBakedManifest = this.getTemplatePath();
         fs.writeFileSync(pathToBakedManifest, result.stdout);
         core.setOutput('manifestsBundle', pathToBakedManifest);
@@ -65,7 +77,7 @@ class HelmRenderEngine extends RenderEngine {
 
         return overrideValues;
     }
-    
+
     private getDependencyArgs(chartPath: string): string[] {
         let args: string[] = [];
         args.push('dependency');
@@ -76,8 +88,8 @@ class HelmRenderEngine extends RenderEngine {
     }
 
     private getTemplateArgs(chartPath: string): string[] {
-        const releaseName = core.getInput('releaseName', {required : false});
-        
+        const releaseName = core.getInput('releaseName', { required: false });
+
         let args: string[] = [];
         args.push('template');
         args.push(chartPath);
@@ -116,12 +128,12 @@ class HelmRenderEngine extends RenderEngine {
 
 class KomposeRenderEngine extends RenderEngine {
     public bake = async (): Promise<any> => {
-        var dockerComposeFilePath = core.getInput('dockerComposeFile', { required : true });
-        if( !ioUtil.exists(dockerComposeFilePath) ) {
+        var dockerComposeFilePath = core.getInput('dockerComposeFile', { required: true });
+        if (!ioUtil.exists(dockerComposeFilePath)) {
             throw Error(util.format("Docker compose file path %s does not exist. Please check the path specified", dockerComposeFilePath));
         }
 
-        const komposePath = await getKomposePath(); 
+        const komposePath = await getKomposePath();
         const pathToBakedManifest = this.getTemplatePath();
         core.debug("Running kompose command..");
         await utilities.execCommand(komposePath, ['convert', '-f', dockerComposeFilePath, '-o', pathToBakedManifest])
@@ -134,10 +146,10 @@ class KustomizeRenderEngine extends RenderEngine {
         const kubectlPath = await getKubectlPath();
         await this.validateKustomize(kubectlPath);
         var kustomizationPath = core.getInput('kustomizationPath', { required: true });
-        if( !ioUtil.exists(kustomizationPath) ) {
+        if (!ioUtil.exists(kustomizationPath)) {
             throw Error(util.format("kustomizationPath %s does not exist. Please check whether file exists or not.", kustomizationPath));
         }
-        
+
         const options = {
             silent: true
         } as ExecOptions;
@@ -152,11 +164,11 @@ class KustomizeRenderEngine extends RenderEngine {
 
     private async validateKustomize(kubectlPath: string) {
         var result = await utilities.execCommand(kubectlPath, ['version', '--client=true', '-o', 'json']);
-        if(!!result.stdout) {
+        if (!!result.stdout) {
             const clientVersion = JSON.parse(result.stdout).clientVersion;
             if (clientVersion && parseInt(clientVersion.major) >= 1 && parseInt(clientVersion.minor) >= 14) {
                 // Do nothing
-            } 
+            }
             else {
                 throw new Error("kubectl client version equal to v1.14 or higher is required to use kustomize features");
             }
@@ -184,7 +196,7 @@ async function run() {
     try {
         await renderEngine.bake();
     }
-    catch(err) {
+    catch (err) {
         throw Error(util.format("Failed to run bake action. Error: %s", err));
     }
 }
