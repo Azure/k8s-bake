@@ -66,12 +66,14 @@ class HelmRenderEngine extends RenderEngine {
     }
 
     private addChartPathToEnvVariable(path: string) {
-        if (!process.env.HELM_CHART_PATHS) {
-            process.env.HELM_CHART_PATHS = path;
+        let helmChartPaths = process.env.HELM_CHART_PATHS;
+        if (!helmChartPaths) {
+            helmChartPaths = path;
         }
         else {
-            process.env.HELM_CHART_PATHS += ";" + path;
-        }
+            helmChartPaths += ";" + path;
+        } 
+        core.exportVariable("HELM_CHART_PATHS", helmChartPaths);
     }
 
     private getOverrideValues(overrides: string[]) {
