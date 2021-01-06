@@ -3,6 +3,7 @@
 
 import * as os from 'os';
 import * as util from 'util';
+import * as core from '@actions/core';
 import { ToolRunner } from '@actions/exec/lib/toolrunner';
 import { ExecOptions } from "@actions/exec/lib/interfaces";
 
@@ -26,6 +27,17 @@ export function getExecutableExtension(): string {
         return '.exe';
     }
     return '';
+}
+
+export function addChartPathToEnvVariable(path: string) {
+    let helmChartPaths = process.env.HELM_CHART_PATHS;
+    if (!helmChartPaths) {
+        helmChartPaths = path;
+    }
+    else {
+        helmChartPaths = `${helmChartPaths};${path}`
+    } 
+    core.exportVariable("HELM_CHART_PATHS", helmChartPaths);
 }
 
 export async function execCommand(toolPath: string, args: string[], options: ExecOptions = {} as ExecOptions) : Promise<ExecResult> {
