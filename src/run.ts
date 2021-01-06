@@ -31,6 +31,8 @@ class HelmRenderEngine extends RenderEngine {
         const helmPath = await getHelmPath();
         const chartPath = core.getInput('helmChart', { required: true });
 
+        this.addChartPathToEnvVariable(chartPath);
+
         const options = {
             silent: isSilent
         } as ExecOptions;
@@ -61,6 +63,15 @@ class HelmRenderEngine extends RenderEngine {
         const pathToBakedManifest = this.getTemplatePath();
         fs.writeFileSync(pathToBakedManifest, result.stdout);
         core.setOutput('manifestsBundle', pathToBakedManifest);
+    }
+
+    private addChartPathToEnvVariable(path: string) {
+        if (!process.env.HELM_CHART_PATHS) {
+            process.env.HELM_CHART_PATHS = path;
+        }
+        else {
+            process.env.HELM_CHART_PATHS += ";" + path;
+        }
     }
 
     private getOverrideValues(overrides: string[]) {
