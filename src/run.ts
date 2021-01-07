@@ -46,7 +46,7 @@ class HelmRenderEngine extends RenderEngine {
 
         try {
             if (!isV3) {
-                await utilities.execCommand(helmPath, ['init', '--client-only'], options);
+                await utilities.execCommand(helmPath, ['init', '--client-only', '--stable-repo-url', 'https://charts.helm.sh/stable'], options);
             }
         } catch (ex) {
             core.warning(util.format('Could not run helm init command: ', ex));
