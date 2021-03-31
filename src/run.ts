@@ -26,7 +26,7 @@ abstract class RenderEngine {
     }
 }
 
-class HelmRenderEngine extends RenderEngine {
+export class HelmRenderEngine extends RenderEngine {
     public bake = async (isSilent: boolean): Promise<any> => {
         const helmPath = await getHelmPath();
         const chartPath = core.getInput('helmChart', { required: true });
@@ -42,7 +42,7 @@ class HelmRenderEngine extends RenderEngine {
 
         console.log("Getting helm version..");
         let isV3 = true;
-        await this.isHelmV3(helmPath).then(() => { isV3 = true }).catch(() => { isV3 = false });
+        await this.isHelmV3(helmPath).then((result) => { isV3 = result }).catch(() => { isV3 = false });
         
         try {
             if (!isV3) {
@@ -139,7 +139,7 @@ class HelmRenderEngine extends RenderEngine {
     }
 }
 
-class KomposeRenderEngine extends RenderEngine {
+export class KomposeRenderEngine extends RenderEngine {
     public bake = async (isSilent: boolean): Promise<any> => {
         var dockerComposeFilePath = core.getInput('dockerComposeFile', { required: true });
         if (!ioUtil.exists(dockerComposeFilePath)) {
@@ -158,7 +158,7 @@ class KomposeRenderEngine extends RenderEngine {
     }
 }
 
-class KustomizeRenderEngine extends RenderEngine {
+export class KustomizeRenderEngine extends RenderEngine {
     public bake = async (isSilent: boolean) => {
         const kubectlPath = await getKubectlPath();
         await this.validateKustomize(kubectlPath);
@@ -193,7 +193,7 @@ class KustomizeRenderEngine extends RenderEngine {
     }
 }
 
-async function run() {
+export async function run() {
     const renderType = core.getInput('renderEngine', { required: true });
     let renderEngine: RenderEngine;
     switch (renderType) {

@@ -20,7 +20,7 @@ export interface NameValuePair {
     value: string;
 }
 
-function getHelmDownloadURL(version: string): string {
+export function getHelmDownloadURL(version: string): string {
     switch (os.type()) {
         case 'Linux':
             return util.format('https://get.helm.sh/helm-%s-linux-amd64.zip', version);
@@ -35,7 +35,7 @@ function getHelmDownloadURL(version: string): string {
     }
 }
 
-async function getStableHelmVersion(): Promise<string> {
+export async function getStableHelmVersion(): Promise<string> {
     return toolCache.downloadTool(helmLatestReleaseUrl).then((downloadPath) => {
         const response = JSON.parse(fs.readFileSync(downloadPath, 'utf8').toString().trim());
         if (!response.tag_name) {
@@ -51,7 +51,7 @@ async function getStableHelmVersion(): Promise<string> {
 }
 
 
-var walkSync = function(dir, filelist, fileToFind) {
+export var walkSync = function(dir, filelist, fileToFind) {
     var files = fs.readdirSync(dir);
     filelist = filelist || [];
     files.forEach(function(file) {
@@ -69,7 +69,7 @@ var walkSync = function(dir, filelist, fileToFind) {
     return filelist;
   };
   
-async function downloadHelm(version: string): Promise<string> {
+export async function downloadHelm(version: string): Promise<string> {
     if (!version) { version = await getStableHelmVersion(); }
     let cachedToolpath = toolCache.find(helmToolName, version);
     if (!cachedToolpath) {
@@ -94,7 +94,7 @@ async function downloadHelm(version: string): Promise<string> {
     return helmpath;
 }
 
-function findHelm(rootFolder: string): string {
+export function findHelm(rootFolder: string): string {
     fs.chmodSync(rootFolder, '777');
     var filelist: string[] = [];
     walkSync(rootFolder, filelist, helmToolName + getExecutableExtension());
@@ -133,7 +133,7 @@ export async function getHelmPath() {
     return helmPath;
 }
 
-async function installHelm(version: string) {
+export async function installHelm(version: string) {
     if (isEqual(version, 'latest')) {
         version = await getStableHelmVersion();
     }
