@@ -6,14 +6,14 @@ Sets output variable 'manifestsBundle' which contains the location of the manife
 #### Bake using helm
 ```yaml
 - uses: azure/k8s-bake@v1
-  with:
-    renderEngine: 'helm'
-    helmChart: './aks-helloworld/' 
-    overrideFiles: './aks-helloworld/values-override.yaml'
-    overrides: |     
-        replicas:2
-    helm-version: 'latest' 
-    silent: 'false'
+   with:
+      renderEngine: 'helm'
+      helmChart: './aks-helloworld/' 
+      overrideFiles: './aks-helloworld/values-override.yaml'
+      overrides: |     
+          replicas:2
+      helm-version: 'latest' 
+      silent: 'false'
 ```
 
 #### Bake using Kompose

@@ -1,20 +1,20 @@
 name: 'Kubernetes bake'
-description: 'Use this action to bake manifest file to be used for deployments using helm2, kustomize or kompose'
+description: 'Use this action to bake manifest file to be used for deployments using helm, kustomize or kompose'
 inputs: 
   renderEngine:
-    description: 'Acceptable values: helm2 or kompose or kustomize'
+    description: 'Acceptable values: helm or kompose or kustomize'
     required: true
   helmChart: 
-    description: 'Required if renderEngine == helm2. Helm chart to bake.'
+    description: 'Required if renderEngine == helm. Helm chart to bake.'
     required: false
   overrideFiles:
-    description: 'Relevant if renderEngine == helm2. Array of path to override files. Each path should be mentioned on a newline'
+    description: 'Relevant if renderEngine == helm. Array of path to override files. Each path should be mentioned on a newline'
     required: false
   overrides:
-    description: 'Relevant if renderEngine == helm2. Override values to set.'
+    description: 'Relevant if renderEngine == helm. Override values to set.'
     required: false
   releaseName:
-    description: 'Relevant if renderEngine == helm2. Release name to be used for Helm option.'
+    description: 'Relevant if renderEngine == helm. Release name to be used for Helm option.'
     required: false
   kustomizationPath:
     description: 'Required if renderEngine == kustomization. Path to directory or the Git repository containing kustomization.yaml file.'
@@ -30,6 +30,9 @@ inputs:
       required: false
   kompose-version:
       description: 'Version of kubectl. Installs a specific version of kompose binary'
+      required: false
+  silent:
+      description: 'When set to true, the output of the bake command would not be shown.'
       required: false
 outputs:
   manifestsBundle:

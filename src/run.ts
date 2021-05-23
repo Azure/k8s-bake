@@ -14,7 +14,7 @@ import { getKomposePath } from "./kompose-util"
 
 
 abstract class RenderEngine {
-    public bake!: () => Promise<any>;
+    public bake!: (isSilent: boolean) => Promise<any>;
     protected getTemplatePath = () => {
         const tempDirectory = process.env['RUNNER_TEMP'];
         if (!!tempDirectory) {
@@ -26,13 +26,13 @@ abstract class RenderEngine {
     }
 }
 
-class HelmRenderEngine extends RenderEngine {
-    public bake = async (): Promise<any> => {
+export class HelmRenderEngine extends RenderEngine {
+    public bake = async (isSilent: boolean): Promise<any> => {
         const helmPath = await getHelmPath();
-
         const chartPath = core.getInput('helmChart', { required: true });
+
         const options = {
-            silent: true
+            silent: isSilent
         } as ExecOptions;
 
         var dependencyArgs = this.getDependencyArgs(chartPath);
@@ -40,10 +40,10 @@ class HelmRenderEngine extends RenderEngine {
         console.log("Running helm dependency update command..");
         await utilities.execCommand(helmPath, dependencyArgs, options);
 
-        console.log("Getting helm verion..");
+        console.log("Getting helm version..");
         let isV3 = true;
-        await this.isHelmV3(helmPath).then(() => { isV3 = true }).catch(() => { isV3 = false });
-
+        await this.isHelmV3(helmPath).then((result) => { isV3 = result }).catch(() => { isV3 = false });
+        
         try {
             if (!isV3) {
                 await utilities.execCommand(helmPath, ['init', '--client-only', '--stable-repo-url', 'https://charts.helm.sh/stable'], options);
@@ -53,7 +53,7 @@ class HelmRenderEngine extends RenderEngine {
         }
 
         console.log("Creating the template argument string..");
-        var args = this.getTemplateArgs(chartPath)
+        var args = this.getTemplateArgs(chartPath, isV3)
 
         console.log("Running helm template command..");
         var result = await utilities.execCommand(helmPath, args, options)
@@ -87,16 +87,24 @@ class HelmRenderEngine extends RenderEngine {
         return args;
     }
 
-    private getTemplateArgs(chartPath: string): string[] {
+    private getTemplateArgs(chartPath: string, isV3: boolean): string[] {
         const releaseName = core.getInput('releaseName', { required: false });
 
         let args: string[] = [];
         args.push('template');
-        args.push(chartPath);
-        if (releaseName) {
-            args.push('--name');
-            args.push(releaseName);
+        if (isV3) {
+            if (releaseName) {
+                args.push(releaseName);
+            }
+            args.push(chartPath);
+        } else {
+            args.push(chartPath);
+            if (releaseName) {
+                args.push('--name');
+                args.push(releaseName);
+            }
         }
+
         var overrideFilesInput = core.getInput('overrideFiles', { required: false });
         if (!!overrideFilesInput) {
             core.debug("Adding overrides file inputs");
@@ -124,25 +132,34 @@ class HelmRenderEngine extends RenderEngine {
 
         return args;
     }
+
+    private async isHelmV3(path: string) {
+        let result = await utilities.execCommand(path, ["version", "--template", "{{.Version}}"], { silent: true });
+        return result.stdout.split('.')[0] === 'v3';
+    }
 }
 
-class KomposeRenderEngine extends RenderEngine {
-    public bake = async (): Promise<any> => {
+export class KomposeRenderEngine extends RenderEngine {
+    public bake = async (isSilent: boolean): Promise<any> => {
         var dockerComposeFilePath = core.getInput('dockerComposeFile', { required: true });
         if (!ioUtil.exists(dockerComposeFilePath)) {
             throw Error(util.format("Docker compose file path %s does not exist. Please check the path specified", dockerComposeFilePath));
         }
 
+        const options = {
+            silent: isSilent
+        } as ExecOptions;
+
         const komposePath = await getKomposePath();
         const pathToBakedManifest = this.getTemplatePath();
         core.debug("Running kompose command..");
-        await utilities.execCommand(komposePath, ['convert', '-f', dockerComposeFilePath, '-o', pathToBakedManifest])
+        await utilities.execCommand(komposePath, ['convert', '-f', dockerComposeFilePath, '-o', pathToBakedManifest], options)
         core.setOutput('manifestsBundle', pathToBakedManifest);
     }
 }
 
-class KustomizeRenderEngine extends RenderEngine {
-    public bake = async () => {
+export class KustomizeRenderEngine extends RenderEngine {
+    public bake = async (isSilent: boolean) => {
         const kubectlPath = await getKubectlPath();
         await this.validateKustomize(kubectlPath);
         var kustomizationPath = core.getInput('kustomizationPath', { required: true });
@@ -151,7 +168,7 @@ class KustomizeRenderEngine extends RenderEngine {
         }
 
         const options = {
-            silent: true
+            silent: isSilent
         } as ExecOptions;
 
         core.debug("Running kubectl kustomize command..");
@@ -176,10 +193,11 @@ class KustomizeRenderEngine extends RenderEngine {
     }
 }
 
-async function run() {
+export async function run() {
     const renderType = core.getInput('renderEngine', { required: true });
     let renderEngine: RenderEngine;
     switch (renderType) {
+        case 'helm':
         case 'helm2':
             renderEngine = new HelmRenderEngine();
             break;
@@ -193,8 +211,13 @@ async function run() {
             throw Error("Unknown render engine");
     }
 
+    var isSilent = true;
+    var silentInput = core.getInput('silent', { required: false });
+    if (silentInput && silentInput == 'false')
+        isSilent = false;
+
     try {
-        await renderEngine.bake();
+        await renderEngine.bake(isSilent);
     }
     catch (err) {
         throw Error(util.format("Failed to run bake action. Error: %s", err));
@@ -202,3 +225,4 @@ async function run() {
 }
 
 run().catch(core.setFailed);
+© 2021 GitHub, Inc.
