@@ -19,20 +19,19 @@ Sets output variable 'manifestsBundle' which contains the location of the manife
 #### Bake using Kompose
 ```yaml
 - uses: azure/k8s-bake@v1
-   with:
-     renderEngine: 'kompose'
-        dockerComposeFile: './docker-compose.yml'
-        kompose-version: 'latest'     
+  with:
+    renderEngine: 'kompose'
+    dockerComposeFile: './docker-compose.yml'
+    kompose-version: 'latest'     
 ```
 
 #### Bake using Kubernetes Kustomize
 ```yaml
 - uses: azure/k8s-bake@v1
-   with:
-      with:
-        renderEngine: 'kustomize'
-        kustomizationPath: './kustomizeexample/'
-        kubectl-version: 'latest'
+  with:
+    renderEngine: 'kustomize'
+    kustomizationPath: './kustomizeexample/'
+    kubectl-version: 'latest'
 ```
 Refer to the action metadata file for details about all the inputs https://github.com/Azure/k8s-bake/blob/master/action.yml
 

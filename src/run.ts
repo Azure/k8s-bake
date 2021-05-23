@@ -225,3 +225,4 @@ export async function run() {
 }
 
 run().catch(core.setFailed);
+© 2021 GitHub, Inc.
