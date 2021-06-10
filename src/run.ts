@@ -26,7 +26,7 @@ abstract class RenderEngine {
     }
 }
 
-class HelmRenderEngine extends RenderEngine {
+export class HelmRenderEngine extends RenderEngine {
     public bake = async (isSilent: boolean): Promise<any> => {
         const helmPath = await getHelmPath();
         const chartPath = core.getInput('helmChart', { required: true });
@@ -131,7 +131,7 @@ class HelmRenderEngine extends RenderEngine {
     }
 }
 
-class KomposeRenderEngine extends RenderEngine {
+export class KomposeRenderEngine extends RenderEngine {
     public bake = async (isSilent: boolean): Promise<any> => {
         var dockerComposeFilePath = core.getInput('dockerComposeFile', { required: true });
         if (!ioUtil.exists(dockerComposeFilePath)) {
@@ -150,7 +150,7 @@ class KomposeRenderEngine extends RenderEngine {
     }
 }
 
-class KustomizeRenderEngine extends RenderEngine {
+export class KustomizeRenderEngine extends RenderEngine {
     public bake = async (isSilent: boolean) => {
         const kubectlPath = await getKubectlPath();
         await this.validateKustomize(kubectlPath);
@@ -185,10 +185,11 @@ class KustomizeRenderEngine extends RenderEngine {
     }
 }
 
-async function run() {
+export async function run() {
     const renderType = core.getInput('renderEngine', { required: true });
     let renderEngine: RenderEngine;
     switch (renderType) {
+        case 'helm':
         case 'helm2':
             renderEngine = new HelmRenderEngine();
             break;
@@ -216,3 +217,4 @@ async function run() {
 }
 
 run().catch(core.setFailed);
+© 2021 GitHub, Inc.

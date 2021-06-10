@@ -40,7 +40,7 @@ export async function getKomposePath() {
     return komposePath;
 }
 
-async function downloadKompose(version: string): Promise<string> {
+export async function downloadKompose(version: string): Promise<string> {
     let cachedToolpath = toolCache.find(komposeToolName, version);
     let komposeDownloadPath = '';
     if (!cachedToolpath) {
@@ -58,7 +58,7 @@ async function downloadKompose(version: string): Promise<string> {
     return komposePath;
 }
 
-async function installKompose(version: string) {
+export async function installKompose(version: string) {
     if (isEqual(version, 'latest')) {
         version = stableKomposeVersion;
     }
@@ -66,7 +66,7 @@ async function installKompose(version: string) {
     return await downloadKompose(version);
 }
 
-function getDownloadUrl(version): string {
+export function getDownloadUrl(version): string {
     switch (os.type()) {
         case 'Linux':
             return `https://github.com/kubernetes/kompose/releases/download/${version}/kompose-linux-amd64`;

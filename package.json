@@ -7,16 +7,20 @@
     "dependencies": {
         "@actions/tool-cache": "1.1.2",
         "@actions/io": "^1.0.0",
-        "@actions/core": "^1.0.0",
+        "@actions/core": "^1.2.6",
         "@actions/exec": "^1.0.0"
     },
     "main": "lib/run.js",
     "scripts": {
         "build": "tsc",
-        "test": "echo \"Error: no test specified\" && exit 1"
+        "test": "jest",
+        "test-coverage": "jest --coverage"
     },
     "devDependencies": {
         "@types/node": "^12.0.10",
-        "typescript": "^3.5.2"
+        "typescript": "^3.5.2",
+        "jest": "^26.0.1",
+        "@types/jest": "^25.2.2",
+        "ts-jest": "^25.5.1"
     }
 }
