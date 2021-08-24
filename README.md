@@ -3,6 +3,8 @@ Use this action to bake manifest file to be used for deployments using helm, kus
 
 Sets output variable 'manifestsBundle' which contains the location of the manifest bundles created by bake action
 
+## Example
+
 #### Bake using helm
 ```yaml
 - uses: azure/k8s-bake@v1
