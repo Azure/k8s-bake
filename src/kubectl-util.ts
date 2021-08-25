@@ -58,7 +58,7 @@ export async function downloadKubectl(version: string): Promise<string> {
     }
 
     const kubectlPath = path.join(cachedToolpath, kubectlToolName + getExecutableExtension());
-    fs.chmodSync(kubectlPath, "777");
+    fs.chmodSync(kubectlPath, '777');
     return kubectlPath;
 }
 
