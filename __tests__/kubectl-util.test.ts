@@ -166,7 +166,7 @@ describe('Testing all funcitons in kubectl-util file.', () => {
         jest.spyOn(toolCache, 'find').mockReturnValue('pathToKubectl');
         jest.spyOn(os, 'type').mockReturnValue('Windows_NT');
 
-        expect(await kubectlUtil.getKubectlPath()).toBe('pathToKubectl');
+        expect(await kubectlUtil.getKubectlPath()).toBe(path.join('pathToKubectl', 'kubectl.exe'));
         expect(core.getInput).toBeCalledWith('kubectl-version', {required: false});
         expect(toolCache.find).toBeCalledWith('kubectl', 'v2.0.0');
     });
