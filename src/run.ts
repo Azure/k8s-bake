@@ -31,6 +31,7 @@ export class HelmRenderEngine extends RenderEngine {
         const helmPath = await getHelmPath();
         const chartPath = core.getInput('helmChart', { required: true });
 
+        console.log(`helmPath : ${helmPath}`);
         const options = {
             silent: isSilent
         } as ExecOptions;
