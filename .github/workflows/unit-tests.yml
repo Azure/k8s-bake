@@ -18,8 +18,8 @@ jobs:
       run: |
         echo $(node --version)
         echo $(npm -v)
-        npm install -g n
-        n stable
+        sudo npm install -g n
+        sudo n stable
         npm install
         npm test
         echo $(node --version)
