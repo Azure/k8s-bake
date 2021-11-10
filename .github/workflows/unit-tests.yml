@@ -16,6 +16,7 @@ jobs:
     - uses: actions/checkout@v1
     - name: Running L0 tests.
       run: |
-        npm i npm@latest
+        npm install
         npm test 
         echo $(node --version)
+        echo $(npm -v)
