@@ -22,6 +22,7 @@ jobs:
         sudo n stable
         echo $(node --version)
         echo $(npm -v)
+        npm cache verify
         npm install
         npm test
         echo $(node --version)
