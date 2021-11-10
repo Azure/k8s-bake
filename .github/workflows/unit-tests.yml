@@ -20,6 +20,8 @@ jobs:
         echo $(npm -v)
         sudo npm install -g n
         sudo n stable
+        echo $(node --version)
+        echo $(npm -v)
         npm install
         npm test
         echo $(node --version)
