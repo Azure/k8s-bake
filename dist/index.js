@@ -90,6 +90,7 @@ function downloadHelm(version) {
                 throw new Error(util.format("Failed to download Helm from location %s. Error: %s ", getHelmDownloadURL(version), exception));
             }
             fs.chmodSync(helmDownloadPath, '777');
+            core.info("DOWNLOADED, trying to unzip");
             const unzipedHelmPath = yield toolCache.extractZip(helmDownloadPath);
             cachedToolpath = yield toolCache.cacheDir(unzipedHelmPath, helmToolName, version);
         }
@@ -3765,6 +3766,8 @@ exports.extractXar = extractXar;
  */
 function extractZip(file, dest) {
     return __awaiter(this, void 0, void 0, function* () {
+        core.info("TRYING TO EXTRACT ZIP : ");
+        core.info(`${file}   ${dest}`)
         if (!file) {
             throw new Error("parameter 'file' is required");
         }
