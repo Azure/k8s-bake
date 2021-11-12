@@ -3772,6 +3772,7 @@ function extractZip(file, dest) {
             throw new Error("parameter 'file' is required");
         }
         dest = yield _createExtractFolder(dest);
+        core.debug("DEST: ", dest);
         if (IS_WINDOWS) {
             yield extractZipWin(file, dest);
         }
@@ -3835,6 +3836,7 @@ function extractZipWin(file, dest) {
 }
 function extractZipNix(file, dest) {
     return __awaiter(this, void 0, void 0, function* () {
+        core.debug("extractZipNix: ", file, dest);
         const unzipPath = yield io.which('unzip', true);
         const args = [file];
         if (!core.isDebug()) {
