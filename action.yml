@@ -44,4 +44,4 @@ runs:
   steps:
     - run: npm install
     - run: npm build
-  main: 'lib/run.js'
+  main: 'dist/index.js'
