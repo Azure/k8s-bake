@@ -532,6 +532,7 @@ class KomposeRenderEngine extends RenderEngine {
             const komposePath = yield (0, kompose_util_1.getKomposePath)();
             const pathToBakedManifest = this.getTemplatePath();
             core.debug("Running kompose command..");
+            core.debug("VALUES : ", dockerComposeFilePath, pathToBakedManifest, options);
             yield utilities.execCommand(komposePath, ['convert', '-f', dockerComposeFilePath, '-o', pathToBakedManifest], options);
             core.setOutput('manifestsBundle', pathToBakedManifest);
         });
@@ -666,6 +667,7 @@ function execCommand(toolPath, args, options = {}) {
         };
         let toolRunner = new toolrunner_1.ToolRunner(toolPath, args, options);
         const result = yield toolRunner.exec();
+        core.debug("RESULT : ", result);
         if (result != 0) {
             if (!!execResult.stderr) {
                 throw Error(execResult.stderr);
