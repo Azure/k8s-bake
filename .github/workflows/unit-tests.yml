@@ -19,6 +19,6 @@ jobs:
         echo $(node -v)
         echo $(npm -v)
         npm install n 
-        npm latest
+        n latest
         npm install
         npm test
