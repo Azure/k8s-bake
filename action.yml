@@ -41,7 +41,4 @@ branding:
   color: 'green' # optional, decorates the entry in the GitHub Marketplace
 runs:
   using: 'node12'
-  steps:
-    - run: npm install
-    - run: npm build
-  main: 'dist/index.js'
+  main: 'lib/run.js'
