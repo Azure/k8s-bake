@@ -18,5 +18,7 @@ jobs:
       run: |
         echo $(node -v)
         echo $(npm -v)
-        npm install --force
+        npm install n 
+        npm latest
+        npm install
         npm test
