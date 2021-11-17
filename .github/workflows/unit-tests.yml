@@ -18,6 +18,7 @@ jobs:
       run: |
         sudo npm install n 
         sudo n latest
-        sudo npm i npm@latest
+        echo $(node -v)
+        echo $(npm -v)
         npm install
         npm test
