@@ -96,15 +96,14 @@ export class HelmRenderEngine extends RenderEngine {
             if (releaseName) {
                 args.push(releaseName);
             }
-            args.push(chartPath);
         } else {
-            args.push(chartPath);
             if (releaseName) {
                 args.push('--name');
                 args.push(releaseName);
             }
         }
-
+        args.push(chartPath);
+        
         var overrideFilesInput = core.getInput('overrideFiles', { required: false });
         if (!!overrideFilesInput) {
             core.debug("Adding overrides file inputs");
@@ -183,10 +182,7 @@ export class KustomizeRenderEngine extends RenderEngine {
         var result = await utilities.execCommand(kubectlPath, ['version', '--client=true', '-o', 'json']);
         if (!!result.stdout) {
             const clientVersion = JSON.parse(result.stdout).clientVersion;
-            if (clientVersion && parseInt(clientVersion.major) >= 1 && parseInt(clientVersion.minor) >= 14) {
-                // Do nothing
-            }
-            else {
+            if (!clientVersion || parseInt(clientVersion.major) < 1 || parseInt(clientVersion.minor) < 14) {
                 throw new Error("kubectl client version equal to v1.14 or higher is required to use kustomize features");
             }
         }
