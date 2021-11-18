@@ -31,6 +31,7 @@ jobs:
           ls
           ls testResources
           ls testResources/Helm
+          ls testResources/Helm/HelmCharts
       
       - name: Bake using Helm on ${{ matrix.os }}
         uses: ./k8s-bake
