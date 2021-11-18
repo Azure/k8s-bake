@@ -34,7 +34,7 @@ jobs:
           ls testResources/Helm
       
       - name: Bake using Helm on ${{ matrix.os }}
-        uses: ./
+        uses: ./k8s-bake
         with:
           renderEngine: 'helm'
           helmChart: './testResources/Helm/HelmCharts' 
