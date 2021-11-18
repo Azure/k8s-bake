@@ -28,7 +28,6 @@ jobs:
         run: |
           cd k8s-bake
           npm install --prod
-          ls testResources/Helm/HelmCharts
       
       - name: Bake using Helm on ${{ matrix.os }}
         uses: ./k8s-bake
@@ -51,7 +50,7 @@ jobs:
         uses: ./k8s-bake
         with:
           renderEngine: 'kompose'
-          dockerComposeFile: './testResources/Kompose/docker-compose.yml'
+          dockerComposeFile: './k8s-bake/testResources/Kompose/docker-compose.yml'
           kompose-version: 'latest' 
         id: kompose-bake
 
@@ -64,7 +63,7 @@ jobs:
         uses: ./k8s-bake
         with:
           renderEngine: 'kustomize'
-          kustomizationPath: './testResources/Kustomize'
+          kustomizationPath: './k8s-bake/testResources/Kustomize'
           kubectl-version: 'latest' 
         id: kustomize-bake
 
