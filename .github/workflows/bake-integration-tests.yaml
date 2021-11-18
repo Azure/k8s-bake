@@ -20,6 +20,7 @@ jobs:
         with: 
             path: k8s-bake
             ref: rsamigullin/bake-update1
+            repository: rsamigullin/k8s-bake
 
       - name: Building latest changes
         run: |
