@@ -34,10 +34,10 @@ jobs:
         uses: ./k8s-bake
         with:
           renderEngine: 'helm'
-          helmChart: './testResources/Helm/HelmCharts/Chart.yaml' 
+          helmChart: './k8s-bake/testResources/Helm/HelmCharts/Chart.yaml' 
           helm-version: 'latest' 
           silent: 'false'
-          overrideFiles: './testResources/Helm/values.yaml'
+          overrideFiles: './k8s-bake/testResources/Helm/values.yaml'
           overrides: |     
             serviceName:aks-helloworld-test 
         id: helm-bake
