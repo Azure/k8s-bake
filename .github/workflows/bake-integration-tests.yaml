@@ -29,6 +29,7 @@ jobs:
           cd k8s-bake
           npm install --prod
           ls
+          ls testResources
       
       - name: Bake using Helm on ${{ matrix.os }}
         uses: ./k8s-bake
