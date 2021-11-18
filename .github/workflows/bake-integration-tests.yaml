@@ -34,22 +34,16 @@ jobs:
           ls testResources/Helm
       
       - name: Bake using Helm on ${{ matrix.os }}
-        - uses: actions/checkout@v2
-          with:
-            path: 'k8s-bake'
-            ref: rsamigullin/bake-update1
-            repository: rsamigullin/k8s-bake
-                        
-        - uses: ./k8s-bake
-          with:
-            renderEngine: 'helm'
-            helmChart: './testResources/Helm/HelmCharts' 
-            helm-version: 'latest' 
-            silent: 'false'
-            overrideFiles: './testResources/Helm/values.yaml'
-            overrides: |     
-              serviceName:aks-helloworld-test 
-          id: helm-bake
+        uses: ./
+        with:
+          renderEngine: 'helm'
+          helmChart: './testResources/Helm/HelmCharts' 
+          helm-version: 'latest' 
+          silent: 'false'
+          overrideFiles: './testResources/Helm/values.yaml'
+          overrides: |     
+            serviceName:aks-helloworld-test 
+        id: helm-bake
 
       - name: Validate created manifest ${{ matrix.os }}
         uses: Azure/k8s-lint@v1
