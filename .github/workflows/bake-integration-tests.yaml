@@ -18,7 +18,7 @@ jobs:
       - uses: actions/checkout@v2
         name: Checkout branch
         with: 
-            path: k8s-bake
+            path: 'k8s-bake'
             ref: rsamigullin/bake-update1
             repository: rsamigullin/k8s-bake
 
@@ -26,10 +26,7 @@ jobs:
         run: |
           cd k8s-bake
           npm install --prod
-      
-      - run: echo $(ls)
-      - run: cd k8s-bake
-      - run: echo $(ls)
+          ls
       
       - name: Bake using Helm on ${{ matrix.os }}
         uses: ./k8s-bake
