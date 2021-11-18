@@ -30,7 +30,7 @@ jobs:
           npm install --prod
           ls
           ls testResources
-          ls testResources/Helm/HelmChart
+          ls testResources/Helm
       
       - name: Bake using Helm on ${{ matrix.os }}
         uses: ./k8s-bake
