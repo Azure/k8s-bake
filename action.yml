@@ -41,4 +41,7 @@ branding:
   color: 'green' # optional, decorates the entry in the GitHub Marketplace
 runs:
   using: 'node12'
+  steps: 
+    - run: ls
+    - run: echo 'action 123'
   main: 'lib/run.js'
