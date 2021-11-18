@@ -21,6 +21,8 @@ jobs:
             path: 'k8s-bake'
             ref: rsamigullin/bake-update1
             repository: rsamigullin/k8s-bake
+      
+      - run: echo ${{ github.repository }}
 
       - name: Building latest changes
         run: |
@@ -29,7 +31,7 @@ jobs:
           ls
       
       - name: Bake using Helm on ${{ matrix.os }}
-        uses: ./k8s-bake
+        uses: ./k8s-bake@rsamigullin/bake-update1
         with:
           renderEngine: 'helm'
           helmChart: './testResources/Helm/HelmChart' 
