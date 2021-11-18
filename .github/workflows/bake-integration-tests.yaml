@@ -1,19 +1,9 @@
 name: Integration test for k8s-bake-v1
 on:
-  # workflow_dispatch:
-  #   inputs:
-  #     reason:
-  #       description: 'Reason for run'
-  #       required: true
-  # repository_dispatch:
-  #   types: "K8sBakeActionPR"
-on:
-  pull_request_target:
-    types: [labeled, opened]
+  pull_request:
     branches:
       - master
       - 'releases/*'
-      - rsamigullin/bake-update-1
 
 jobs: 
   run-integration-test:
