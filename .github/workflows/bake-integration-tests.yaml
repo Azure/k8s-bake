@@ -30,22 +30,22 @@ jobs:
           npm install --prod
           ls testResources/Helm/HelmCharts
       
-      # - name: Bake using Helm on ${{ matrix.os }}
-      #   uses: ./k8s-bake
-      #   with:
-      #     renderEngine: 'helm'
-      #     helmChart: './testResources/Helm/HelmCharts' 
-      #     helm-version: 'latest' 
-      #     silent: 'false'
-      #     overrideFiles: './testResources/Helm/values.yaml'
-      #     overrides: |     
-      #       serviceName:aks-helloworld-test 
-      #   id: helm-bake
+      - name: Bake using Helm on ${{ matrix.os }}
+        uses: ./k8s-bake
+        with:
+          renderEngine: 'helm'
+          helmChart: './testResources/Helm/HelmCharts' 
+          helm-version: 'latest' 
+          silent: 'false'
+          overrideFiles: './testResources/Helm/values.yaml'
+          overrides: |     
+            serviceName:aks-helloworld-test 
+        id: helm-bake
 
-      # - name: Validate created manifest ${{ matrix.os }}
-      #   uses: Azure/k8s-lint@v1
-      #   with:
-      #     manifests: ${{ steps.helm-bake.outputs.manifestsBundle }}
+      - name: Validate created manifest ${{ matrix.os }}
+        uses: Azure/k8s-lint@v1
+        with:
+          manifests: ${{ steps.helm-bake.outputs.manifestsBundle }}
 
       - name: Executing latest changes on ${{ matrix.os }}
         uses: ./k8s-bake
