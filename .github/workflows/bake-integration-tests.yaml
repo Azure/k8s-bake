@@ -31,7 +31,7 @@ jobs:
           ls
       
       - name: Bake using Helm on ${{ matrix.os }}
-        uses: ./k8s-bake@rsamigullin/bake-update1
+        uses: ./k8s-bake
         with:
           renderEngine: 'helm'
           helmChart: './testResources/Helm/HelmChart' 
