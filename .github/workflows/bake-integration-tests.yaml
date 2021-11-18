@@ -34,7 +34,7 @@ jobs:
         uses: ./k8s-bake
         with:
           renderEngine: 'helm'
-          helmChart: './testResources/Helm/HelmCharts' 
+          helmChart: './testResources/Helm/HelmCharts/Chart.yaml' 
           helm-version: 'latest' 
           silent: 'false'
           overrideFiles: './testResources/Helm/values.yaml'
