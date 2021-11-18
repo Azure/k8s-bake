@@ -28,7 +28,9 @@ jobs:
           npm install --prod
       
       - run: echo $(ls)
-
+      - run: cd k8s-bake
+      - run: echo $(ls)
+      
       - name: Bake using Helm on ${{ matrix.os }}
         uses: ./k8s-bake
         with:
