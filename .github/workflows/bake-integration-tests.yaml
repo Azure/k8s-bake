@@ -13,7 +13,7 @@ jobs:
         os: [windows-latest, ubuntu-latest, macos-latest]
     runs-on: ${{ matrix.os }}
     steps:
-      - run: echo $( ${{github}} )
+      - run: echo ${{ github.repository }}
 
       - uses: actions/checkout@v2
         name: Checkout branch
