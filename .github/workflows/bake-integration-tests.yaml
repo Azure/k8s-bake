@@ -1,10 +1,7 @@
 name: Integration test for k8s-bake-v1
 on:
   pull_request:
-    branches:
-      - master
-      - 'releases/*'
-
+    
 jobs: 
   run-integration-test:
     name: Validate release and master branch
