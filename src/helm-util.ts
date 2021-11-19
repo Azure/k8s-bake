@@ -108,12 +108,11 @@ export function findHelm(rootFolder: string): string {
 
 export async function getHelmPath() {
     var helmPath = "";
-    if (core.getInput('helm-version', { required : false })) {
-        var version = core.getInput('helm-version', { required: false });
+    var version = core.getInput('helm-version', { required: false });
+    if (version) {
         if ( !!version && version != "latest" ){
             helmPath = toolCache.find('helm', version);
         }
-
         if (!helmPath) {
             helmPath = await installHelm(version);
         }

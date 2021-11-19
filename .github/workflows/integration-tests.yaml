@@ -1,0 +1,70 @@
+name: Integration test for k8s-bake-v1
+on:
+  pull_request:
+    
+jobs: 
+  run-integration-test:
+    name: Validate release and master branch
+    strategy:
+      matrix:
+        os: [windows-latest, ubuntu-latest, macos-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - run: echo ${{ github.repository }}
+
+      - uses: actions/checkout@v2.3.4
+        name: Checkout branch
+        with: 
+            path: 'k8s-bake'
+            ref: rsamigullin/bake-update1
+            repository: rsamigullin/k8s-bake
+      
+      - run: echo ${{ github.repository }}
+
+      - name: Building latest changes
+        run: |
+          cd k8s-bake
+          npm install --prod
+      
+      - name: Bake using Helm on ${{ matrix.os }}
+        uses: ./k8s-bake
+        with:
+          renderEngine: 'helm'
+          helmChart: './k8s-bake/testResources/Helm/HelmCharts' 
+          helm-version: 'latest' 
+          silent: 'false'
+          overrideFiles: './k8s-bake/testResources/Helm/values.yaml'
+          overrides: |     
+            serviceName:aks-helloworld-test 
+        id: helm-bake
+
+      - name: Validate created manifest ${{ matrix.os }}
+        uses: Azure/k8s-lint@v1
+        with:
+          manifests: ${{ steps.helm-bake.outputs.manifestsBundle }}
+
+      - name: Executing latest changes on ${{ matrix.os }}
+        uses: ./k8s-bake
+        with:
+          renderEngine: 'kompose'
+          dockerComposeFile: './k8s-bake/testResources/Kompose/docker-compose.yml'
+          kompose-version: 'latest' 
+        id: kompose-bake
+
+      - name: validate created manifest ${{ matrix.os }}
+        uses: Azure/k8s-lint@v1
+        with:
+          manifests: ${{ steps.kompose-bake.outputs.manifestsBundle }}
+
+      - name: Bake using Kustomize on ${{ matrix.os }}
+        uses: ./k8s-bake
+        with:
+          renderEngine: 'kustomize'
+          kustomizationPath: './k8s-bake/testResources/Kustomize'
+          kubectl-version: 'latest' 
+        id: kustomize-bake
+
+      - name: Validate created manifest ${{ matrix.os }}
+        uses: Azure/k8s-lint@v1
+        with:
+          manifests: ${{ steps.kustomize-bake.outputs.manifestsBundle }}

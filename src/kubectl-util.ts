@@ -65,8 +65,8 @@ export async function downloadKubectl(version: string): Promise<string> {
 
 export async function getKubectlPath() {
     var kubectlPath = "";
-    if (core.getInput('kubectl-version', { required: false })) {
-        var version = core.getInput('kubectl-version', { required: false });
+    var version = core.getInput('kubectl-version', { required: false });
+    if (version) {
         if ( !!version && version != "latest" ){
             const cachedToolPath = toolCache.find('kubectl', version);
             kubectlPath = path.join(cachedToolPath, kubectlToolName + getExecutableExtension())

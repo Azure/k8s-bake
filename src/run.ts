@@ -37,10 +37,10 @@ export class HelmRenderEngine extends RenderEngine {
 
         var dependencyArgs = this.getDependencyArgs(chartPath);
 
-        core.info("Running helm dependency update command..");
+        console.log("Running helm dependency update command..");
         await utilities.execCommand(helmPath, dependencyArgs, options);
 
-        core.info("Getting helm version..");
+        console.log("Getting helm version..");
         let isV3 = true;
         await this.isHelmV3(helmPath).then((result) => { isV3 = result }).catch(() => { isV3 = false });
         
@@ -52,10 +52,10 @@ export class HelmRenderEngine extends RenderEngine {
             core.warning(util.format('Could not run helm init command: ', ex));
         }
 
-        core.info("Creating the template argument string..");
+        console.log("Creating the template argument string..");
         var args = this.getTemplateArgs(chartPath, isV3)
 
-        core.info("Running helm template command..");
+        console.log("Running helm template command..");
         var result = await utilities.execCommand(helmPath, args, options)
 
         const pathToBakedManifest = this.getTemplatePath();
@@ -96,15 +96,14 @@ export class HelmRenderEngine extends RenderEngine {
             if (releaseName) {
                 args.push(releaseName);
             }
-            args.push(chartPath);
         } else {
-            args.push(chartPath);
             if (releaseName) {
                 args.push('--name');
                 args.push(releaseName);
             }
         }
-
+        args.push(chartPath);
+        
         var overrideFilesInput = core.getInput('overrideFiles', { required: false });
         if (!!overrideFilesInput) {
             core.debug("Adding overrides file inputs");
@@ -183,10 +182,7 @@ export class KustomizeRenderEngine extends RenderEngine {
         var result = await utilities.execCommand(kubectlPath, ['version', '--client=true', '-o', 'json']);
         if (!!result.stdout) {
             const clientVersion = JSON.parse(result.stdout).clientVersion;
-            if (clientVersion && parseInt(clientVersion.major) >= 1 && parseInt(clientVersion.minor) >= 14) {
-                // Do nothing
-            }
-            else {
+            if (!clientVersion || parseInt(clientVersion.major) < 1 || parseInt(clientVersion.minor) < 14) {
                 throw new Error("kubectl client version equal to v1.14 or higher is required to use kustomize features");
             }
         }
