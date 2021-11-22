@@ -15,8 +15,8 @@ const komposeToolName = 'kompose';
 const stableKomposeVersion = "v1.18.0";
 
 export async function getKomposePath() {
-    var komposePath = "";
-    var version = core.getInput('kompose-version', { required: false });
+    let komposePath = "";
+    const version = core.getInput('kompose-version', { required: false });
     if (version) {
         if ( !!version && version != "latest" ){
             komposePath = toolCache.find('kompose', version);

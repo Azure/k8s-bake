@@ -29,7 +29,7 @@ export function getExecutableExtension(): string {
 }
 
 export async function execCommand(toolPath: string, args: string[], options: ExecOptions = {} as ExecOptions) : Promise<ExecResult> {
-    var execResult = {} as ExecResult;
+    const execResult = {} as ExecResult;
     execResult.stdout = "";
     execResult.stderr = "";
     options.listeners =  {
