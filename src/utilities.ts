@@ -57,4 +57,4 @@ export async function execCommand(toolPath: string, args: string[], options: Exe
     return execResult;
 }
 
-export const latest = 'latest';
+export const LATEST = 'latest';

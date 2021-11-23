@@ -5,7 +5,7 @@ import * as os from 'os';
 import * as path from 'path';
 import * as util from 'util';
 import * as fs from 'fs';
-import { getExecutableExtension, isEqual, latest } from "./utilities"
+import { getExecutableExtension, isEqual, LATEST } from "./utilities"
 
 import * as toolCache from '@actions/tool-cache';
 import * as core from '@actions/core';
@@ -109,7 +109,7 @@ export async function getHelmPath() {
     let helmPath = "";
     const version = core.getInput('helm-version', { required: false });
     if (version) {
-        if ( !!version && version != latest ){
+        if ( !!version && version != LATEST ){
             helmPath = toolCache.find('helm', version);
         }
         if (!helmPath) {

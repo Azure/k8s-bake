@@ -5,7 +5,7 @@ import * as os from 'os';
 import * as path from 'path';
 import * as util from 'util';
 import * as fs from 'fs';
-import { getExecutableExtension, isEqual, latest} from "./utilities"
+import { getExecutableExtension, isEqual, LATEST} from "./utilities"
 
 import * as toolCache from '@actions/tool-cache';
 import * as core from '@actions/core';
@@ -67,7 +67,7 @@ export async function getKubectlPath() {
     let kubectlPath = "";
     const version = core.getInput('kubectl-version', { required: false });
     if (version) {
-        if ( !!version && version != latest ){
+        if ( !!version && version != LATEST ){
             const cachedToolPath = toolCache.find('kubectl', version);
             kubectlPath = path.join(cachedToolPath, kubectlToolName + getExecutableExtension())
         }
