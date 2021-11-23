@@ -207,11 +207,8 @@ export async function run() {
             throw Error("Unknown render engine");
     }
 
-    let isSilent = true;
-    const silentInput = core.getInput('silent', { required: false });
-    if (silentInput && silentInput == 'false')
-        isSilent = false;
-
+    let isSilent = core.getInput('silent', { required: false }) === 'false';
+    
     try {
         await renderEngine.bake(isSilent);
     }

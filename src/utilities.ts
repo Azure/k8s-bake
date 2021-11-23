@@ -29,9 +29,11 @@ export function getExecutableExtension(): string {
 }
 
 export async function execCommand(toolPath: string, args: string[], options: ExecOptions = {} as ExecOptions) : Promise<ExecResult> {
-    const execResult = {} as ExecResult;
-    execResult.stdout = "";
-    execResult.stderr = "";
+    const execResult = {
+        stdout : "",
+        stderr : ""
+    } as ExecResult;
+    
     options.listeners =  {
             stdout: (data: Buffer) => {
                 execResult.stdout += data.toString();
@@ -54,3 +56,5 @@ export async function execCommand(toolPath: string, args: string[], options: Exe
 
     return execResult;
 }
+
+export const latest = 'latest';
