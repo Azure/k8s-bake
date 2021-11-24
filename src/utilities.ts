@@ -58,3 +58,4 @@ export async function execCommand(toolPath: string, args: string[], options: Exe
 }
 
 export const LATEST = 'latest';
+export const MIN_KUBECTL_CLIENT_VERSION = "1.14"

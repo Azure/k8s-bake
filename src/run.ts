@@ -182,7 +182,8 @@ export class KustomizeRenderEngine extends RenderEngine {
         const result = await utilities.execCommand(kubectlPath, ['version', '--client=true', '-o', 'json']);
         if (!!result.stdout) {
             const clientVersion = JSON.parse(result.stdout).clientVersion;
-            if (!clientVersion || parseInt(clientVersion.major) < 1 || parseInt(clientVersion.minor) < 14) {
+            const versionNumber = `${clientVersion.major}.${clientVersion.minor}`;
+            if (!clientVersion || parseFloat(versionNumber) < parseFloat(utilities.MIN_KUBECTL_CLIENT_VERSION)) {
                 throw new Error("kubectl client version equal to v1.14 or higher is required to use kustomize features");
             }
         }
