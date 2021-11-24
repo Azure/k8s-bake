@@ -51,7 +51,7 @@ export async function getStableHelmVersion(): Promise<string> {
 }
 
 
-export const walkSync = function(dir, filelist = [], fileToFind) {
+export function walkSync (dir, filelist = [], fileToFind) {
     const files = fs.readdirSync(dir);
     files.forEach(function(file) {
       if (fs.statSync(path.join(dir, file)).isDirectory()) {
