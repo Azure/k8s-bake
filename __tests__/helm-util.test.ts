@@ -43,7 +43,7 @@ describe('This is a placeholder for intial test cases, to be removed', () => {
             return { isDirectory: () => isDirectory } as fs.Stats;
         });
 
-        expect(helmUtil.walkSync('mainFolder', null, 'file21')).toEqual([path.join('mainFolder', 'folder2', 'file21')]);
+        expect(helmUtil.walkSync('mainFolder', undefined, 'file21')).toEqual([path.join('mainFolder', 'folder2', 'file21')]);
         expect(fs.readdirSync).toBeCalledTimes(3);
         expect(fs.statSync).toBeCalledTimes(8);
     });
@@ -60,7 +60,7 @@ describe('This is a placeholder for intial test cases, to be removed', () => {
             return { isDirectory: () => isDirectory } as fs.Stats;
         });
 
-        expect(helmUtil.walkSync('mainFolder', null, 'helm.exe')).toEqual([]);
+        expect(helmUtil.walkSync('mainFolder', undefined, 'helm.exe')).toEqual([]);
         expect(fs.readdirSync).toBeCalledTimes(3);
         expect(fs.statSync).toBeCalledTimes(8);
     });

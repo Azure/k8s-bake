@@ -35,7 +35,7 @@ export class HelmRenderEngine extends RenderEngine {
             silent: isSilent
         } as ExecOptions;
 
-        var dependencyArgs = this.getDependencyArgs(chartPath);
+        const dependencyArgs = this.getDependencyArgs(chartPath);
 
         console.log("Running helm dependency update command..");
         await utilities.execCommand(helmPath, dependencyArgs, options);
@@ -53,10 +53,10 @@ export class HelmRenderEngine extends RenderEngine {
         }
 
         console.log("Creating the template argument string..");
-        var args = this.getTemplateArgs(chartPath, isV3)
+        const args = this.getTemplateArgs(chartPath, isV3)
 
         console.log("Running helm template command..");
-        var result = await utilities.execCommand(helmPath, args, options)
+        const result = await utilities.execCommand(helmPath, args, options)
 
         const pathToBakedManifest = this.getTemplatePath();
         fs.writeFileSync(pathToBakedManifest, result.stdout);
@@ -96,19 +96,18 @@ export class HelmRenderEngine extends RenderEngine {
             if (releaseName) {
                 args.push(releaseName);
             }
-            args.push(chartPath);
         } else {
-            args.push(chartPath);
             if (releaseName) {
                 args.push('--name');
                 args.push(releaseName);
             }
         }
-
-        var overrideFilesInput = core.getInput('overrideFiles', { required: false });
+        args.push(chartPath);
+        
+        const overrideFilesInput = core.getInput('overrideFiles', { required: false });
         if (!!overrideFilesInput) {
             core.debug("Adding overrides file inputs");
-            var overrideFiles = overrideFilesInput.split('\n');
+            const overrideFiles = overrideFilesInput.split('\n');
             if (overrideFiles.length > 0) {
                 overrideFiles.forEach(file => {
                     args.push('-f');
@@ -117,12 +116,12 @@ export class HelmRenderEngine extends RenderEngine {
             }
         }
 
-        var overridesInput = core.getInput('overrides', { required: false });
+        const overridesInput = core.getInput('overrides', { required: false });
         if (!!overridesInput) {
             core.debug("Adding overrides inputs");
-            var overrides = overridesInput.split('\n');
+            const overrides = overridesInput.split('\n');
             if (overrides.length > 0) {
-                var overrideValues = this.getOverrideValues(overrides);
+                const overrideValues = this.getOverrideValues(overrides);
                 overrideValues.forEach(overrideValue => {
                     args.push('--set');
                     args.push(`${overrideValue.name}=${overrideValue.value}`);
@@ -141,7 +140,7 @@ export class HelmRenderEngine extends RenderEngine {
 
 export class KomposeRenderEngine extends RenderEngine {
     public bake = async (isSilent: boolean): Promise<any> => {
-        var dockerComposeFilePath = core.getInput('dockerComposeFile', { required: true });
+        const dockerComposeFilePath = core.getInput('dockerComposeFile', { required: true });
         if (!ioUtil.exists(dockerComposeFilePath)) {
             throw Error(util.format("Docker compose file path %s does not exist. Please check the path specified", dockerComposeFilePath));
         }
@@ -162,7 +161,7 @@ export class KustomizeRenderEngine extends RenderEngine {
     public bake = async (isSilent: boolean) => {
         const kubectlPath = await getKubectlPath();
         await this.validateKustomize(kubectlPath);
-        var kustomizationPath = core.getInput('kustomizationPath', { required: true });
+        const kustomizationPath = core.getInput('kustomizationPath', { required: true });
         if (!ioUtil.exists(kustomizationPath)) {
             throw Error(util.format("kustomizationPath %s does not exist. Please check whether file exists or not.", kustomizationPath));
         }
@@ -173,20 +172,18 @@ export class KustomizeRenderEngine extends RenderEngine {
 
         core.debug("Running kubectl kustomize command..");
         console.log(`[command] ${kubectlPath} kustomize ${core.getInput('kustomizationPath')}`);
-        var result = await utilities.execCommand(kubectlPath, ['kustomize', kustomizationPath], options);
+        const result = await utilities.execCommand(kubectlPath, ['kustomize', kustomizationPath], options);
         const pathToBakedManifest = this.getTemplatePath();
         fs.writeFileSync(pathToBakedManifest, result.stdout);
         core.setOutput('manifestsBundle', pathToBakedManifest);
     };
 
     private async validateKustomize(kubectlPath: string) {
-        var result = await utilities.execCommand(kubectlPath, ['version', '--client=true', '-o', 'json']);
+        const result = await utilities.execCommand(kubectlPath, ['version', '--client=true', '-o', 'json']);
         if (!!result.stdout) {
             const clientVersion = JSON.parse(result.stdout).clientVersion;
-            if (clientVersion && parseInt(clientVersion.major) >= 1 && parseInt(clientVersion.minor) >= 14) {
-                // Do nothing
-            }
-            else {
+            const versionNumber = `${clientVersion.major}.${clientVersion.minor}`;
+            if (!clientVersion || parseFloat(versionNumber) < parseFloat(utilities.MIN_KUBECTL_CLIENT_VERSION)) {
                 throw new Error("kubectl client version equal to v1.14 or higher is required to use kustomize features");
             }
         }
@@ -211,11 +208,8 @@ export async function run() {
             throw Error("Unknown render engine");
     }
 
-    var isSilent = true;
-    var silentInput = core.getInput('silent', { required: false });
-    if (silentInput && silentInput == 'false')
-        isSilent = false;
-
+    let isSilent = core.getInput('silent', { required: false }) === 'false';
+    
     try {
         await renderEngine.bake(isSilent);
     }

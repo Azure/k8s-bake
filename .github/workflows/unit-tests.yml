@@ -16,5 +16,7 @@ jobs:
     - uses: actions/checkout@v1
     - name: Running L0 tests.
       run: |
+        sudo npm install n 
+        sudo n latest
         npm install
-        npm test 
+        npm test
