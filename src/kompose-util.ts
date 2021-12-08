@@ -5,7 +5,7 @@ import * as os from 'os';
 import * as path from 'path';
 import * as fs from 'fs';
 import * as util from 'util';
-import { getExecutableExtension, isEqual } from "./utilities"
+import { getExecutableExtension, isEqual, setCachedToolPath, LATEST } from "./utilities"
 
 import * as toolCache from '@actions/tool-cache';
 import * as core from '@actions/core';
@@ -18,7 +18,7 @@ export async function getKomposePath() {
     let komposePath = "";
     const version = core.getInput('kompose-version', { required: false });
     if (version) {
-        if ( !!version && version != "latest" ){
+        if ( !!version && version != LATEST ){
             komposePath = toolCache.find('kompose', version);
         }
         
@@ -40,17 +40,10 @@ export async function getKomposePath() {
     return komposePath;
 }
 
-export async function downloadKompose(version: string): Promise<string> {
+export async function downloadKompose(version: string=stableKomposeVersion): Promise<string> {
     let cachedToolpath = toolCache.find(komposeToolName, version);
-    let komposeDownloadPath = '';
     if (!cachedToolpath) {
-        try {
-            komposeDownloadPath = await toolCache.downloadTool(getDownloadUrl(version));
-        } catch (exception) {
-            throw new Error(util.format("Cannot download the kompose version %s. Check if the version is correct https://github.com/kubernetes/kompose/releases. Error: %s", version, exception));
-        }
-
-        cachedToolpath = await toolCache.cacheFile(komposeDownloadPath, komposeToolName + getExecutableExtension(), komposeToolName, version);
+        cachedToolpath = await setCachedToolPath('kompose', version);
     }
 
     const komposePath = path.join(cachedToolpath, komposeToolName + getExecutableExtension());
@@ -59,22 +52,9 @@ export async function downloadKompose(version: string): Promise<string> {
 }
 
 export async function installKompose(version: string) {
-    if (isEqual(version, 'latest')) {
+    if (isEqual(version, LATEST)) {
         version = stableKomposeVersion;
     }
     core.debug(util.format("Downloading kompose version %s", version));
     return await downloadKompose(version);
-}
-
-export function getDownloadUrl(version): string {
-    switch (os.type()) {
-        case 'Linux':
-            return `https://github.com/kubernetes/kompose/releases/download/${version}/kompose-linux-amd64`;
-        case 'Darwin':
-            return `https://github.com/kubernetes/kompose/releases/download/${version}/kompose-darwin-amd64`;
-        case 'Windows_NT':
-            return `https://github.com/kubernetes/kompose/releases/download/${version}/kompose-windows-amd64.exe`;
-        default:
-            throw Error('Unknown OS type');
-    }
 }
