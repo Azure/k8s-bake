@@ -8,7 +8,7 @@ import * as io from '@actions/io';
 import * as utils from '../src/utilities';
 
 
-describe('This is a placeholder for intial test cases, to be removed', () => {
+describe('TTesting all funcitons in helm-util file.', () => {
     
     test('walkSync() - return path to the all files matching fileToFind in dir', () => {
         jest.spyOn(fs, 'readdirSync').mockImplementation((file, _) => {

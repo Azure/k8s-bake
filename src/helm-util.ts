@@ -42,7 +42,7 @@ export async function downloadHelm(version: string): Promise<string> {
     }
     let cachedToolpath = toolCache.find(helmToolName, version);
     if (!cachedToolpath) {
-        cachedToolpath = await setCachedToolPath('helm', version);
+        cachedToolpath = await setCachedToolPath(helmToolName, version);
     }
     const helmpath = findHelm(cachedToolpath);
     if (!helmpath) {
@@ -70,16 +70,16 @@ export async function getHelmPath() {
     const version = core.getInput('helm-version', { required: false });
     if (version) {
         if ( !!version && version != LATEST ){
-            helmPath = toolCache.find('helm', version);
+            helmPath = toolCache.find(helmToolName, version);
         }
         if (!helmPath) {
             helmPath = await installHelm(version);
         }
     } else {
-        helmPath = await io.which('helm', false);
+        helmPath = await io.which(helmToolName, false);
         if (!helmPath) {
-            const allVersions = toolCache.findAllVersions('helm');
-            helmPath = allVersions.length > 0 ? toolCache.find('helm', allVersions[0]) : '';
+            const allVersions = toolCache.findAllVersions(helmToolName);
+            helmPath = allVersions.length > 0 ? toolCache.find(helmToolName, allVersions[0]) : '';
             if (!helmPath) {
                 throw new Error('helm is not installed, either add setup-helm action or provide "helm-version" input to download helm');
             }

@@ -19,17 +19,17 @@ export async function getKomposePath() {
     const version = core.getInput('kompose-version', { required: false });
     if (version) {
         if ( !!version && version != LATEST ){
-            komposePath = toolCache.find('kompose', version);
+            komposePath = toolCache.find(komposeToolName, version);
         }
         
         if (!komposePath) {
             komposePath = await installKompose(version);
         }
     } else {
-        komposePath = await io.which('kompose', false);
+        komposePath = await io.which(komposeToolName, false);
         if (!komposePath) {
-            const allVersions = toolCache.findAllVersions('kompose');
-            komposePath = allVersions.length > 0 ? toolCache.find('kompose', allVersions[0]) : '';
+            const allVersions = toolCache.findAllVersions(komposeToolName);
+            komposePath = allVersions.length > 0 ? toolCache.find(komposeToolName, allVersions[0]) : '';
             if (!komposePath) {
                 throw new Error('kompose is not installed, provide "kompose-version" input to download kompose');
             }
@@ -43,7 +43,7 @@ export async function getKomposePath() {
 export async function downloadKompose(version: string=stableKomposeVersion): Promise<string> {
     let cachedToolpath = toolCache.find(komposeToolName, version);
     if (!cachedToolpath) {
-        cachedToolpath = await setCachedToolPath('kompose', version);
+        cachedToolpath = await setCachedToolPath(komposeToolName, version);
     }
 
     const komposePath = path.join(cachedToolpath, komposeToolName + getExecutableExtension());

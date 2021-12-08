@@ -21,7 +21,7 @@ export async function downloadKubectl(version: string): Promise<string> {
     let cachedToolpath = toolCache.find(kubectlToolName, version);
 
     if (!cachedToolpath) {
-        cachedToolpath = await setCachedToolPath('kubectl', version);
+        cachedToolpath = await setCachedToolPath(kubectlToolName, version);
     }
 
     const kubectlPath = path.join(cachedToolpath, kubectlToolName + getExecutableExtension());
@@ -35,7 +35,7 @@ export async function getKubectlPath() {
     const version = core.getInput('kubectl-version', { required: false });
     if (version) {
         if ( !!version && version != LATEST ){
-            const cachedToolPath = toolCache.find('kubectl', version);
+            const cachedToolPath = toolCache.find(kubectlToolName, version);
             kubectlPath = path.join(cachedToolPath, kubectlToolName + getExecutableExtension())
         }
         
@@ -43,10 +43,10 @@ export async function getKubectlPath() {
             kubectlPath = await installKubectl(version);
         }
     } else {
-        kubectlPath = await io.which('kubectl', false);
+        kubectlPath = await io.which(kubectlToolName, false);
         if (!kubectlPath) {
-            const allVersions = toolCache.findAllVersions('kubectl');
-            kubectlPath = allVersions.length > 0 ? toolCache.find('kubectl', allVersions[0]) : '';
+            const allVersions = toolCache.findAllVersions(kubectlToolName);
+            kubectlPath = allVersions.length > 0 ? toolCache.find(kubectlToolName, allVersions[0]) : '';
             if (!kubectlPath) {
                 throw new Error('Kubectl is not installed, either add install-kubectl action or provide "kubectl-version" input to download kubectl');
             }
