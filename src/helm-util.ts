@@ -1,19 +1,16 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
 
-import * as os from 'os';
-import * as path from 'path';
-import * as util from 'util';
-import * as fs from 'fs';
-import { getExecutableExtension, isEqual, LATEST, setCachedToolPath, getStableVerison } from "./utilities"
 
+import * as path from 'path';
+import * as fs from 'fs';
+import * as util from 'util';
 import * as toolCache from '@actions/tool-cache';
 import * as core from '@actions/core';
 import * as io from '@actions/io';
+import { getExecutableExtension, isEqual, LATEST, setCachedToolPath, getStableVerison } from "./utilities"
 
 const helmToolName = 'helm';
-
-
 export interface NameValuePair {
     name: string;
     value: string;

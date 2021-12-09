@@ -1,15 +1,13 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
 
-import * as os from 'os';
 import * as path from 'path';
 import * as fs from 'fs';
 import * as util from 'util';
-import { getExecutableExtension, isEqual, setCachedToolPath, LATEST } from "./utilities"
-
 import * as toolCache from '@actions/tool-cache';
 import * as core from '@actions/core';
 import * as io from '@actions/io';
+import { getExecutableExtension, isEqual, setCachedToolPath, LATEST } from "./utilities"
 
 const komposeToolName = 'kompose';
 const stableKomposeVersion = "v1.18.0";
