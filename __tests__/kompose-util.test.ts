@@ -7,29 +7,6 @@ import * as core from '@actions/core';
 import * as io from '@actions/io';
 
 describe('Testing all funcitons in kompose-util file.', () => {
-    test('getDownloadUrl() - return the URL to download kompose for Linux', () => {
-        jest.spyOn(os, 'type').mockReturnValue('Linux');
-        const komposelLinuxUrl = 'https://github.com/kubernetes/kompose/releases/download/v1.18.0/kompose-linux-amd64'
-    
-        expect(komposeUtil.getDownloadUrl('v1.18.0')).toBe(komposelLinuxUrl);
-        expect(os.type).toBeCalled();         
-    });
-
-    test('getDownloadUrl() - return the URL to download kompose for Darwin', () => {
-        jest.spyOn(os, 'type').mockReturnValue('Darwin');
-        const komposelDarwinUrl = 'https://github.com/kubernetes/kompose/releases/download/v1.18.0/kompose-darwin-amd64'
-    
-        expect(komposeUtil.getDownloadUrl('v1.18.0')).toBe(komposelDarwinUrl);
-        expect(os.type).toBeCalled();         
-    });
-
-    test('getDownloadUrl() - return the URL to download kompose for Windows', () => {
-        jest.spyOn(os, 'type').mockReturnValue('Windows_NT');
-    
-        const komposeWindowsUrl = 'https://github.com/kubernetes/kompose/releases/download/v1.18.0/kompose-windows-amd64.exe'
-        expect(komposeUtil.getDownloadUrl('v1.18.0')).toBe(komposeWindowsUrl);
-        expect(os.type).toBeCalled();         
-    });
 
     test('downloadKompose() - return path to kompose from toolCache', async () => {
         jest.spyOn(toolCache, 'find').mockReturnValue('pathToCachedTool');
@@ -58,7 +35,7 @@ describe('Testing all funcitons in kompose-util file.', () => {
         jest.spyOn(toolCache, 'find').mockReturnValue('');
         jest.spyOn(toolCache, 'downloadTool').mockImplementation(async () => { throw 'Unable to download.'});
 
-        await expect(komposeUtil.downloadKompose('v1.18.0')).rejects.toThrow("Cannot download the kompose version v1.18.0. Check if the version is correct https://github.com/kubernetes/kompose/releases. Error: Unable to download.");
+        await expect(komposeUtil.downloadKompose('v1.18.0')).rejects.toThrow("Failed to download the kompose from https://github.com/kubernetes/kompose/releases/download/v1.18.0/kompose-windows-amd64.exe.  Error: Unable to download.");
         expect(toolCache.find).toBeCalledWith('kompose', 'v1.18.0');
     });
 

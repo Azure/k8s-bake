@@ -1,55 +1,20 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
 
-import * as os from 'os';
-import * as path from 'path';
-import * as util from 'util';
-import * as fs from 'fs';
-import { getExecutableExtension, isEqual, LATEST } from "./utilities"
 
+import * as path from 'path';
+import * as fs from 'fs';
+import * as util from 'util';
 import * as toolCache from '@actions/tool-cache';
 import * as core from '@actions/core';
 import * as io from '@actions/io';
+import { getExecutableExtension, isEqual, LATEST, setCachedToolPath, getStableVerison } from "./utilities"
 
 const helmToolName = 'helm';
-const stableHelmVersion = 'v2.14.1';
-const helmLatestReleaseUrl  = 'https://api.github.com/repos/helm/helm/releases/latest';
-
 export interface NameValuePair {
     name: string;
     value: string;
 }
-
-export function getHelmDownloadURL(version: string): string {
-    switch (os.type()) {
-        case 'Linux':
-            return util.format('https://get.helm.sh/helm-%s-linux-amd64.zip', version);
-
-        case 'Darwin':
-            return util.format('https://get.helm.sh/helm-%s-darwin-amd64.zip', version);
-
-        case 'Windows_NT':
-        default:
-            return util.format('https://get.helm.sh/helm-%s-windows-amd64.zip', version);
-
-    }
-}
-
-export async function getStableHelmVersion(): Promise<string> {
-    return toolCache.downloadTool(helmLatestReleaseUrl).then((downloadPath) => {
-        const response = JSON.parse(fs.readFileSync(downloadPath, 'utf8').toString().trim());
-        if (!response.tag_name) {
-            return stableHelmVersion;
-        }
-        
-        return response.tag_name;
-    }, (error) => {
-        core.debug(error);
-        core.warning(util.format("Failed to read latest helm version from stable.txt. From URL %s. Using default stable version %s", helmLatestReleaseUrl, stableHelmVersion));
-        return stableHelmVersion;
-    });
-}
-
 
 export function walkSync (dir, filelist = [], fileToFind) {
     const files = fs.readdirSync(dir);
@@ -69,21 +34,13 @@ export function walkSync (dir, filelist = [], fileToFind) {
   };
   
 export async function downloadHelm(version: string): Promise<string> {
-    if (!version) { version = await getStableHelmVersion(); }
+    if(!version){
+        version = await getStableVerison(helmToolName);
+    }
     let cachedToolpath = toolCache.find(helmToolName, version);
     if (!cachedToolpath) {
-        let helmDownloadPath;
-        try {
-            helmDownloadPath = await toolCache.downloadTool(getHelmDownloadURL(version));
-        } catch (exception) {
-            throw new Error(util.format("Failed to download Helm from location %s. Error: %s ", getHelmDownloadURL(version), exception));
-        }
-
-        fs.chmodSync(helmDownloadPath, '777');
-        const unzipedHelmPath = await toolCache.extractZip(helmDownloadPath);
-        cachedToolpath = await toolCache.cacheDir(unzipedHelmPath, helmToolName, version);
+        cachedToolpath = await setCachedToolPath(helmToolName, version);
     }
-
     const helmpath = findHelm(cachedToolpath);
     if (!helmpath) {
         throw new Error(util.format("Helm executable not found in path ", cachedToolpath));
@@ -110,16 +67,16 @@ export async function getHelmPath() {
     const version = core.getInput('helm-version', { required: false });
     if (version) {
         if ( !!version && version != LATEST ){
-            helmPath = toolCache.find('helm', version);
+            helmPath = toolCache.find(helmToolName, version);
         }
         if (!helmPath) {
             helmPath = await installHelm(version);
         }
     } else {
-        helmPath = await io.which('helm', false);
+        helmPath = await io.which(helmToolName, false);
         if (!helmPath) {
-            const allVersions = toolCache.findAllVersions('helm');
-            helmPath = allVersions.length > 0 ? toolCache.find('helm', allVersions[0]) : '';
+            const allVersions = toolCache.findAllVersions(helmToolName);
+            helmPath = allVersions.length > 0 ? toolCache.find(helmToolName, allVersions[0]) : '';
             if (!helmPath) {
                 throw new Error('helm is not installed, either add setup-helm action or provide "helm-version" input to download helm');
             }
@@ -132,8 +89,8 @@ export async function getHelmPath() {
 }
 
 export async function installHelm(version: string) {
-    if (isEqual(version, 'latest')) {
-        version = await getStableHelmVersion();
+    if (isEqual(version, LATEST)) {
+        version = await getStableVerison(helmToolName);
     }
     core.debug(util.format("Downloading helm version %s", version));
     return await downloadHelm(version);

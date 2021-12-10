@@ -1,60 +1,24 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
 
-import * as os from 'os';
 import * as path from 'path';
-import * as util from 'util';
 import * as fs from 'fs';
-import { getExecutableExtension, isEqual, LATEST} from "./utilities"
-
+import * as util from 'util';
 import * as toolCache from '@actions/tool-cache';
 import * as core from '@actions/core';
 import * as io from '@actions/io';
+import { getExecutableExtension, isEqual, LATEST, setCachedToolPath, getStableVerison} from "./utilities"
 
 const kubectlToolName = 'kubectl';
-const stableKubectlVersion = 'v1.15.0';
-const stableVersionUrl = 'https://storage.googleapis.com/kubernetes-release/release/stable.txt';
-
-export function getkubectlDownloadURL(version: string): string {
-    switch (os.type()) {
-        case 'Linux':
-            return util.format('https://storage.googleapis.com/kubernetes-release/release/%s/bin/linux/amd64/kubectl', version);
-
-        case 'Darwin':
-            return util.format('https://storage.googleapis.com/kubernetes-release/release/%s/bin/darwin/amd64/kubectl', version);
-
-        case 'Windows_NT':
-        default:
-            return util.format('https://storage.googleapis.com/kubernetes-release/release/%s/bin/windows/amd64/kubectl.exe', version);
-
-    }
-}
-
-export async function getStableKubectlVersion(): Promise<string> {
-    return toolCache.downloadTool(stableVersionUrl).then((downloadPath) => {
-        let version = fs.readFileSync(downloadPath, 'utf8').toString().trim();
-        if (!version) {
-            version = stableKubectlVersion;
-        }
-        return version;
-    }, (error) => {
-        core.debug(error);
-        core.warning(util.format("Failed to read latest kubectl version from stable.txt. From URL %s. Using default stable version %s", stableVersionUrl, stableKubectlVersion));
-        return stableKubectlVersion;
-    });
-}
 
 export async function downloadKubectl(version: string): Promise<string> {
+    if(!version){
+        version = await getStableVerison(kubectlToolName);
+    }
     let cachedToolpath = toolCache.find(kubectlToolName, version);
-    let kubectlDownloadPath = '';
-    if (!cachedToolpath) {
-        try {
-            kubectlDownloadPath = await toolCache.downloadTool(getkubectlDownloadURL(version));
-        } catch (exception) {
-            throw new Error(util.format("Cannot download the kubectl client of version %s. Check if the version is correct https://github.com/kubernetes/kubernetes/releases. Error: %s", version, exception));
-        }
 
-        cachedToolpath = await toolCache.cacheFile(kubectlDownloadPath, kubectlToolName + getExecutableExtension(), kubectlToolName, version);
+    if (!cachedToolpath) {
+        cachedToolpath = await setCachedToolPath(kubectlToolName, version);
     }
 
     const kubectlPath = path.join(cachedToolpath, kubectlToolName + getExecutableExtension());
@@ -62,13 +26,12 @@ export async function downloadKubectl(version: string): Promise<string> {
     return kubectlPath;
 }
 
-
 export async function getKubectlPath() {
     let kubectlPath = "";
     const version = core.getInput('kubectl-version', { required: false });
     if (version) {
         if ( !!version && version != LATEST ){
-            const cachedToolPath = toolCache.find('kubectl', version);
+            const cachedToolPath = toolCache.find(kubectlToolName, version);
             kubectlPath = path.join(cachedToolPath, kubectlToolName + getExecutableExtension())
         }
         
@@ -76,10 +39,10 @@ export async function getKubectlPath() {
             kubectlPath = await installKubectl(version);
         }
     } else {
-        kubectlPath = await io.which('kubectl', false);
+        kubectlPath = await io.which(kubectlToolName, false);
         if (!kubectlPath) {
-            const allVersions = toolCache.findAllVersions('kubectl');
-            kubectlPath = allVersions.length > 0 ? toolCache.find('kubectl', allVersions[0]) : '';
+            const allVersions = toolCache.findAllVersions(kubectlToolName);
+            kubectlPath = allVersions.length > 0 ? toolCache.find(kubectlToolName, allVersions[0]) : '';
             if (!kubectlPath) {
                 throw new Error('Kubectl is not installed, either add install-kubectl action or provide "kubectl-version" input to download kubectl');
             }
@@ -91,8 +54,8 @@ export async function getKubectlPath() {
 }
 
 export async function installKubectl(version: string) {
-    if (isEqual(version, 'latest')) {
-        version = await getStableKubectlVersion();
+    if (isEqual(version, LATEST)) {
+        version = await getStableVerison(kubectlToolName);
     }
     core.debug(util.format("Downloading kubectl version %s", version));
     return await downloadKubectl(version);

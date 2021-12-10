@@ -5,32 +5,11 @@ import * as path from 'path';
 import * as toolCache from '@actions/tool-cache';
 import * as core from '@actions/core';
 import * as io from '@actions/io';
+import * as utils from '../src/utilities';
 
-describe('This is a placeholder for intial test cases, to be removed', () => {
-    test('getHelmDownloadURL() - return the URL to download helm for Linux', () => {
-        jest.spyOn(os, 'type').mockReturnValue('Linux');
-        const helmLinuxUrl = 'https://get.helm.sh/helm-v3.2.1-linux-amd64.zip'
 
-        expect(helmUtil.getHelmDownloadURL('v3.2.1')).toBe(helmLinuxUrl);
-        expect(os.type).toBeCalled();         
-    });
-
-    test('getHelmDownloadURL() - return the URL to download helm for Darwin', () => {
-        jest.spyOn(os, 'type').mockReturnValue('Darwin');
-        const helmDarwinUrl = 'https://get.helm.sh/helm-v3.2.1-darwin-amd64.zip'
-
-        expect(helmUtil.getHelmDownloadURL('v3.2.1')).toBe(helmDarwinUrl);
-        expect(os.type).toBeCalled();         
-    });
-
-    test('getHelmDownloadURL() - return the URL to download helm for Windows', () => {
-        jest.spyOn(os, 'type').mockReturnValue('Windows_NT');
-
-        const helmWindowsUrl = 'https://get.helm.sh/helm-v3.2.1-windows-amd64.zip'
-        expect(helmUtil.getHelmDownloadURL('v3.2.1')).toBe(helmWindowsUrl);
-        expect(os.type).toBeCalled();         
-    });
-
+describe('Testing all funcitons in helm-util file.', () => {
+    
     test('walkSync() - return path to the all files matching fileToFind in dir', () => {
         jest.spyOn(fs, 'readdirSync').mockImplementation((file, _) => {
             if (file == 'mainFolder') return ['file1' as unknown as fs.Dirent, 'file2' as unknown as fs.Dirent, 'folder1' as unknown as fs.Dirent, 'folder2' as unknown as fs.Dirent];
@@ -65,42 +44,13 @@ describe('This is a placeholder for intial test cases, to be removed', () => {
         expect(fs.statSync).toBeCalledTimes(8);
     });
 
-    test('getStableHelmVersion() - download stable version file, read version and return it', async () => {
-        jest.spyOn(toolCache, 'downloadTool').mockResolvedValue('pathToTool');
-        const response = JSON.stringify({
-            'tag_name': 'v4.0.0'
-        });
-        jest.spyOn(fs, 'readFileSync').mockReturnValue(response);
-
-        expect(await helmUtil.getStableHelmVersion()).toBe('v4.0.0');
-        expect(toolCache.downloadTool).toBeCalled();
-        expect(fs.readFileSync).toBeCalledWith('pathToTool', 'utf8');
-    });
-
-    test('getStableHelmVersion() - return default version if stable version file is empty', async () => {
-        jest.spyOn(toolCache, 'downloadTool').mockResolvedValue('pathToTool');
-        const response = JSON.stringify({});
-        jest.spyOn(fs, 'readFileSync').mockReturnValue(response);
-
-        expect(await helmUtil.getStableHelmVersion()).toBe('v2.14.1');
-        expect(toolCache.downloadTool).toBeCalled();
-        expect(fs.readFileSync).toBeCalledWith('pathToTool', 'utf8');
-    });
-
-    test('getStableHelmVersion() - return default version if stable version file download fails', async () => {
-        jest.spyOn(toolCache, 'downloadTool').mockImplementation(async () => { throw 'Error!!'});
-
-        expect(await helmUtil.getStableHelmVersion()).toBe('v2.14.1');
-        expect(toolCache.downloadTool).toBeCalled();
-    });
-
     test('downloadHelm() - throw error when unable to download', async () => {
         jest.spyOn(toolCache, 'find').mockReturnValue('');
         jest.spyOn(toolCache, 'downloadTool').mockImplementation(async () => { throw 'Unable to download.'});
         jest.spyOn(os, 'type').mockReturnValue('Windows_NT');
         jest.spyOn(core, 'debug').mockImplementation();
 
-        await expect(helmUtil.downloadHelm('v2.14.1')).rejects.toThrow('Failed to download Helm from location https://get.helm.sh/helm-v2.14.1-windows-amd64.zip. Error: Unable to download.');
+        await expect(helmUtil.downloadHelm('v2.14.1')).rejects.toThrow('Failed to download the helm from https://get.helm.sh/helm-v2.14.1-windows-amd64.zip.  Error: Unable to download.');
         expect(toolCache.find).toBeCalledWith('helm', 'v2.14.1');
         expect(toolCache.downloadTool).toBeCalledWith('https://get.helm.sh/helm-v2.14.1-windows-amd64.zip');
     });

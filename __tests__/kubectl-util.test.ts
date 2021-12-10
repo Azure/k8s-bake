@@ -5,60 +5,10 @@ import * as path from 'path';
 import * as toolCache from '@actions/tool-cache';
 import * as core from '@actions/core';
 import * as io from '@actions/io';
+import * as utils from '../src/utilities';
 
 describe('Testing all funcitons in kubectl-util file.', () => {
-    test('getkubectlDownloadURL() - return the URL to download kubectl for Linux', () => {
-        jest.spyOn(os, 'type').mockReturnValue('Linux');
-        const kubectlLinuxUrl = 'https://storage.googleapis.com/kubernetes-release/release/v1.15.0/bin/linux/amd64/kubectl'
     
-        expect(kubectlUtil.getkubectlDownloadURL('v1.15.0')).toBe(kubectlLinuxUrl);
-        expect(os.type).toBeCalled();         
-    });
-
-    test('getkubectlDownloadURL() - return the URL to download kubectl for Darwin', () => {
-        jest.spyOn(os, 'type').mockReturnValue('Darwin');
-        const kubectlDarwinUrl = 'https://storage.googleapis.com/kubernetes-release/release/v1.15.0/bin/darwin/amd64/kubectl'
-    
-        expect(kubectlUtil.getkubectlDownloadURL('v1.15.0')).toBe(kubectlDarwinUrl);
-        expect(os.type).toBeCalled();         
-    });
-
-    test('getkubectlDownloadURL() - return the URL to download kubectl for Windows', () => {
-        jest.spyOn(os, 'type').mockReturnValue('Windows_NT');
-    
-        const kubectlWindowsUrl = 'https://storage.googleapis.com/kubernetes-release/release/v1.15.0/bin/windows/amd64/kubectl.exe'
-        expect(kubectlUtil.getkubectlDownloadURL('v1.15.0')).toBe(kubectlWindowsUrl);
-        expect(os.type).toBeCalled();         
-    });
-
-    test('getStableKubectlVersion() - download stable version file, read version and return it', async () => {
-        jest.spyOn(toolCache, 'downloadTool').mockResolvedValue('pathToTool');
-        jest.spyOn(fs, 'readFileSync').mockReturnValue('v1.20.4');
-        
-        expect(await kubectlUtil.getStableKubectlVersion()).toBe('v1.20.4');
-        expect(toolCache.downloadTool).toBeCalled();
-        expect(fs.readFileSync).toBeCalledWith('pathToTool', 'utf8');
-    });
-
-    test('getStableKubectlVersion() - return default v1.15.0 if version read is empty', async () => {
-        jest.spyOn(toolCache, 'downloadTool').mockResolvedValue('pathToTool');
-        jest.spyOn(fs, 'readFileSync').mockReturnValue('');
-        jest.spyOn(core, 'warning').mockImplementation();
-        
-        expect(await kubectlUtil.getStableKubectlVersion()).toBe('v1.15.0');
-        expect(toolCache.downloadTool).toBeCalled();
-        expect(fs.readFileSync).toBeCalledWith('pathToTool', 'utf8');
-    });
-
-    test('getStableKubectlVersion() - return default v1.15.0 if unable to download file', async () => {
-        jest.spyOn(toolCache, 'downloadTool').mockRejectedValue('Unable to download.');
-        jest.spyOn(core, 'debug').mockImplementation();
-        jest.spyOn(core, 'warning').mockImplementation();
-        
-        expect(await kubectlUtil.getStableKubectlVersion()).toBe('v1.15.0');
-        expect(toolCache.downloadTool).toBeCalled();
-    });
-
     test('downloadKubectl() - download kubectl, add it to toolCache and return path to it', async () => {
         jest.spyOn(toolCache, 'find').mockReturnValue('');
         jest.spyOn(toolCache, 'downloadTool').mockResolvedValue('pathToTool');
@@ -78,7 +28,7 @@ describe('Testing all funcitons in kubectl-util file.', () => {
         jest.spyOn(toolCache, 'find').mockReturnValue('');
         jest.spyOn(toolCache, 'downloadTool').mockRejectedValue('Unable to download kubectl.');
 
-        await expect(kubectlUtil.downloadKubectl('v1.15.0')).rejects.toThrow('Cannot download the kubectl client of version v1.15.0. Check if the version is correct https://github.com/kubernetes/kubernetes/releases. Error: Unable to download kubectl.');
+        await expect(kubectlUtil.downloadKubectl('v1.15.0')).rejects.toThrow('Failed to download the kubectl from https://storage.googleapis.com/kubernetes-release/release/v1.15.0/bin/windows/amd64/kubectl.exe.  Error: Unable to download kubectl.');
         expect(toolCache.find).toBeCalledWith('kubectl', 'v1.15.0');
         expect(toolCache.downloadTool).toBeCalled();
     });
