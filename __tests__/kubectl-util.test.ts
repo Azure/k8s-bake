@@ -7,12 +7,24 @@ import * as core from '@actions/core';
 import * as io from '@actions/io';
 
 describe('Testing all funcitons in kubectl-util file.', () => {
-    test('getkubectlDownloadURL() - return the URL to download kubectl for Linux', () => {
+    test('getkubectlDownloadURL() - return the URL to download kubectl for Linux_x64', () => {
         jest.spyOn(os, 'type').mockReturnValue('Linux');
+        jest.spyOn(os, 'arch').mockReturnValue('x64');
         const kubectlLinuxUrl = 'https://storage.googleapis.com/kubernetes-release/release/v1.15.0/bin/linux/amd64/kubectl'
-    
+
         expect(kubectlUtil.getkubectlDownloadURL('v1.15.0')).toBe(kubectlLinuxUrl);
-        expect(os.type).toBeCalled();         
+        expect(os.type).toBeCalled();
+        expect(os.arch).toBeCalled();
+    });
+
+    test('getkubectlDownloadURL() - return the URL to download kubectl for Linux_arm64', () => {
+        jest.spyOn(os, 'type').mockReturnValue('Linux');
+        jest.spyOn(os, 'arch').mockReturnValue('arm64');
+        const kubectlLinuxUrl = 'https://storage.googleapis.com/kubernetes-release/release/v1.15.0/bin/linux/arm64/kubectl'
+ 
+        expect(kubectlUtil.getkubectlDownloadURL('v1.15.0')).toBe(kubectlLinuxUrl);
+        expect(os.type).toBeCalled();
+        expect(os.arch).toBeCalled();
     });
 
     test('getkubectlDownloadURL() - return the URL to download kubectl for Darwin', () => {

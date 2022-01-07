@@ -21,7 +21,7 @@ export function getkubectlDownloadURL(version: string): string {
             switch (os.arch()) {
                 case 'arm64':
                     return util.format('https://storage.googleapis.com/kubernetes-release/release/%s/bin/linux/arm64/kubectl', version);
-                case 'x64':
+                default:
                     return util.format('https://storage.googleapis.com/kubernetes-release/release/%s/bin/linux/amd64/kubectl', version);
             }
 

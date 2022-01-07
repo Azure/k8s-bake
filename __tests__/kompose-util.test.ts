@@ -7,12 +7,24 @@ import * as core from '@actions/core';
 import * as io from '@actions/io';
 
 describe('Testing all funcitons in kompose-util file.', () => {
-    test('getDownloadUrl() - return the URL to download kompose for Linux', () => {
+    test('getDownloadUrl() - return the URL to download kompose for Linux_x64', () => {
         jest.spyOn(os, 'type').mockReturnValue('Linux');
+        jest.spyOn(os, 'arch').mockReturnValue('x64');
         const komposelLinuxUrl = 'https://github.com/kubernetes/kompose/releases/download/v1.18.0/kompose-linux-amd64'
-    
+
         expect(komposeUtil.getDownloadUrl('v1.18.0')).toBe(komposelLinuxUrl);
-        expect(os.type).toBeCalled();         
+        expect(os.type).toBeCalled();
+        expect(os.arch).toBeCalled();
+    });
+
+    test('getDownloadUrl() - return the URL to download kompose for Linux_arm64', () => {
+        jest.spyOn(os, 'type').mockReturnValue('Linux');
+        jest.spyOn(os, 'arch').mockReturnValue('arm64');
+        const komposelLinuxUrl = 'https://github.com/kubernetes/kompose/releases/download/v1.18.0/kompose-linux-arm64'
+
+        expect(komposeUtil.getDownloadUrl('v1.18.0')).toBe(komposelLinuxUrl);
+        expect(os.type).toBeCalled();
+        expect(os.arch).toBeCalled();
     });
 
     test('getDownloadUrl() - return the URL to download kompose for Darwin', () => {

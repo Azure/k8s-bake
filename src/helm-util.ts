@@ -26,7 +26,7 @@ export function getHelmDownloadURL(version: string): string {
             switch (os.arch()) {
                 case 'arm64':
                     return util.format('https://get.helm.sh/helm-%s-linux-arm64.zip', version);
-                case 'x64':
+                default:
                     return util.format('https://get.helm.sh/helm-%s-linux-amd64.zip', version);
             }
 

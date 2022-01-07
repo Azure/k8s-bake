@@ -7,12 +7,24 @@ import * as core from '@actions/core';
 import * as io from '@actions/io';
 
 describe('This is a placeholder for intial test cases, to be removed', () => {
-    test('getHelmDownloadURL() - return the URL to download helm for Linux', () => {
+    test('getHelmDownloadURL() - return the URL to download helm for Linux_x64', () => {
         jest.spyOn(os, 'type').mockReturnValue('Linux');
+        jest.spyOn(os, 'arch').mockReturnValue('x64');
         const helmLinuxUrl = 'https://get.helm.sh/helm-v3.2.1-linux-amd64.zip'
 
         expect(helmUtil.getHelmDownloadURL('v3.2.1')).toBe(helmLinuxUrl);
-        expect(os.type).toBeCalled();         
+        expect(os.type).toBeCalled();
+        expect(os.arch).toBeCalled();
+    });
+
+    test('getHelmDownloadURL() - return the URL to download helm for Linux_arm64', () => {
+        jest.spyOn(os, 'type').mockReturnValue('Linux');
+        jest.spyOn(os, 'arch').mockReturnValue('arm64');
+        const helmLinuxUrl = 'https://get.helm.sh/helm-v3.2.1-linux-arm64.zip'
+
+        expect(helmUtil.getHelmDownloadURL('v3.2.1')).toBe(helmLinuxUrl);
+        expect(os.type).toBeCalled();
+        expect(os.arch).toBeCalled();
     });
 
     test('getHelmDownloadURL() - return the URL to download helm for Darwin', () => {

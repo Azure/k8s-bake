@@ -72,7 +72,7 @@ export function getDownloadUrl(version): string {
             switch (os.arch()) {
                 case 'arm64':
                     return `https://github.com/kubernetes/kompose/releases/download/${version}/kompose-linux-arm64`;
-               case 'x64':
+               default:
                     return `https://github.com/kubernetes/kompose/releases/download/${version}/kompose-linux-amd64`;
             }
         case 'Darwin':
