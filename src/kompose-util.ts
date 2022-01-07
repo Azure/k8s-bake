@@ -21,7 +21,7 @@ export async function getKomposePath() {
         if ( !!version && version != "latest" ){
             komposePath = toolCache.find('kompose', version);
         }
-        
+
         if (!komposePath) {
             komposePath = await installKompose(version);
         }
@@ -69,7 +69,12 @@ export async function installKompose(version: string) {
 export function getDownloadUrl(version): string {
     switch (os.type()) {
         case 'Linux':
-            return `https://github.com/kubernetes/kompose/releases/download/${version}/kompose-linux-amd64`;
+            switch (os.arch()) {
+                case 'arm64':
+                    return `https://github.com/kubernetes/kompose/releases/download/${version}/kompose-linux-arm64`;
+               case 'x64':
+                    return `https://github.com/kubernetes/kompose/releases/download/${version}/kompose-linux-amd64`;
+            }
         case 'Darwin':
             return `https://github.com/kubernetes/kompose/releases/download/${version}/kompose-darwin-amd64`;
         case 'Windows_NT':

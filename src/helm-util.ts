@@ -23,7 +23,12 @@ export interface NameValuePair {
 export function getHelmDownloadURL(version: string): string {
     switch (os.type()) {
         case 'Linux':
-            return util.format('https://get.helm.sh/helm-%s-linux-amd64.zip', version);
+            switch (os.arch()) {
+                case 'arm64':
+                    return util.format('https://get.helm.sh/helm-%s-linux-arm64.zip', version);
+                case 'x64':
+                    return util.format('https://get.helm.sh/helm-%s-linux-amd64.zip', version);
+            }
 
         case 'Darwin':
             return util.format('https://get.helm.sh/helm-%s-darwin-amd64.zip', version);
@@ -41,7 +46,7 @@ export async function getStableHelmVersion(): Promise<string> {
         if (!response.tag_name) {
             return stableHelmVersion;
         }
-        
+
         return response.tag_name;
     }, (error) => {
         core.debug(error);
@@ -68,7 +73,7 @@ export var walkSync = function(dir, filelist, fileToFind) {
     });
     return filelist;
   };
-  
+
 export async function downloadHelm(version: string): Promise<string> {
     if (!version) { version = await getStableHelmVersion(); }
     let cachedToolpath = toolCache.find(helmToolName, version);
@@ -89,7 +94,7 @@ export async function downloadHelm(version: string): Promise<string> {
     if (!helmpath) {
         throw new Error(util.format("Helm executable not found in path ", cachedToolpath));
     }
-    
+
     fs.chmodSync(helmpath, '777');
     return helmpath;
 }

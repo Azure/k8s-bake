@@ -18,7 +18,12 @@ const stableVersionUrl = 'https://storage.googleapis.com/kubernetes-release/rele
 export function getkubectlDownloadURL(version: string): string {
     switch (os.type()) {
         case 'Linux':
-            return util.format('https://storage.googleapis.com/kubernetes-release/release/%s/bin/linux/amd64/kubectl', version);
+            switch (os.arch()) {
+                case 'arm64':
+                    return util.format('https://storage.googleapis.com/kubernetes-release/release/%s/bin/linux/arm64/kubectl', version);
+                case 'x64':
+                    return util.format('https://storage.googleapis.com/kubernetes-release/release/%s/bin/linux/amd64/kubectl', version);
+            }
 
         case 'Darwin':
             return util.format('https://storage.googleapis.com/kubernetes-release/release/%s/bin/darwin/amd64/kubectl', version);
@@ -71,7 +76,7 @@ export async function getKubectlPath() {
             const cachedToolPath = toolCache.find('kubectl', version);
             kubectlPath = path.join(cachedToolPath, kubectlToolName + getExecutableExtension())
         }
-        
+
         if (!kubectlPath) {
             kubectlPath = await installKubectl(version);
         }
