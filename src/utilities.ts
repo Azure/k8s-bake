@@ -86,15 +86,13 @@ export async function setCachedToolPath(toolName:string, version : string) {
 
 export function getDownloadUrl(toolName : string, version: string): string {
     const system = os.type()
-    if (system == "Linux") {
-        const arch = os.arch()
-        system = system+"_"+arch
-    }
-    if (!downloadLinks[system] || !downloadLinks[system][toolName]) {
+    const systemAndArch = system == "Linux" ? `${system}_${os.arch()}` : system;
+
+    if (!downloadLinks[systemAndArch] || !downloadLinks[systemAndArch][toolName]) {
         throw Error("Unknown OS or render engine type");
     }
 
-    return util.format(downloadLinks[system][toolName], version)
+    return util.format(downloadLinks[systemAndArch][toolName], version)
 }
 
 export async function getStableVerison(toolName : string){
