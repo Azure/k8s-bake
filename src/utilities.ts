@@ -36,7 +36,7 @@ export async function execCommand(toolPath: string, args: string[], options: Exe
         stdout : "",
         stderr : ""
     } as ExecResult;
-    
+
     options.listeners =  {
             stdout: (data: Buffer) => {
                 execResult.stdout += data.toString();
@@ -86,11 +86,13 @@ export async function setCachedToolPath(toolName:string, version : string) {
 
 export function getDownloadUrl(toolName : string, version: string): string {
     const system = os.type()
-    if (!downloadLinks[system] || !downloadLinks[system][toolName]) {
+    const systemAndArch = system == "Linux" ? `${system}_${os.arch()}` : system;
+
+    if (!downloadLinks[systemAndArch] || !downloadLinks[systemAndArch][toolName]) {
         throw Error("Unknown OS or render engine type");
     }
 
-    return util.format(downloadLinks[system][toolName], version)
+    return util.format(downloadLinks[systemAndArch][toolName], version)
 }
 
 export async function getStableVerison(toolName : string){
@@ -122,19 +124,24 @@ const stableVersionUrls = {
 }
 
 const downloadLinks = {
-    'Linux': {
+    'Linux_x64': {
         'helm' : 'https://get.helm.sh/helm-%s-linux-amd64.zip',
-        'kompose' : 'https://github.com/kubernetes/kompose/releases/download/%s/kompose-linux-amd64', 
+        'kompose' : 'https://github.com/kubernetes/kompose/releases/download/%s/kompose-linux-amd64',
         'kubectl' : 'https://storage.googleapis.com/kubernetes-release/release/%s/bin/linux/amd64/kubectl'
+    },
+    'Linux_arm64': {
+        'helm' : 'https://get.helm.sh/helm-%s-linux-arm64.zip',
+        'kompose' : 'https://github.com/kubernetes/kompose/releases/download/%s/kompose-linux-arm64',
+        'kubectl' : 'https://storage.googleapis.com/kubernetes-release/release/%s/bin/linux/arm64/kubectl'
     },
     'Darwin' : {
         'helm' : 'https://get.helm.sh/helm-%s-darwin-amd64.zip',
-        'kompose' : 'https://github.com/kubernetes/kompose/releases/download/%s/kompose-darwin-amd64', 
+        'kompose' : 'https://github.com/kubernetes/kompose/releases/download/%s/kompose-darwin-amd64',
         'kubectl' : 'https://storage.googleapis.com/kubernetes-release/release/%s/bin/darwin/amd64/kubectl'
     },
     'Windows_NT' : {
         'helm' : 'https://get.helm.sh/helm-%s-windows-amd64.zip',
-        'kompose' : 'https://github.com/kubernetes/kompose/releases/download/%s/kompose-windows-amd64.exe', 
+        'kompose' : 'https://github.com/kubernetes/kompose/releases/download/%s/kompose-windows-amd64.exe',
         'kubectl' : 'https://storage.googleapis.com/kubernetes-release/release/%s/bin/windows/amd64/kubectl.exe'
     }
 }
