@@ -64,12 +64,24 @@ describe('Test all functions in utilities file', () => {
         expect(await utils.execCommand('ls', [], {} as ExecOptions)).toMatchObject({'stderr': '', 'stdout': 'list of files'});         
     });
 
-    test('getDownloadUrl() - return the URL to download helm for Linux', () => {
+    test('getDownloadUrl() - return the URL to download helm for Linux_x64', () => {
         jest.spyOn(os, 'type').mockReturnValue('Linux');
+        jest.spyOn(os, 'arch').mockReturnValue('x64');
         const helmLinuxUrl = 'https://get.helm.sh/helm-v3.2.1-linux-amd64.zip'
 
         expect(utils.getDownloadUrl('helm', 'v3.2.1')).toBe(helmLinuxUrl);
-        expect(os.type).toBeCalled();         
+        expect(os.type).toBeCalled();
+        expect(os.arch).toBeCalled();
+    });
+
+    test('getDownloadUrl() - return the URL to download helm for Linux_arm64', () => {
+        jest.spyOn(os, 'type').mockReturnValue('Linux');
+        jest.spyOn(os, 'arch').mockReturnValue('arm64');
+        const helmLinuxUrl = 'https://get.helm.sh/helm-v3.2.1-linux-arm64.zip'
+
+        expect(utils.getDownloadUrl('helm', 'v3.2.1')).toBe(helmLinuxUrl);
+        expect(os.type).toBeCalled();
+        expect(os.arch).toBeCalled();
     });
 
     test('getDownloadUrl() - return the URL to download helm for Darwin', () => {
@@ -88,12 +100,24 @@ describe('Test all functions in utilities file', () => {
         expect(os.type).toBeCalled();         
     });
 
-    test('getDownloadUrl() - return the URL to download kompose for Linux', () => {
+    test('getDownloadUrl() - return the URL to download kompose for Linux_x64', () => {
         jest.spyOn(os, 'type').mockReturnValue('Linux');
+        jest.spyOn(os, 'arch').mockReturnValue('x64');
         const komposelLinuxUrl = 'https://github.com/kubernetes/kompose/releases/download/v1.18.0/kompose-linux-amd64'
-    
+
         expect(utils.getDownloadUrl('kompose','v1.18.0')).toBe(komposelLinuxUrl);
-        expect(os.type).toBeCalled();         
+        expect(os.type).toBeCalled();
+        expect(os.arch).toBeCalled();
+    });
+
+    test('getDownloadUrl() - return the URL to download kompose for Linux_arm64', () => {
+        jest.spyOn(os, 'type').mockReturnValue('Linux');
+        jest.spyOn(os, 'arch').mockReturnValue('arm64');
+        const komposelLinuxUrl = 'https://github.com/kubernetes/kompose/releases/download/v1.18.0/kompose-linux-arm64'
+
+        expect(utils.getDownloadUrl('kompose','v1.18.0')).toBe(komposelLinuxUrl);
+        expect(os.type).toBeCalled();
+        expect(os.arch).toBeCalled();
     });
 
     test('getDownloadUrl() - return the URL to download kompose for Darwin', () => {
@@ -112,12 +136,24 @@ describe('Test all functions in utilities file', () => {
         expect(os.type).toBeCalled();         
     });
 
-    test('getDownloadUrl() - return the URL to download kubectl for Linux', () => {
+    test('getDownloadUrl() - return the URL to download kubectl for Linux_x64', () => {
         jest.spyOn(os, 'type').mockReturnValue('Linux');
+        jest.spyOn(os, 'arch').mockReturnValue('x64');
         const kubectlLinuxUrl = 'https://storage.googleapis.com/kubernetes-release/release/v1.15.0/bin/linux/amd64/kubectl'
-    
+
         expect(utils.getDownloadUrl('kubectl','v1.15.0')).toBe(kubectlLinuxUrl);
-        expect(os.type).toBeCalled();         
+        expect(os.type).toBeCalled();
+        expect(os.arch).toBeCalled();
+    });
+
+    test('getDownloadUrl() - return the URL to download kubectl for Linux_arm64', () => {
+        jest.spyOn(os, 'type').mockReturnValue('Linux');
+        jest.spyOn(os, 'arch').mockReturnValue('arm64');
+        const kubectlLinuxUrl = 'https://storage.googleapis.com/kubernetes-release/release/v1.15.0/bin/linux/arm64/kubectl'
+
+        expect(utils.getDownloadUrl('kubectl','v1.15.0')).toBe(kubectlLinuxUrl);
+        expect(os.type).toBeCalled();
+        expect(os.arch).toBeCalled();
     });
 
     test('getDownloadUrl() - return the URL to download kubectl for Darwin', () => {
