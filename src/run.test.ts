@@ -1,5 +1,5 @@
 import * as helmUtil from './helm-util';
-import * as kubectlUtil from '.kubectl-util';
+import * as kubectlUtil from './kubectl-util';
 import * as komposeUtil from './kompose-util';
 import * as utils from './utilities';
 import { KustomizeRenderEngine, KomposeRenderEngine, HelmRenderEngine, run } from './run';
