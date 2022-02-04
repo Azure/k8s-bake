@@ -20,7 +20,8 @@ jobs:
       - name: Building latest changes
         run: |
           cd k8s-bake
-          npm install --prod
+          npm i
+          npm run build
 
       - name: Bake using Helm on ${{ matrix.os }}
         uses: ./k8s-bake

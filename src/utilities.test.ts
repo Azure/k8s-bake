@@ -3,7 +3,7 @@ import * as fs from 'fs';
 import * as toolCache from '@actions/tool-cache';
 import { ExecOptions } from "@actions/exec/lib/interfaces";
 import * as core from '@actions/core';
-import * as utils from '../src/utilities';
+import * as utils from './utilities';
 
 var mockStatusCode, stdOutMessage, stdErrMessage;
 const mockExecFn = jest.fn().mockImplementation((toolPath, args, options) => {
