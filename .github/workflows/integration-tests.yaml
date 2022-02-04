@@ -21,6 +21,7 @@ jobs:
         run: |
           cd k8s-bake
           npm install --prod
+          npm i --save-dev @types/node
           npm run build
 
       - name: Bake using Helm on ${{ matrix.os }}
