@@ -1,11 +1,11 @@
-import * as kubectlUtil from '../src/kubectl-util';
+import * as kubectlUtil from './kubectl-util';
 import * as os from 'os';
 import * as fs from 'fs';
 import * as path from 'path';
 import * as toolCache from '@actions/tool-cache';
 import * as core from '@actions/core';
 import * as io from '@actions/io';
-import * as utils from '../src/utilities';
+import * as utils from './utilities';
 
 describe('Testing all funcitons in kubectl-util file.', () => {
     
