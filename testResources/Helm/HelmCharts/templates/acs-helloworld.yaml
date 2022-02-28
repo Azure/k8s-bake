@@ -2,7 +2,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: acs-helloworld-{{.Release.Name}}
-  namespace: { { .Release.Namespace } }
+  namespace: {{ .Release.Namespace }}
 spec:
   replicas: 1
   selector:
@@ -20,15 +20,15 @@ spec:
             - containerPort: 80
           env:
             - name: TITLE
-              value: { { .Values.title } }
+              value: {{ .Values.title }}
 ---
 apiVersion: v1
 kind: Service
 metadata:
-  name: { { .Values.serviceName } }
-  namespace: { { .Release.Namespace } }
+  name: {{ .Values.serviceName }}
+  namespace: { { .Release.Namespace }}
 spec:
-  type: { { .Values.serviceType } }
+  type: {{ .Values.serviceType }}
   ports:
     - port: 80
   selector:
