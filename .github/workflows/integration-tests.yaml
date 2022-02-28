@@ -40,7 +40,6 @@ jobs:
         uses: Azure/k8s-lint@v1
         with:
           manifests: ${{ steps.helm-bake.outputs.manifestsBundle }}
-      - run: cat ${{ steps.helm-bake.outputs.manifestsBundle }}
 
       - name: Executing latest changes on ${{ matrix.os }}
         uses: ./k8s-bake
