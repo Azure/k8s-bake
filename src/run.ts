@@ -90,8 +90,15 @@ export class HelmRenderEngine extends RenderEngine {
     private getTemplateArgs(chartPath: string, isV3: boolean): string[] {
         const releaseName = core.getInput('releaseName', { required: false });
 
-        let args: string[] = [];
+        const args: string[] = [];
         args.push('template');
+
+        const namespace = core.getInput('namespace', { required: false });
+        if (namespace) {
+            args.push('--namespace');
+            args.push(namespace);
+        }
+
         if (isV3) {
             if (releaseName) {
                 args.push(releaseName);
