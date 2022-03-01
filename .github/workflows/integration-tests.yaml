@@ -17,11 +17,13 @@ jobs:
           ref: ${{ github.ref }}
           repository: ${{ github.repository }}
 
-      - name: Building latest changes
+      - name: Install npm packages
         run: |
           cd k8s-bake
-          npm i
-          npm run build
+          npm install --no-bin-links
+          
+      - name: Build
+        run: ncc build src/run.ts -o lib
 
       - name: Bake using Helm on ${{ matrix.os }}
         uses: ./k8s-bake
