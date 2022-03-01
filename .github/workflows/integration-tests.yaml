@@ -30,6 +30,7 @@ jobs:
           helmChart: "./k8s-bake/testResources/Helm/HelmCharts"
           helm-version: "latest"
           silent: "false"
+          namespace: "namespaceExample"
           overrideFiles: "./k8s-bake/testResources/Helm/values.yaml"
           overrides: |
             serviceName:aks-helloworld-test
