@@ -27,11 +27,11 @@ jobs:
         uses: ./
         with:
           renderEngine: "helm"
-          helmChart: "./k8s-bake/testResources/Helm/HelmCharts"
+          helmChart: "./testResources/Helm/HelmCharts"
           helm-version: "latest"
           silent: "false"
           namespace: "namespaceExample"
-          overrideFiles: "./k8s-bake/testResources/Helm/values.yaml"
+          overrideFiles: "./testResources/Helm/values.yaml"
           overrides: |
             serviceName:aks-helloworld-test
         id: helm-bake
@@ -45,7 +45,7 @@ jobs:
         uses: ./
         with:
           renderEngine: "kompose"
-          dockerComposeFile: "./k8s-bake/testResources/Kompose/docker-compose.yml"
+          dockerComposeFile: "./testResources/Kompose/docker-compose.yml"
           kompose-version: "latest"
         id: kompose-bake
 
@@ -58,7 +58,7 @@ jobs:
         uses: ./
         with:
           renderEngine: "kustomize"
-          kustomizationPath: "./k8s-bake/testResources/Kustomize"
+          kustomizationPath: "./testResources/Kustomize"
           kubectl-version: "latest"
         id: kustomize-bake
 
