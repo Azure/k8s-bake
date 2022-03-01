@@ -21,6 +21,9 @@ jobs:
         run: |
           cd k8s-bake
           npm install --no-bin-links
+
+      - name: Install ncc
+        run: npm i -g @vercel/ncc
           
       - name: Build
         run: ncc build src/run.ts -o lib
