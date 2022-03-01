@@ -24,7 +24,7 @@ jobs:
         run: ncc build src/run.ts -o lib
 
       - name: Bake using Helm on ${{ matrix.os }}
-        uses: ./k8s-bake
+        uses: ./
         with:
           renderEngine: "helm"
           helmChart: "./k8s-bake/testResources/Helm/HelmCharts"
@@ -42,7 +42,7 @@ jobs:
           manifests: ${{ steps.helm-bake.outputs.manifestsBundle }}
 
       - name: Executing latest changes on ${{ matrix.os }}
-        uses: ./k8s-bake
+        uses: ./
         with:
           renderEngine: "kompose"
           dockerComposeFile: "./k8s-bake/testResources/Kompose/docker-compose.yml"
@@ -55,7 +55,7 @@ jobs:
           manifests: ${{ steps.kompose-bake.outputs.manifestsBundle }}
 
       - name: Bake using Kustomize on ${{ matrix.os }}
-        uses: ./k8s-bake
+        uses: ./
         with:
           renderEngine: "kustomize"
           kustomizationPath: "./k8s-bake/testResources/Kustomize"
