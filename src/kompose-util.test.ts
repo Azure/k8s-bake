@@ -1,4 +1,4 @@
-import * as komposeUtil from '../src/kompose-util';
+import * as komposeUtil from './kompose-util';
 import * as os from 'os';
 import * as fs from 'fs';
 import * as path from 'path';

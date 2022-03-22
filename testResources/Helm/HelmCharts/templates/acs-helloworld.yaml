@@ -2,6 +2,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: acs-helloworld-{{.Release.Name}}
+  namespace: {{ .Release.Namespace }}
 spec:
   replicas: 1
   selector:
@@ -13,21 +14,22 @@ spec:
         app: acs-helloworld-{{.Release.Name}}
     spec:
       containers:
-      - name: acs-helloworld-{{.Release.Name}}
-        image: neilpeterson/aks-helloworld:v1
-        ports:
-        - containerPort: 80
-        env:
-        - name: TITLE
-          value: {{ .Values.title }}
+        - name: acs-helloworld-{{.Release.Name}}
+          image: neilpeterson/aks-helloworld:v1
+          ports:
+            - containerPort: 80
+          env:
+            - name: TITLE
+              value: {{ .Values.title }}
 ---
 apiVersion: v1
 kind: Service
 metadata:
   name: {{ .Values.serviceName }}
+  namespace: {{ .Release.Namespace }}
 spec:
   type: {{ .Values.serviceType }}
   ports:
-  - port: 80
+    - port: 80
   selector:
     app: acs-helloworld-{{.Release.Name}}

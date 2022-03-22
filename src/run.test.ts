@@ -1,8 +1,8 @@
-import * as helmUtil from '../src/helm-util';
-import * as kubectlUtil from '../src/kubectl-util';
-import * as komposeUtil from '../src/kompose-util';
-import * as utils from '../src/utilities';
-import { KustomizeRenderEngine, KomposeRenderEngine, HelmRenderEngine, run } from '../src/run';
+import * as helmUtil from './helm-util';
+import * as kubectlUtil from './kubectl-util';
+import * as komposeUtil from './kompose-util';
+import * as utils from './utilities';
+import { KustomizeRenderEngine, KomposeRenderEngine, HelmRenderEngine, run } from './run';
 import * as ioUtil from '@actions/io/lib/io-util';
 import * as os from 'os';
 import * as fs from 'fs';
