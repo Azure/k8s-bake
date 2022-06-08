@@ -9,6 +9,9 @@ inputs:
     required: false
   namespace:
     description: "Relevant if renderEngine == helm. Namespace to be used for Helm option."
+  arguments:
+    description: "Relevant if renderEngine == helm. Array of arguments. Each argument should be mentioned on a newline"
+    required: false
   overrideFiles:
     description: "Relevant if renderEngine == helm. Array of path to override files. Each path should be mentioned on a newline"
     required: false

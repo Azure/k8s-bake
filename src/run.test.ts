@@ -4,13 +4,9 @@ import * as komposeUtil from './kompose-util';
 import * as utils from './utilities';
 import { KustomizeRenderEngine, KomposeRenderEngine, HelmRenderEngine, run } from './run';
 import * as ioUtil from '@actions/io/lib/io-util';
-import * as os from 'os';
 import * as fs from 'fs';
 import * as path from 'path';
-import * as toolCache from '@actions/tool-cache';
 import * as core from '@actions/core';
-import * as io from '@actions/io';
-import { ToolRunner } from "@actions/exec/lib/toolrunner";
 import { ExecOptions } from "@actions/exec/lib/interfaces";
 
 var mockStatusCode, stdOutMessage, stdErrMessage;
@@ -138,5 +134,23 @@ describe('Test all functions in run file', () => {
         expect(utils.execCommand).toBeCalledWith('pathToHelm', ['version', '--template', '{{.Version}}'], {"silent": true});
         expect(utils.execCommand).toBeCalledWith('pathToHelm', ['init', '--client-only', '--stable-repo-url', 'https://charts.helm.sh/stable'], {"silent": true});
         expect(core.setOutput).toBeCalledWith('manifestsBundle', path.join('tempDirPath', 'baked-template-12345678.yaml'));
+    });
+
+    test('HelmRenderEngine() - validate template argument string', async () => {
+        jest.spyOn(helmUtil, 'getHelmPath').mockResolvedValue('pathToHelm');
+        jest.spyOn(core, 'getInput').mockReturnValueOnce('pathToHelmChart').mockReturnValueOnce('releaseName');
+        jest.spyOn(console, 'log').mockImplementation();
+        mockStatusCode = 0;
+        stdOutMessage = 'v2.9.1';
+        process.env['RUNNER_TEMP'] = 'tempDirPath';
+        jest.spyOn(fs, 'writeFileSync').mockImplementation();
+        jest.spyOn(utils, 'getCurrentTime').mockReturnValue(12345678);
+        jest.spyOn(core, 'setOutput').mockImplementation();
+
+        expect(await (new HelmRenderEngine().bake(true))).toBeDefined();
+        expect(utils.execCommand).toBeCalledWith('pathToHelm', ['dependency', 'update', 'pathToHelmChart'], {"silent": true});
+        expect(utils.execCommand).toBeCalledWith('pathToHelm', ['version', '--template', '{{.Version}}'], {"silent": true});
+        expect(utils.execCommand).toBeCalledWith('pathToHelm', ['init', '--client-only', '--stable-repo-url', 'https://charts.helm.sh/stable'], {"silent": true});
+        expect(core.getInput).toBeCalledWith('helmChart', path.join('tempArgs', 'baked-template-12345678.yaml'))
     });
 });

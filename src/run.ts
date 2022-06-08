@@ -93,10 +93,14 @@ export class HelmRenderEngine extends RenderEngine {
         const args: string[] = [];
         args.push('template');
 
-        const namespace = core.getInput('namespace', { required: false });
-        if (namespace) {
-            args.push('--namespace');
-            args.push(namespace);
+        const allArgs = core.getInput('arguments', { required: false })
+        if (!!allArgs) {
+            const argumentArray = allArgs.split('\n');
+            if (argumentArray.length > 0) {
+                argumentArray.forEach(arg => {
+                    args.push(arg); 
+                });
+            }
         }
 
         if (isV3) {
