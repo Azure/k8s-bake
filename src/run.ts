@@ -93,9 +93,9 @@ export class HelmRenderEngine extends RenderEngine {
         const args: string[] = [];
         args.push('template');
 
-        const allArgs = core.getInput('arguments', { required: false })
-        if (!!allArgs) {
-            const argumentArray = allArgs.split('\n');
+        const additionalArgs = core.getInput('arguments', { required: false }) 
+        if (!!additionalArgs) {
+            const argumentArray = additionalArgs.split('\n');
             if (argumentArray.length > 0) {
                 argumentArray.forEach(arg => {
                     args.push(arg); 
