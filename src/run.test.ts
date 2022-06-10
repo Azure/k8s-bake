@@ -136,7 +136,7 @@ describe('Test all functions in run file', () => {
         expect(core.setOutput).toBeCalledWith('manifestsBundle', path.join('tempDirPath', 'baked-template-12345678.yaml'));
     });
 
-    test('HelmRenderEngine() - additional arguments', async () => {
+    test('HelmRenderEngine() - single additional argument', async () => {
         jest.spyOn(helmUtil, 'getHelmPath').mockResolvedValue('pathToHelm');
         jest.spyOn(core, 'getInput').mockReturnValueOnce('pathToHelmChart').mockReturnValueOnce('releaseName');
         jest.spyOn(core, 'getInput').mockReturnValueOnce('additionalArguments').mockReturnValueOnce('arguments');
@@ -150,6 +150,24 @@ describe('Test all functions in run file', () => {
 
         expect(await (new HelmRenderEngine().bake(true))).toBeDefined();
         expect(utils.execCommand).toBeCalledWith('pathToHelm', ['dependency', 'update', 'pathToHelmChart', 'additionalArguments'], {"silent": true});
+        expect(utils.execCommand).toBeCalledWith('pathToHelm', ['version', '--template', '{{.Version}}'], {"silent": true});
+        expect(utils.execCommand).toBeCalledWith('pathToHelm', ['init', '--client-only', '--stable-repo-url', 'https://charts.helm.sh/stable'], {"silent": true});
+    });
+
+    test('HelmRenderEngine() - multiple additional arguments', async () => {
+        jest.spyOn(helmUtil, 'getHelmPath').mockResolvedValue('pathToHelm');
+        jest.spyOn(core, 'getInput').mockReturnValueOnce('pathToHelmChart').mockReturnValueOnce('releaseName');
+        jest.spyOn(core, 'getInput').mockReturnValueOnce('additional\nArguments').mockReturnValueOnce('arguments');
+        jest.spyOn(console, 'log').mockImplementation();
+        mockStatusCode = 0;
+        stdOutMessage = 'v2.9.1';
+        process.env['RUNNER_TEMP'] = 'tempDirPath';
+        jest.spyOn(fs, 'writeFileSync').mockImplementation();
+        jest.spyOn(utils, 'getCurrentTime').mockReturnValue(12345678);
+        jest.spyOn(core, 'setOutput').mockImplementation();
+
+        expect(await (new HelmRenderEngine().bake(true))).toBeDefined();
+        expect(utils.execCommand).toBeCalledWith('pathToHelm', ['dependency', 'update', 'pathToHelmChart', 'additional\nArguments'], {"silent": true});
         expect(utils.execCommand).toBeCalledWith('pathToHelm', ['version', '--template', '{{.Version}}'], {"silent": true});
         expect(utils.execCommand).toBeCalledWith('pathToHelm', ['init', '--client-only', '--stable-repo-url', 'https://charts.helm.sh/stable'], {"silent": true});
     });

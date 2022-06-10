@@ -10,7 +10,7 @@ inputs:
   namespace:
     description: "Relevant if renderEngine == helm. Namespace to be used for Helm option."
   arguments:
-    description: "Relevant if renderEngine == helm. Arguments to be passed to the Helm command"
+    description: "Relevant if renderEngine == helm. Arguments to be passed to the Helm template command"
     required: false
   overrideFiles:
     description: "Relevant if renderEngine == helm. Array of path to override files. Each path should be mentioned on a newline"
