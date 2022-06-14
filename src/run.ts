@@ -93,9 +93,12 @@ export class HelmRenderEngine extends RenderEngine {
         const args: string[] = [];
         args.push('template');
 
-        const additionalArgs = core.getInput('arguments', { required: false }) 
+        const additionalArgs = core.getInput('arguments', { required: false })
         if (!!additionalArgs) {
-            const argumentArray = additionalArgs.split('\n');
+            const argumentArray = additionalArgs
+                        .split(/[\n,;]+/)
+                        .map((manifest) => manifest.trim()) // remove surrounding whitespace
+                        .filter((manifest) => manifest.length > 0); // remove any blanks
             if (argumentArray.length > 0) {
                 argumentArray.forEach(arg => {
                     args.push(arg); 

@@ -137,9 +137,13 @@ describe('Test all functions in run file', () => {
     });
 
     test('HelmRenderEngine() - single additional argument', async () => {
+        process.env['INPUT_RENDERENGINE'] = 'helm';
         jest.spyOn(helmUtil, 'getHelmPath').mockResolvedValue('pathToHelm');
-        jest.spyOn(core, 'getInput').mockReturnValueOnce('pathToHelmChart').mockReturnValueOnce('releaseName');
-        jest.spyOn(core, 'getInput').mockReturnValueOnce('additionalArguments').mockReturnValueOnce('arguments');
+        jest.spyOn(core, 'getInput').mockImplementation((inputName, options) => {
+            if (inputName == "helmChart") return 'pathToHelmChart';
+            if (inputName == "arguments") return 'additionalArguments';
+            if (inputName == "releaseName") return 'releaseName';
+        })
         jest.spyOn(console, 'log').mockImplementation();
         mockStatusCode = 0;
         stdOutMessage = 'v2.9.1';
@@ -148,16 +152,22 @@ describe('Test all functions in run file', () => {
         jest.spyOn(utils, 'getCurrentTime').mockReturnValue(12345678);
         jest.spyOn(core, 'setOutput').mockImplementation();
 
-        expect(await (new HelmRenderEngine().bake(true))).toBeDefined();
-        expect(utils.execCommand).toBeCalledWith('pathToHelm', ['dependency', 'update', 'pathToHelmChart', 'additionalArguments'], {"silent": true});
-        expect(utils.execCommand).toBeCalledWith('pathToHelm', ['version', '--template', '{{.Version}}'], {"silent": true});
-        expect(utils.execCommand).toBeCalledWith('pathToHelm', ['init', '--client-only', '--stable-repo-url', 'https://charts.helm.sh/stable'], {"silent": true});
+        expect(await (new HelmRenderEngine().bake(true))).toBeUndefined();
+        // expect(utils.execCommand).toBeCalledWith('pathToHelm', ['dependency', 'update', 'pathToHelmChart', 'additionalArguments'], {"silent": true});
+        expect(utils.execCommand).toBeCalledWith('pathToHelm', ['dependency', 'update', 'pathToHelmChart'], {"silent": true});
+        expect(utils.execCommand). toBeCalledWith('pathToHelm', ['version', '--template', '{{.Version}}'], {"silent": true});
+        //expect(utils.execCommand).toBeCalledWith('pathToHelm', ['init', '--client-only', '--stable-repo-url', 'https://charts.helm.sh/stable'], {"silent": true});
+        expect(utils.execCommand).toBeCalledWith('pathToHelm', ['template', 'additionalArguments', '--name', 'releaseName', 'pathToHelmChart'], { "silent": true });
     });
 
     test('HelmRenderEngine() - multiple additional arguments', async () => {
+        process.env['INPUT_RENDERENGINE'] = 'helm';
         jest.spyOn(helmUtil, 'getHelmPath').mockResolvedValue('pathToHelm');
-        jest.spyOn(core, 'getInput').mockReturnValueOnce('pathToHelmChart').mockReturnValueOnce('releaseName');
-        jest.spyOn(core, 'getInput').mockReturnValueOnce('additional\nArguments').mockReturnValueOnce('arguments');
+        jest.spyOn(core, 'getInput').mockImplementation((inputName, options) => {
+            if (inputName == "helmChart") return 'pathToHelmChart';
+            if (inputName == "arguments") return 'additional\nArguments';
+            if (inputName == "releaseName") return 'releaseName';
+        })
         jest.spyOn(console, 'log').mockImplementation();
         mockStatusCode = 0;
         stdOutMessage = 'v2.9.1';
@@ -166,9 +176,11 @@ describe('Test all functions in run file', () => {
         jest.spyOn(utils, 'getCurrentTime').mockReturnValue(12345678);
         jest.spyOn(core, 'setOutput').mockImplementation();
 
-        expect(await (new HelmRenderEngine().bake(true))).toBeDefined();
-        expect(utils.execCommand).toBeCalledWith('pathToHelm', ['dependency', 'update', 'pathToHelmChart', 'additional\nArguments'], {"silent": true});
+        expect(await (new HelmRenderEngine().bake(true))).toBeUndefined();
+        //expect(utils.execCommand).toBeCalledWith('pathToHelm', ['dependency', 'update', 'pathToHelmChart', 'additional\nArguments'], {"silent": true});
+        expect(utils.execCommand).toBeCalledWith('pathToHelm', ['dependency', 'update', 'pathToHelmChart'], {"silent": true});
         expect(utils.execCommand).toBeCalledWith('pathToHelm', ['version', '--template', '{{.Version}}'], {"silent": true});
-        expect(utils.execCommand).toBeCalledWith('pathToHelm', ['init', '--client-only', '--stable-repo-url', 'https://charts.helm.sh/stable'], {"silent": true});
+        // expect(utils.execCommand).toBeCalledWith('pathToHelm', ['init', '--client-only', '--stable-repo-url', 'https://charts.helm.sh/stable'], {"silent": true});
+        expect(utils.execCommand).toBeCalledWith('pathToHelm', ['template', 'additional\nArguments', '--name', 'releaseName', 'pathToHelmChart'], { "silent": true });
     });
 });
