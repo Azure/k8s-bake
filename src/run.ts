@@ -96,7 +96,7 @@ export class HelmRenderEngine extends RenderEngine {
         const additionalArgs = core.getInput('arguments', { required: false })
         if (!!additionalArgs) {
             const argumentArray = additionalArgs
-                        .split(/[\n,;]+/)
+                        .split(/[\n,;]+/) // split into each line
                         .map((manifest) => manifest.trim()) // remove surrounding whitespace
                         .filter((manifest) => manifest.length > 0); // remove any blanks
             if (argumentArray.length > 0) {
@@ -184,9 +184,15 @@ export class KustomizeRenderEngine extends RenderEngine {
             silent: isSilent
         } as ExecOptions;
 
+        console.log("Creating the template argument string..");
+        const args = this.getKustomizeTemplateArgs(kustomizationPath)
+
+        console.log("Running kustomize template command..");
+        await utilities.execCommand(kubectlPath, args, options);
+
         core.debug("Running kubectl kustomize command..");
         console.log(`[command] ${kubectlPath} kustomize ${core.getInput('kustomizationPath')}`);
-        const result = await utilities.execCommand(kubectlPath, ['kustomize', kustomizationPath], options);
+        const result = await utilities.execCommand(kubectlPath, ['kustomize', kustomizationPath], options);        
         const pathToBakedManifest = this.getTemplatePath();
         fs.writeFileSync(pathToBakedManifest, result.stdout);
         core.setOutput('manifestsBundle', pathToBakedManifest);
@@ -201,6 +207,27 @@ export class KustomizeRenderEngine extends RenderEngine {
                 throw new Error("kubectl client version equal to v1.14 or higher is required to use kustomize features");
             }
         }
+    }
+
+    private getKustomizeTemplateArgs(kustomizationPath: string): string[] {
+        const args: string[] = [];
+        args.push('template');
+
+        const additionalArgs = core.getInput('arguments', { required: false })
+        if (!!additionalArgs) {
+            const argumentArray = additionalArgs
+                .split(/[\n,;]+/) // split into each line
+                .map((manifest) => manifest.trim()) // remove surrounding whitespace
+                .filter((manifest) => manifest.length > 0); // remove any blanks
+            if (argumentArray.length > 0) {
+                argumentArray.forEach(arg => {
+                    args.push(arg); 
+                });
+            }
+        }
+        args.push(kustomizationPath);
+
+        return args;
     }
 }
 

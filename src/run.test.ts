@@ -45,6 +45,78 @@ describe('Test all functions in run file', () => {
 
     test('KustomizeRenderEngine() - validate kubetl and bake using kustomize', async () => {
         jest.spyOn(kubectlUtil, 'getKubectlPath').mockResolvedValue('pathToKubectl');
+        const responseStdout = JSON.stringify({
+            "clientVersion": {
+            "major": "1",
+            "minor": "18",
+            }
+        });
+        const kubectlVersionResponse = {
+                'stdout': responseStdout
+        };
+        const kustomizeResponse = {
+            'stdout': 'kustomizeOutput'  
+        };
+        jest.spyOn(utils, 'execCommand').mockResolvedValue(kubectlVersionResponse as utils.ExecResult);
+        jest.spyOn(core, 'getInput').mockImplementation((inputName, options) => {
+            if (inputName == "kustomizationPath") return 'pathToKustomization';
+            if (inputName == "arguments") return 'additionalArguments';
+        })
+        jest.spyOn(ioUtil, 'exists').mockResolvedValue(true);
+        jest.spyOn(fs, 'writeFileSync').mockImplementation();
+        process.env['RUNNER_TEMP'] = 'tempDir';
+        jest.spyOn(utils, 'getCurrentTime').mockReturnValue(12345678);
+        jest.spyOn(core, 'debug').mockImplementation();
+        jest.spyOn(core, 'setOutput').mockImplementation();
+        jest.spyOn(console, 'log').mockImplementation();
+        
+        expect(await (new KustomizeRenderEngine()).bake(true)).toBeUndefined();
+        expect(kubectlUtil.getKubectlPath).toBeCalled();
+        
+        expect(utils.execCommand).toBeCalledWith('pathToKubectl', ['version', '--client=true', '-o', 'json']);
+        expect(utils.execCommand).toBeCalledWith('pathToKubectl', ['template', 'additionalArguments', 'pathToKustomization'], { silent: true } as ExecOptions);
+        expect(utils.execCommand).toBeCalledWith('pathToKubectl', ['kustomize', 'pathToKustomization'], { silent: true } as ExecOptions);
+        
+        expect(core.getInput).toBeCalledWith('kustomizationPath', { required: true });
+        expect(fs.writeFileSync).toBeCalledWith(path.join('tempDir', 'baked-template-12345678.yaml'), responseStdout);
+        expect(core.setOutput).toBeCalledWith('manifestsBundle', path.join('tempDir', 'baked-template-12345678.yaml'));
+    });
+
+    test('KustomizeRenderEngine() - multiple additional arguments with leading/trailing spaces', async () => {
+        jest.spyOn(kubectlUtil, 'getKubectlPath').mockResolvedValue('pathToKubectl');
+        const kubectlVersionResponse = {
+                'stdout': JSON.stringify({
+                "clientVersion": {
+                "major": "1",
+                "minor": "18",
+                }
+            })
+        };
+        const kustomizeResponse = {
+            'stdout': 'kustomizeOutput'  
+        };
+        jest.spyOn(utils, 'execCommand').mockResolvedValue(kubectlVersionResponse as utils.ExecResult);
+        jest.spyOn(core, 'getInput').mockImplementation((inputName, options) => {
+            if (inputName == "kustomizationPath") return 'pathToKustomization';
+            if (inputName == "arguments") return ' additional \n  Arguments  ';
+        })
+        jest.spyOn(ioUtil, 'exists').mockResolvedValue(true);
+        jest.spyOn(fs, 'writeFileSync').mockImplementation();
+        process.env['RUNNER_TEMP'] = 'tempDir';
+        jest.spyOn(utils, 'getCurrentTime').mockReturnValue(12345678);
+        jest.spyOn(core, 'debug').mockImplementation();
+        jest.spyOn(core, 'setOutput').mockImplementation();
+        jest.spyOn(console, 'log').mockImplementation();
+
+        expect(await (new KustomizeRenderEngine()).bake(true)).toBeUndefined();
+        expect(kubectlUtil.getKubectlPath).toBeCalled();
+        expect(utils.execCommand).toBeCalledWith('pathToKubectl', ['version', '--client=true', '-o', 'json']);
+        expect(utils.execCommand).toBeCalledWith('pathToKubectl', ['template', 'additional', 'Arguments', 'pathToKustomization'], { silent: true } as ExecOptions);
+        expect(utils.execCommand).toBeCalledWith('pathToKubectl', ['kustomize', 'pathToKustomization'], { silent: true } as ExecOptions);
+    });
+
+    test('KustomizeRenderEngine() - multiple additional argument', async () => {
+        jest.spyOn(kubectlUtil, 'getKubectlPath').mockResolvedValue('pathToKubectl');
         const kubectlVersionResponse = {
                 'stdout': JSON.stringify({
                 "clientVersion": {
@@ -57,7 +129,10 @@ describe('Test all functions in run file', () => {
             'stdout': 'kustomizeOutput'  
         };
         jest.spyOn(utils, 'execCommand').mockResolvedValueOnce(kubectlVersionResponse as utils.ExecResult).mockResolvedValueOnce(kustomizeResponse as utils.ExecResult);
-        jest.spyOn(core, 'getInput').mockReturnValue('pathToKustomization');
+        jest.spyOn(core, 'getInput').mockImplementation((inputName, options) => {
+            if (inputName == "kustomizationPath") return 'pathToKustomization';
+            if (inputName == "arguments") return 'add1 tional,\nArguments\nnore\nargu ments';
+        })
         jest.spyOn(ioUtil, 'exists').mockResolvedValue(true);
         jest.spyOn(fs, 'writeFileSync').mockImplementation();
         process.env['RUNNER_TEMP'] = 'tempDir';
@@ -65,15 +140,13 @@ describe('Test all functions in run file', () => {
         jest.spyOn(core, 'debug').mockImplementation();
         jest.spyOn(core, 'setOutput').mockImplementation();
         jest.spyOn(console, 'log').mockImplementation();
-        
+
         expect(await (new KustomizeRenderEngine()).bake(true)).toBeUndefined();
         expect(kubectlUtil.getKubectlPath).toBeCalled();
         expect(utils.execCommand).toBeCalledWith('pathToKubectl', ['version', '--client=true', '-o', 'json']);
+        expect(utils.execCommand).toBeCalledWith('pathToKubectl', ['template', 'add1 tional', 'Arguments',  'nore', 'argu ments', 'pathToKustomization'], { silent: true } as ExecOptions);
         expect(utils.execCommand).toBeCalledWith('pathToKubectl', ['kustomize', 'pathToKustomization'], { silent: true } as ExecOptions);
-        expect(core.getInput).toBeCalledWith('kustomizationPath', { required: true });
-        expect(fs.writeFileSync).toBeCalledWith(path.join('tempDir', 'baked-template-12345678.yaml'), 'kustomizeOutput');
-        expect(core.setOutput).toBeCalledWith('manifestsBundle', path.join('tempDir', 'baked-template-12345678.yaml'));
-    });
+    })
 
     test('KustomizeRenderEngine() - throw error if unable to find temp directory', async () => {
         jest.spyOn(core, 'getInput').mockReturnValue('pathToKompose');
@@ -129,6 +202,11 @@ describe('Test all functions in run file', () => {
         jest.spyOn(utils, 'getCurrentTime').mockReturnValue(12345678);
         jest.spyOn(core, 'setOutput').mockImplementation();
 
+        const execResult = {
+            'stdout': 'test output'  
+        };
+        jest.spyOn(utils, 'execCommand').mockResolvedValue(execResult as utils.ExecResult);
+
         expect(await (new HelmRenderEngine().bake(true))).toBeUndefined();
         expect(utils.execCommand).toBeCalledWith('pathToHelm', ['dependency', 'update', 'pathToHelmChart'], {"silent": true});
         expect(utils.execCommand).toBeCalledWith('pathToHelm', ['version', '--template', '{{.Version}}'], {"silent": true});
@@ -152,11 +230,14 @@ describe('Test all functions in run file', () => {
         jest.spyOn(utils, 'getCurrentTime').mockReturnValue(12345678);
         jest.spyOn(core, 'setOutput').mockImplementation();
 
+        const execResult = {
+            'stdout': 'test output'  
+        };
+        jest.spyOn(utils, 'execCommand').mockResolvedValue(execResult as utils.ExecResult);
+
         expect(await (new HelmRenderEngine().bake(true))).toBeUndefined();
-        // expect(utils.execCommand).toBeCalledWith('pathToHelm', ['dependency', 'update', 'pathToHelmChart', 'additionalArguments'], {"silent": true});
         expect(utils.execCommand).toBeCalledWith('pathToHelm', ['dependency', 'update', 'pathToHelmChart'], {"silent": true});
-        expect(utils.execCommand). toBeCalledWith('pathToHelm', ['version', '--template', '{{.Version}}'], {"silent": true});
-        //expect(utils.execCommand).toBeCalledWith('pathToHelm', ['init', '--client-only', '--stable-repo-url', 'https://charts.helm.sh/stable'], {"silent": true});
+        expect(utils.execCommand).toBeCalledWith('pathToHelm', ['version', '--template', '{{.Version}}'], {"silent": true});
         expect(utils.execCommand).toBeCalledWith('pathToHelm', ['template', 'additionalArguments', '--name', 'releaseName', 'pathToHelmChart'], { "silent": true });
     });
 
@@ -176,11 +257,14 @@ describe('Test all functions in run file', () => {
         jest.spyOn(utils, 'getCurrentTime').mockReturnValue(12345678);
         jest.spyOn(core, 'setOutput').mockImplementation();
 
+        const execResult = {
+            'stdout': 'test output'  
+        };
+        jest.spyOn(utils, 'execCommand').mockResolvedValue(execResult as utils.ExecResult);
+
         expect(await (new HelmRenderEngine().bake(true))).toBeUndefined();
-        //expect(utils.execCommand).toBeCalledWith('pathToHelm', ['dependency', 'update', 'pathToHelmChart', 'additional\nArguments'], {"silent": true});
-        expect(utils.execCommand).toBeCalledWith('pathToHelm', ['dependency', 'update', 'pathToHelmChart'], {"silent": true});
         expect(utils.execCommand).toBeCalledWith('pathToHelm', ['version', '--template', '{{.Version}}'], {"silent": true});
-        // expect(utils.execCommand).toBeCalledWith('pathToHelm', ['init', '--client-only', '--stable-repo-url', 'https://charts.helm.sh/stable'], {"silent": true});
-        expect(utils.execCommand).toBeCalledWith('pathToHelm', ['template', 'additional\nArguments', '--name', 'releaseName', 'pathToHelmChart'], { "silent": true });
+        expect(utils.execCommand).toBeCalledWith('pathToHelm', ['init', '--client-only', '--stable-repo-url', 'https://charts.helm.sh/stable'], {"silent": true});
+        expect(utils.execCommand).toBeCalledWith('pathToHelm', ['template', 'additional', 'Arguments', '--name', 'releaseName', 'pathToHelmChart'], { "silent": true });
     });
 });
