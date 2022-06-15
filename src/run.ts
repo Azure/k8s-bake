@@ -128,7 +128,6 @@ export class HelmRenderEngine extends RenderEngine {
                 });
             }
         }
-
         return args;
     }
 
@@ -172,6 +171,7 @@ export class KustomizeRenderEngine extends RenderEngine {
 
         console.log("Creating the template argument string..");
         const args = await getTemplateArguments(kustomizationPath)
+        args.push(kustomizationPath);
 
         console.log("Running kustomize template command..");
         await utilities.execCommand(kubectlPath, args, options);
@@ -211,7 +211,6 @@ export async function getTemplateArguments(path: string) {
             });
         }
     }
-    args.push(path);
     return args;
 }
 
