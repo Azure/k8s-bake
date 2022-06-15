@@ -169,11 +169,11 @@ export class KustomizeRenderEngine extends RenderEngine {
             silent: isSilent
         } as ExecOptions;
 
-        console.log("Creating the template argument string..");
+        core.info("Creating the template argument string..");
         const args = await getTemplateArguments(kustomizationPath)
         args.push(kustomizationPath);
 
-        console.log("Running kustomize template command..");
+        core.info("Running kustomize template command..");
         await utilities.execCommand(kubectlPath, args, options);
 
         core.debug("Running kubectl kustomize command..");
