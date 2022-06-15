@@ -148,7 +148,7 @@ describe('Test all functions in run file', () => {
         expect(utils.execCommand).toBeCalledWith('pathToKubectl', ['kustomize', 'pathToKustomization'], { silent: true } as ExecOptions);
     })
 
-    test('KustomizeRenderEngine() - throw error if unable to find temp directory', async () => {
+    test('KomposeRenderEngine() - throw error if unable to find temp directory', async () => {
         jest.spyOn(core, 'getInput').mockReturnValue('pathToKompose');
         jest.spyOn(ioUtil, 'exists').mockResolvedValue(true);
         jest.spyOn(komposeUtil, 'getKomposePath').mockResolvedValue('pathToKompose');
@@ -161,7 +161,7 @@ describe('Test all functions in run file', () => {
         expect(komposeUtil.getKomposePath).toBeCalled();
     });
 
-    test('KustomizeRenderEngine() - bake using kustomize', async () => {
+    test('KomposeRenderEngine() - bake using kompose', async () => {
         jest.spyOn(core, 'getInput').mockReturnValue('pathToDockerCompose');
         jest.spyOn(ioUtil, 'exists').mockResolvedValue(true);
         jest.spyOn(komposeUtil, 'getKomposePath').mockResolvedValue('pathToKompose');
