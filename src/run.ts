@@ -53,7 +53,7 @@ export class HelmRenderEngine extends RenderEngine {
         }
 
         console.log("Creating the template argument string..");
-        const args = this.getTemplateArgs(chartPath, isV3)
+        const args = await this.getHelmTemplateArgs(chartPath, isV3);
 
         console.log("Running helm template command..");
         const result = await utilities.execCommand(helmPath, args, options)
@@ -87,24 +87,10 @@ export class HelmRenderEngine extends RenderEngine {
         return args;
     }
 
-    private getTemplateArgs(chartPath: string, isV3: boolean): string[] {
+    private async getHelmTemplateArgs(chartPath: string, isV3: boolean): Promise<string[]> {
         const releaseName = core.getInput('releaseName', { required: false });
 
-        const args: string[] = [];
-        args.push('template');
-
-        const additionalArgs = core.getInput('arguments', { required: false })
-        if (!!additionalArgs) {
-            const argumentArray = additionalArgs
-                        .split(/[\n,;]+/) // split into each line
-                        .map((manifest) => manifest.trim()) // remove surrounding whitespace
-                        .filter((manifest) => manifest.length > 0); // remove any blanks
-            if (argumentArray.length > 0) {
-                argumentArray.forEach(arg => {
-                    args.push(arg); 
-                });
-            }
-        }
+        const args = await getTemplateArguments(chartPath);
 
         if (isV3) {
             if (releaseName) {
@@ -185,7 +171,7 @@ export class KustomizeRenderEngine extends RenderEngine {
         } as ExecOptions;
 
         console.log("Creating the template argument string..");
-        const args = this.getKustomizeTemplateArgs(kustomizationPath)
+        const args = await getTemplateArguments(kustomizationPath)
 
         console.log("Running kustomize template command..");
         await utilities.execCommand(kubectlPath, args, options);
@@ -208,27 +194,25 @@ export class KustomizeRenderEngine extends RenderEngine {
             }
         }
     }
+}
 
-    private getKustomizeTemplateArgs(kustomizationPath: string): string[] {
-        const args: string[] = [];
-        args.push('template');
-
-        const additionalArgs = core.getInput('arguments', { required: false })
-        if (!!additionalArgs) {
-            const argumentArray = additionalArgs
-                .split(/[\n,;]+/) // split into each line
-                .map((manifest) => manifest.trim()) // remove surrounding whitespace
-                .filter((manifest) => manifest.length > 0); // remove any blanks
-            if (argumentArray.length > 0) {
-                argumentArray.forEach(arg => {
-                    args.push(arg); 
-                });
-            }
+export async function getTemplateArguments(path: string) {
+    const args: string[] = [];
+    args.push('template');        
+    const additionalArgs = core.getInput('arguments', { required: false })
+    if (!!additionalArgs) {
+        const argumentArray = additionalArgs
+            .split(/[\n,;]+/) // split into each line
+            .map((manifest) => manifest.trim()) // remove surrounding whitespace
+            .filter((manifest) => manifest.length > 0); // remove any blanks
+        if (argumentArray.length > 0) {
+            argumentArray.forEach(arg => {
+                args.push(arg); 
+            });
         }
-        args.push(kustomizationPath);
-
-        return args;
     }
+    args.push(path);
+    return args;
 }
 
 export async function run() {
