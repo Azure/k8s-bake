@@ -92,6 +92,12 @@ export class HelmRenderEngine extends RenderEngine {
 
         const args = await getTemplateArguments(chartPath);
 
+        const namespace = core.getInput('namespace', { required: false });
+        if (namespace) {
+            args.push('--namespace');
+            args.push(namespace);
+        }
+
         if (isV3) {
             if (releaseName) {
                 args.push(releaseName);

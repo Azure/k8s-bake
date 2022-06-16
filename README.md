@@ -40,6 +40,9 @@ Sets output variable 'manifestsBundle' which contains the location of the manife
   with:
     renderEngine: "kustomize"
     kustomizationPath: "./kustomizeexample/"
+    arguments: | 
+          --ca-file
+          ./ca-file/
     kubectl-version: "latest"
 ```
 
