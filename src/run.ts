@@ -89,8 +89,10 @@ export class HelmRenderEngine extends RenderEngine {
 
     private async getHelmTemplateArgs(chartPath: string, isV3: boolean): Promise<string[]> {
         const releaseName = core.getInput('releaseName', { required: false });
-
-        const args = await getTemplateArguments(chartPath);
+        let args: string[] = [];
+        args.push('template');
+        const templateArgs = await getTemplateArguments(chartPath);
+        args = args.concat(templateArgs);
 
         const namespace = core.getInput('namespace', { required: false });
         if (namespace) {
@@ -203,8 +205,7 @@ export class KustomizeRenderEngine extends RenderEngine {
 }
 
 export async function getTemplateArguments(path: string) {
-    const args: string[] = [];
-    args.push('template');        
+    const args: string[] = [];      
     const additionalArgs = core.getInput('arguments', { required: false })
     if (!!additionalArgs) {
         const argumentArray = additionalArgs

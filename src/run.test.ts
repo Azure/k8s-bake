@@ -74,7 +74,7 @@ describe('Test all functions in run file', () => {
         expect(kubectlUtil.getKubectlPath).toBeCalled();
         
         expect(utils.execCommand).toBeCalledWith('pathToKubectl', ['version', '--client=true', '-o', 'json']);
-        expect(utils.execCommand).toBeCalledWith('pathToKubectl', ['template', 'additionalArguments', 'pathToKustomization'], { silent: true } as ExecOptions);
+        expect(utils.execCommand).toBeCalledWith('pathToKubectl', ['additionalArguments', 'pathToKustomization'], { silent: true } as ExecOptions);
         expect(utils.execCommand).toBeCalledWith('pathToKubectl', ['kustomize', 'pathToKustomization'], { silent: true } as ExecOptions);
         
         expect(core.getInput).toBeCalledWith('kustomizationPath', { required: true });
@@ -111,7 +111,7 @@ describe('Test all functions in run file', () => {
         expect(await (new KustomizeRenderEngine()).bake(true)).toBeUndefined();
         expect(kubectlUtil.getKubectlPath).toBeCalled();
         expect(utils.execCommand).toBeCalledWith('pathToKubectl', ['version', '--client=true', '-o', 'json']);
-        expect(utils.execCommand).toBeCalledWith('pathToKubectl', ['template', 'additional', 'Arguments', 'pathToKustomization'], { silent: true } as ExecOptions);
+        expect(utils.execCommand).toBeCalledWith('pathToKubectl', ['additional', 'Arguments', 'pathToKustomization'], { silent: true } as ExecOptions);
         expect(utils.execCommand).toBeCalledWith('pathToKubectl', ['kustomize', 'pathToKustomization'], { silent: true } as ExecOptions);
     });
 
@@ -144,7 +144,7 @@ describe('Test all functions in run file', () => {
         expect(await (new KustomizeRenderEngine()).bake(true)).toBeUndefined();
         expect(kubectlUtil.getKubectlPath).toBeCalled();
         expect(utils.execCommand).toBeCalledWith('pathToKubectl', ['version', '--client=true', '-o', 'json']);
-        expect(utils.execCommand).toBeCalledWith('pathToKubectl', ['template', 'add1 tional', 'Arguments',  'nore', 'argu ments', 'pathToKustomization'], { silent: true } as ExecOptions);
+        expect(utils.execCommand).toBeCalledWith('pathToKubectl', ['add1 tional', 'Arguments',  'nore', 'argu ments', 'pathToKustomization'], { silent: true } as ExecOptions);
         expect(utils.execCommand).toBeCalledWith('pathToKubectl', ['kustomize', 'pathToKustomization'], { silent: true } as ExecOptions);
     })
 
@@ -266,5 +266,32 @@ describe('Test all functions in run file', () => {
         expect(utils.execCommand).toBeCalledWith('pathToHelm', ['version', '--template', '{{.Version}}'], {"silent": true});
         expect(utils.execCommand).toBeCalledWith('pathToHelm', ['init', '--client-only', '--stable-repo-url', 'https://charts.helm.sh/stable'], {"silent": true});
         expect(utils.execCommand).toBeCalledWith('pathToHelm', ['template', 'additional', 'Arguments', '--name', 'releaseName', 'pathToHelmChart'], { "silent": true });
+    });
+
+    test('HelmRenderEngine() - no additional arguments', async () => {
+        process.env['INPUT_RENDERENGINE'] = 'helm';
+        jest.spyOn(helmUtil, 'getHelmPath').mockResolvedValue('pathToHelm');
+        jest.spyOn(core, 'getInput').mockImplementation((inputName, options) => {
+            if (inputName == "helmChart") return 'pathToHelmChart';
+            if (inputName == "arguments") return '';
+            if (inputName == "releaseName") return 'releaseName';
+        })
+        jest.spyOn(console, 'log').mockImplementation();
+        mockStatusCode = 0;
+        stdOutMessage = 'v2.9.1';
+        process.env['RUNNER_TEMP'] = 'tempDirPath';
+        jest.spyOn(fs, 'writeFileSync').mockImplementation();
+        jest.spyOn(utils, 'getCurrentTime').mockReturnValue(12345678);
+        jest.spyOn(core, 'setOutput').mockImplementation();
+
+        const execResult = {
+            'stdout': 'test output'  
+        };
+        jest.spyOn(utils, 'execCommand').mockResolvedValue(execResult as utils.ExecResult);
+
+        expect(await (new HelmRenderEngine().bake(true))).toBeUndefined();
+        expect(utils.execCommand).toBeCalledWith('pathToHelm', ['version', '--template', '{{.Version}}'], {"silent": true});
+        expect(utils.execCommand).toBeCalledWith('pathToHelm', ['init', '--client-only', '--stable-repo-url', 'https://charts.helm.sh/stable'], {"silent": true});
+        expect(utils.execCommand).toBeCalledWith('pathToHelm', ['template', '--name', 'releaseName', 'pathToHelmChart'], { "silent": true });
     });
 });
