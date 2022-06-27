@@ -13,6 +13,9 @@ Sets output variable 'manifestsBundle' which contains the location of the manife
    with:
       renderEngine: 'helm'
       helmChart: './aks-helloworld/'
+      arguments: | 
+          --ca-file
+          ./ca-file/
       overrideFiles: './aks-helloworld/values-override.yaml'
       overrides: |
           replicas:2
@@ -37,6 +40,9 @@ Sets output variable 'manifestsBundle' which contains the location of the manife
   with:
     renderEngine: "kustomize"
     kustomizationPath: "./kustomizeexample/"
+    arguments: | 
+          --ca-file
+          ./ca-file/
     kubectl-version: "latest"
 ```
 

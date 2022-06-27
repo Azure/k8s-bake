@@ -53,7 +53,7 @@ export class HelmRenderEngine extends RenderEngine {
         }
 
         console.log("Creating the template argument string..");
-        const args = this.getTemplateArgs(chartPath, isV3)
+        const args = await this.getHelmTemplateArgs(chartPath, isV3);
 
         console.log("Running helm template command..");
         const result = await utilities.execCommand(helmPath, args, options)
@@ -87,11 +87,12 @@ export class HelmRenderEngine extends RenderEngine {
         return args;
     }
 
-    private getTemplateArgs(chartPath: string, isV3: boolean): string[] {
+    private async getHelmTemplateArgs(chartPath: string, isV3: boolean): Promise<string[]> {
         const releaseName = core.getInput('releaseName', { required: false });
-
-        const args: string[] = [];
+        let args: string[] = [];
         args.push('template');
+        const templateArgs = await getTemplateArguments(chartPath);
+        args = args.concat(templateArgs);
 
         const namespace = core.getInput('namespace', { required: false });
         if (namespace) {
@@ -135,7 +136,6 @@ export class HelmRenderEngine extends RenderEngine {
                 });
             }
         }
-
         return args;
     }
 
@@ -177,9 +177,14 @@ export class KustomizeRenderEngine extends RenderEngine {
             silent: isSilent
         } as ExecOptions;
 
+        core.info("Creating the template argument string..");
+        let args: string[] = ['kustomize', kustomizationPath] 
+        const userargs = await getTemplateArguments(kustomizationPath)
+        args = args.concat(userargs)
+
         core.debug("Running kubectl kustomize command..");
         console.log(`[command] ${kubectlPath} kustomize ${core.getInput('kustomizationPath')}`);
-        const result = await utilities.execCommand(kubectlPath, ['kustomize', kustomizationPath], options);
+        const result = await utilities.execCommand(kubectlPath, args, options);        
         const pathToBakedManifest = this.getTemplatePath();
         fs.writeFileSync(pathToBakedManifest, result.stdout);
         core.setOutput('manifestsBundle', pathToBakedManifest);
@@ -195,6 +200,23 @@ export class KustomizeRenderEngine extends RenderEngine {
             }
         }
     }
+}
+
+export async function getTemplateArguments(path: string) {
+    const args: string[] = [];      
+    const additionalArgs = core.getInput('arguments', { required: false })
+    if (!!additionalArgs) {
+        const argumentArray = additionalArgs
+            .split(/[\n,;]+/) // split into each line
+            .map((manifest) => manifest.trim()) // remove surrounding whitespace
+            .filter((manifest) => manifest.length > 0); // remove any blanks
+        if (argumentArray.length > 0) {
+            argumentArray.forEach(arg => {
+                args.push(arg); 
+            });
+        }
+    }
+    return args;
 }
 
 export async function run() {
