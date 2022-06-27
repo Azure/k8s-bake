@@ -57,8 +57,8 @@ describe('Test all functions in run file', () => {
         const kustomizeResponse = {
             'stdout': 'kustomizeOutput'  
         };
-        jest.spyOn(utils, 'execCommand').mockResolvedValue(kubectlVersionResponse as utils.ExecResult);
-        jest.spyOn(core, 'getInput').mockImplementation((inputName, options) => {
+        jest.spyOn(utils, 'execCommand').mockResolvedValueOnce(kubectlVersionResponse as utils.ExecResult).mockResolvedValueOnce(kustomizeResponse as utils.ExecResult);
+        jest.spyOn(core, 'getInput').mockImplementation((inputName) => {
             if (inputName == "kustomizationPath") return 'pathToKustomization';
             if (inputName == "arguments") return 'additionalArguments';
         })
@@ -74,11 +74,10 @@ describe('Test all functions in run file', () => {
         expect(kubectlUtil.getKubectlPath).toBeCalled();
         
         expect(utils.execCommand).toBeCalledWith('pathToKubectl', ['version', '--client=true', '-o', 'json']);
-        expect(utils.execCommand).toBeCalledWith('pathToKubectl', ['additionalArguments', 'pathToKustomization'], { silent: true } as ExecOptions);
-        expect(utils.execCommand).toBeCalledWith('pathToKubectl', ['kustomize', 'pathToKustomization'], { silent: true } as ExecOptions);
+        expect(utils.execCommand).toBeCalledWith('pathToKubectl', ['kustomize', 'pathToKustomization', 'additionalArguments'], { silent: true } as ExecOptions);
         
         expect(core.getInput).toBeCalledWith('kustomizationPath', { required: true });
-        expect(fs.writeFileSync).toBeCalledWith(path.join('tempDir', 'baked-template-12345678.yaml'), responseStdout);
+        expect(fs.writeFileSync).toBeCalledWith(path.join('tempDir', 'baked-template-12345678.yaml'), 'kustomizeOutput');
         expect(core.setOutput).toBeCalledWith('manifestsBundle', path.join('tempDir', 'baked-template-12345678.yaml'));
     });
 
@@ -111,8 +110,7 @@ describe('Test all functions in run file', () => {
         expect(await (new KustomizeRenderEngine()).bake(true)).toBeUndefined();
         expect(kubectlUtil.getKubectlPath).toBeCalled();
         expect(utils.execCommand).toBeCalledWith('pathToKubectl', ['version', '--client=true', '-o', 'json']);
-        expect(utils.execCommand).toBeCalledWith('pathToKubectl', ['additional', 'Arguments', 'pathToKustomization'], { silent: true } as ExecOptions);
-        expect(utils.execCommand).toBeCalledWith('pathToKubectl', ['kustomize', 'pathToKustomization'], { silent: true } as ExecOptions);
+        expect(utils.execCommand).toBeCalledWith('pathToKubectl', ['kustomize', 'pathToKustomization', 'additional', 'Arguments'], { silent: true } as ExecOptions);
     });
 
     test('KustomizeRenderEngine() - multiple additional argument', async () => {
@@ -144,8 +142,7 @@ describe('Test all functions in run file', () => {
         expect(await (new KustomizeRenderEngine()).bake(true)).toBeUndefined();
         expect(kubectlUtil.getKubectlPath).toBeCalled();
         expect(utils.execCommand).toBeCalledWith('pathToKubectl', ['version', '--client=true', '-o', 'json']);
-        expect(utils.execCommand).toBeCalledWith('pathToKubectl', ['add1 tional', 'Arguments',  'nore', 'argu ments', 'pathToKustomization'], { silent: true } as ExecOptions);
-        expect(utils.execCommand).toBeCalledWith('pathToKubectl', ['kustomize', 'pathToKustomization'], { silent: true } as ExecOptions);
+        expect(utils.execCommand).toBeCalledWith('pathToKubectl', ['kustomize', 'pathToKustomization', 'add1 tional', 'Arguments',  'nore', 'argu ments'], { silent: true } as ExecOptions);
     })
 
     test('KomposeRenderEngine() - throw error if unable to find temp directory', async () => {

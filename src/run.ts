@@ -178,15 +178,13 @@ export class KustomizeRenderEngine extends RenderEngine {
         } as ExecOptions;
 
         core.info("Creating the template argument string..");
-        const args = await getTemplateArguments(kustomizationPath)
-        args.push(kustomizationPath);
-
-        core.info("Running kustomize template command..");
-        await utilities.execCommand(kubectlPath, args, options);
+        let args: string[] = ['kustomize', kustomizationPath] 
+        const userargs = await getTemplateArguments(kustomizationPath)
+        args = args.concat(userargs)
 
         core.debug("Running kubectl kustomize command..");
         console.log(`[command] ${kubectlPath} kustomize ${core.getInput('kustomizationPath')}`);
-        const result = await utilities.execCommand(kubectlPath, ['kustomize', kustomizationPath], options);        
+        const result = await utilities.execCommand(kubectlPath, args, options);        
         const pathToBakedManifest = this.getTemplatePath();
         fs.writeFileSync(pathToBakedManifest, result.stdout);
         core.setOutput('manifestsBundle', pathToBakedManifest);
