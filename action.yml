@@ -1,49 +1,50 @@
-name: "Kubernetes bake"
-description: "Use this action to bake manifest file to be used for deployments using helm, kustomize or kompose"
+name: 'Kubernetes bake'
+description: 'Use this action to bake manifest file to be used for deployments using helm, kustomize or kompose'
 inputs:
-  renderEngine:
-    description: "Acceptable values: helm or kompose or kustomize"
-    required: true
-  helmChart:
-    description: "Required if renderEngine == helm. Helm chart to bake."
-    required: false
-  namespace:
-    description: "Relevant if renderEngine == helm. Namespace to be used for Helm option."
-  arguments:
-    description: "Acceptable values: helm or kustomize. Arguments to be passed to the Helm or kustomize template command"
-    required: false
-  overrideFiles:
-    description: "Relevant if renderEngine == helm. Array of path to override files. Each path should be mentioned on a newline"
-    required: false
-  overrides:
-    description: "Relevant if renderEngine == helm. Override values to set."
-    required: false
-  releaseName:
-    description: "Relevant if renderEngine == helm. Release name to be used for Helm option."
-    required: false
-  kustomizationPath:
-    description: "Required if renderEngine == kustomization. Path to directory or the Git repository containing kustomization.yaml file."
-    required: false
-  dockerComposeFile:
-    description: "Required if renderEngine == kompose. Path(s) to Docker compose files"
-    required: false
-  helm-version:
-    description: "Version of kubectl. Installs a specific version of helm binary"
-    required: false
-  kubectl-version:
-    description: "Version of kubectl. Installs a specific version of kubectl binary"
-    required: false
-  kompose-version:
-    description: "Version of kubectl. Installs a specific version of kompose binary"
-    required: false
-  silent:
-    description: "When set to true, the output of the bake command would not be shown."
-    required: false
+   renderEngine:
+      description: 'Acceptable values: helm or kompose or kustomize'
+      required: true
+   helmChart:
+      description: 'Required if renderEngine == helm. Helm chart to bake.'
+      required: false
+   namespace:
+      description: 'Relevant if renderEngine == helm. Namespace to be used for Helm option.'
+   arguments:
+      description: 'Acceptable values: helm or kustomize. Arguments to be passed to the Helm or kustomize template command'
+      required: false
+   overrideFiles:
+      description: 'Relevant if renderEngine == helm. Array of path to override files. Each path should be mentioned on a newline'
+      required: false
+   overrides:
+      description: 'Relevant if renderEngine == helm. Override values to set.'
+      required: false
+   releaseName:
+      description: 'Relevant if renderEngine == helm. Release name to be used for Helm option.'
+      required: false
+   kustomizationPath:
+      description: 'Required if renderEngine == kustomization. Path to directory or the Git repository containing kustomization.yaml file.'
+      required: false
+   dockerComposeFile:
+      description: 'Required if renderEngine == kompose. Path(s) to Docker compose files'
+      required: false
+   helm-version:
+      description: 'Version of kubectl. Installs a specific version of helm binary'
+      required: false
+   kubectl-version:
+      description: 'Version of kubectl. Installs a specific version of kubectl binary'
+      required: false
+   kompose-version:
+      description: 'Version of kubectl. Installs a specific version of kompose binary'
+      required: false
+   silent:
+      description: 'When set to true, the output of the bake command would not be shown.'
+      required: false
+
 outputs:
-  manifestsBundle:
-    description: "The location of the manifest bundles created by bake action"
+   manifestsBundle:
+      description: 'The location of the manifest bundles created by bake action'
 branding:
-  color: "green" # optional, decorates the entry in the GitHub Marketplace
+   color: 'green' # optional, decorates the entry in the GitHub Marketplace
 runs:
-  using: "node16"
-  main: "lib/index.js"
+   using: 'node16'
+   main: 'lib/index.js'
