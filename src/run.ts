@@ -110,7 +110,7 @@ export class HelmRenderEngine extends RenderEngine {
       const releaseName = core.getInput('releaseName', {required: false})
       let args: string[] = []
       args.push('template')
-      const templateArgs = await getTemplateArguments(chartPath)
+      const templateArgs = await getTemplateArguments()
       args = args.concat(templateArgs)
 
       const namespace = core.getInput('namespace', {required: false})
@@ -222,7 +222,7 @@ export class KustomizeRenderEngine extends RenderEngine {
 
       core.info('Creating the template argument string..')
       let args: string[] = ['kustomize', kustomizationPath]
-      const userargs = await getTemplateArguments(kustomizationPath)
+      const userargs = await getTemplateArguments()
       args = args.concat(userargs)
 
       core.debug('Running kubectl kustomize command..')
@@ -260,7 +260,7 @@ export class KustomizeRenderEngine extends RenderEngine {
    }
 }
 
-export async function getTemplateArguments(path: string) {
+export async function getTemplateArguments(): Promise<string[]> {
    const args: string[] = []
    const additionalArgs = core.getInput('arguments', {required: false})
    if (!!additionalArgs) {
