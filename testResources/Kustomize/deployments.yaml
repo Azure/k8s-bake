@@ -1,19 +1,19 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: deploy
+   name: deploy
 spec:
-  selector:
-    matchLabels:
-      app: nginx
-  template:
-    metadata:
-      labels:
-        foo: bar
-    spec:
-      containers:
-        - name: nginx
-          image: nginx
-          args:
-          - arg1
-          - arg2
+   selector:
+      matchLabels:
+         app: nginx
+   template:
+      metadata:
+         labels:
+            foo: bar
+      spec:
+         containers:
+            - name: nginx
+              image: nginx
+              args:
+                 - arg1
+                 - arg2
