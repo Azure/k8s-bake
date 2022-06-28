@@ -221,9 +221,9 @@ export class KustomizeRenderEngine extends RenderEngine {
       } as ExecOptions
 
       core.info('Creating the template argument string..')
-      let args: string[] = ['kustomize', kustomizationPath]
+      let tempArgs: string[] = ['kustomize', kustomizationPath]
       const userargs = await getTemplateArguments()
-      args = args.concat(userargs)
+      tempArgs = tempArgs.concat(userargs)
 
       core.debug('Running kubectl kustomize command..')
       console.log(
@@ -231,7 +231,7 @@ export class KustomizeRenderEngine extends RenderEngine {
             'kustomizationPath'
          )}`
       )
-      const result = await utilities.execCommand(kubectlPath, args, options)
+      const result = await utilities.execCommand(kubectlPath, tempArgs, options)
       const pathToBakedManifest = this.getTemplatePath()
       fs.writeFileSync(pathToBakedManifest, result.stdout)
       core.setOutput('manifestsBundle', pathToBakedManifest)
@@ -260,7 +260,7 @@ export class KustomizeRenderEngine extends RenderEngine {
    }
 }
 
-export async function getTemplateArguments(): Promise<string[]> {
+export async function getTemplateArguments() {
    const args: string[] = []
    const additionalArgs = core.getInput('arguments', {required: false})
    if (!!additionalArgs) {
@@ -275,23 +275,6 @@ export async function getTemplateArguments(): Promise<string[]> {
       }
    }
    return args
-}
-
-export async function getTemplateArguments(path: string) {
-    const args: string[] = [];      
-    const additionalArgs = core.getInput('arguments', { required: false })
-    if (!!additionalArgs) {
-        const argumentArray = additionalArgs
-            .split(/[\n,;]+/) // split into each line
-            .map((manifest) => manifest.trim()) // remove surrounding whitespace
-            .filter((manifest) => manifest.length > 0); // remove any blanks
-        if (argumentArray.length > 0) {
-            argumentArray.forEach(arg => {
-                args.push(arg); 
-            });
-        }
-    }
-    return args;
 }
 
 export async function run() {
