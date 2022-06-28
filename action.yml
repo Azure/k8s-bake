@@ -39,6 +39,7 @@ inputs:
    silent:
       description: 'When set to true, the output of the bake command would not be shown.'
       required: false
+
 outputs:
    manifestsBundle:
       description: 'The location of the manifest bundles created by bake action'
