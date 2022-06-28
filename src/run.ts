@@ -277,6 +277,23 @@ export async function getTemplateArguments(): Promise<string[]> {
    return args
 }
 
+export async function getTemplateArguments(path: string) {
+    const args: string[] = [];      
+    const additionalArgs = core.getInput('arguments', { required: false })
+    if (!!additionalArgs) {
+        const argumentArray = additionalArgs
+            .split(/[\n,;]+/) // split into each line
+            .map((manifest) => manifest.trim()) // remove surrounding whitespace
+            .filter((manifest) => manifest.length > 0); // remove any blanks
+        if (argumentArray.length > 0) {
+            argumentArray.forEach(arg => {
+                args.push(arg); 
+            });
+        }
+    }
+    return args;
+}
+
 export async function run() {
    const renderType = core.getInput('renderEngine', {required: true})
    let renderEngine: RenderEngine
