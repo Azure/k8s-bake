@@ -221,7 +221,7 @@ export class KustomizeRenderEngine extends RenderEngine {
       } as ExecOptions
 
       core.info('Creating the template argument string..')
-      let tempArgs: string[] = ['kustomize', kustomizationPath]
+      let tempArgs = ['kustomize', kustomizationPath]
       const userargs = await getTemplateArguments()
       tempArgs = tempArgs.concat(userargs)
 
@@ -260,7 +260,7 @@ export class KustomizeRenderEngine extends RenderEngine {
    }
 }
 
-export async function getTemplateArguments() {
+async function getTemplateArguments() {
    const args: string[] = []
    const additionalArgs = core.getInput('arguments', {required: false})
    if (!!additionalArgs) {
