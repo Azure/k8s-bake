@@ -1,6 +1,6 @@
 # Kubernetes bake action
 
-Use this action to bake manifest file to be used for deployments using helm, kustomize or kompose.
+Use this action to bake manifest files to be used for deployments using helm, kustomize or kompose.
 
 Sets output variable 'manifestsBundle' which contains the location of the manifest bundles created by bake action.
 
@@ -9,10 +9,13 @@ Sets output variable 'manifestsBundle' which contains the location of the manife
 #### Bake using helm
 
 ```yaml
-- uses: azure/k8s-bake@v1
+- uses: azure/k8s-bake@v2.2
    with:
       renderEngine: 'helm'
       helmChart: './aks-helloworld/'
+      arguments: |
+          --ca-file
+          ./ca-file/
       overrideFiles: './aks-helloworld/values-override.yaml'
       overrides: |
           replicas:2
@@ -23,21 +26,24 @@ Sets output variable 'manifestsBundle' which contains the location of the manife
 #### Bake using Kompose
 
 ```yaml
-- uses: azure/k8s-bake@v1
+- uses: azure/k8s-bake@v2.2
   with:
-    renderEngine: "kompose"
-    dockerComposeFile: "./docker-compose.yml"
-    kompose-version: "latest"
+     renderEngine: 'kompose'
+     dockerComposeFile: './docker-compose.yml'
+     kompose-version: 'latest'
 ```
 
 #### Bake using Kubernetes Kustomize
 
 ```yaml
-- uses: azure/k8s-bake@v1
+- uses: azure/k8s-bake@v2.2
   with:
-    renderEngine: "kustomize"
-    kustomizationPath: "./kustomizeexample/"
-    kubectl-version: "latest"
+     renderEngine: 'kustomize'
+     kustomizationPath: './kustomizeexample/'
+     arguments: |
+        --ca-file
+        ./ca-file/
+     kubectl-version: 'latest'
 ```
 
 Refer to the [action metadata file](https://github.com/Azure/k8s-bake/blob/master/action.yml) for details about all the inputs.
@@ -48,49 +54,49 @@ Refer to the [action metadata file](https://github.com/Azure/k8s-bake/blob/maste
 on: [push]
 
 jobs:
-  build:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@master
+   build:
+      runs-on: ubuntu-latest
+      steps:
+         - uses: actions/checkout@master
 
-      - uses: Azure/docker-login@v1
-        with:
-          login-server: contoso.azurecr.io
-          username: ${{ secrets.REGISTRY_USERNAME }}
-          password: ${{ secrets.REGISTRY_PASSWORD }}
+         - uses: Azure/docker-login@v1
+           with:
+              login-server: contoso.azurecr.io
+              username: ${{ secrets.REGISTRY_USERNAME }}
+              password: ${{ secrets.REGISTRY_PASSWORD }}
 
-      - run: |
-          docker build . -t contoso.azurecr.io/k8sdemo:${{ github.sha }}
-          docker push contoso.azurecr.io/k8sdemo:${{ github.sha }}
+         - run: |
+              docker build . -t contoso.azurecr.io/k8sdemo:${{ github.sha }}
+              docker push contoso.azurecr.io/k8sdemo:${{ github.sha }}
 
-      - uses: Azure/k8s-set-context@v1
-        with:
-          kubeconfig: ${{ secrets.KUBE_CONFIG }}
+         - uses: Azure/k8s-set-context@v1
+           with:
+              kubeconfig: ${{ secrets.KUBE_CONFIG }}
 
-      - uses: Azure/k8s-create-secret@v1
-        with:
-          container-registry-url: contoso.azurecr.io
-          container-registry-username: ${{ secrets.REGISTRY_USERNAME }}
-          container-registry-password: ${{ secrets.REGISTRY_PASSWORD }}
-          secret-name: demo-k8s-secret
+         - uses: Azure/k8s-create-secret@v1
+           with:
+              container-registry-url: contoso.azurecr.io
+              container-registry-username: ${{ secrets.REGISTRY_USERNAME }}
+              container-registry-password: ${{ secrets.REGISTRY_PASSWORD }}
+              secret-name: demo-k8s-secret
 
-      - uses: azure/k8s-bake@v1
-        with:
-          renderEngine: "helm"
-          helmChart: "./aks-helloworld/"
-          overrideFiles: "./aks-helloworld/values-override.yaml"
-          overrides: |
-            replicas:2
-          helm-version: "latest"
-        id: bake
+         - uses: azure/k8s-bake@v2.2
+           with:
+              renderEngine: 'helm'
+              helmChart: './aks-helloworld/'
+              overrideFiles: './aks-helloworld/values-override.yaml'
+              overrides: |
+                 replicas:2
+              helm-version: 'latest'
+           id: bake
 
-      - uses: Azure/k8s-deploy@v1
-        with:
-          manifests: ${{ steps.bake.outputs.manifestsBundle }}
-          images: |
-            demo.azurecr.io/k8sdemo:${{ github.sha }}
-          imagepullsecrets: |
-            demo-k8s-secret
+         - uses: Azure/k8s-deploy@v1
+           with:
+              manifests: ${{ steps.bake.outputs.manifestsBundle }}
+              images: |
+                 demo.azurecr.io/k8sdemo:${{ github.sha }}
+              imagepullsecrets: |
+                 demo-k8s-secret
 ```
 
 # Contributing
