@@ -229,9 +229,18 @@ describe('Test all functions in utilities file', () => {
       jest.spyOn(toolCache, 'downloadTool').mockImplementation(async () => {
          throw 'Error!!'
       })
+      jest.spyOn(core, 'setFailed').mockImplementation(() => {})
+      jest.spyOn(core, 'debug').mockImplementation(() => {})
+      jest.spyOn(core, 'warning').mockImplementation(() => {})
 
       expect(await utils.getStableVerison('helm')).toBe('v2.14.1')
       expect(toolCache.downloadTool).toBeCalled()
+      expect(core.debug).toBeCalledWith('Error!!')
+      expect(core.warning).toBeCalledWith(
+         expect.stringContaining(
+            'Failed to read latest helm version from URL https://api.github.com/repos/helm/helm/releases/latest.'
+         )
+      )
    })
 
    test('getStableVerison() - return default kubectl v1.15.0 if unable to download file', async () => {
