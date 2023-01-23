@@ -7,7 +7,7 @@ import {
    KomposeRenderEngine,
    HelmRenderEngine,
    run
-} from './run'
+} from './bake'
 import * as ioUtil from '@actions/io/lib/io-util'
 import * as fs from 'fs'
 import * as path from 'path'
@@ -81,6 +81,7 @@ describe('Test all functions in run file', () => {
          .mockResolvedValueOnce(kustomizeResponse as utils.ExecResult)
       jest.spyOn(core, 'getInput').mockImplementation((inputName) => {
          if (inputName == 'kustomizationPath') return 'pathToKustomization'
+         if (inputName == 'renderEngine') return 'kustomize'
          if (inputName == 'arguments') return 'additionalArguments'
       })
       jest.spyOn(ioUtil, 'exists').mockResolvedValue(true)
@@ -139,6 +140,7 @@ describe('Test all functions in run file', () => {
          .mockResolvedValue(kubectlVersionResponse as utils.ExecResult)
       jest.spyOn(core, 'getInput').mockImplementation((inputName, options) => {
          if (inputName == 'kustomizationPath') return 'pathToKustomization'
+         if (inputName == 'renderEngine') return 'kustomize'
          if (inputName == 'arguments') return ' additional \n  Arguments  '
       })
       jest.spyOn(ioUtil, 'exists').mockResolvedValue(true)
@@ -185,6 +187,7 @@ describe('Test all functions in run file', () => {
          .mockResolvedValueOnce(kustomizeResponse as utils.ExecResult)
       jest.spyOn(core, 'getInput').mockImplementation((inputName, options) => {
          if (inputName == 'kustomizationPath') return 'pathToKustomization'
+         if (inputName == 'renderEngine') return 'kustomize'
          if (inputName == 'arguments')
             return 'add1 tional,\nArguments\nnore\nargu ments'
       })
@@ -266,33 +269,42 @@ describe('Test all functions in run file', () => {
 
    test('run() - throw error on wrong input from render-engine', async () => {
       jest.spyOn(core, 'getInput').mockReturnValue('someRenderEngine')
+      jest.spyOn(core, 'setFailed').mockImplementation(() => {})
 
       await expect(run()).rejects.toThrow('Unknown render engine')
+      expect(core.setFailed).toBeCalledWith('Unknown render engine')
    })
 
    test('run() - throw error if bake fails', async () => {
-      jest
-         .spyOn(core, 'getInput')
-         .mockReturnValueOnce('kompose')
-         .mockReturnValueOnce('pathToKompose')
+      jest.spyOn(core, 'getInput').mockImplementation((inputName, options) => {
+         if (inputName == 'renderEngine') return 'kompose'
+         if (inputName == 'dockerComposeFile') return 'pathToDockerComposeFile'
+      })
       jest.spyOn(ioUtil, 'exists').mockResolvedValue(true)
       jest
          .spyOn(komposeUtil, 'getKomposePath')
          .mockResolvedValue('pathToKompose')
       process.env['RUNNER_TEMP'] = ''
       jest.spyOn(utils, 'getCurrentTime').mockReturnValue(12345678)
+      jest.spyOn(core, 'setFailed').mockImplementation(() => {})
 
       await expect(run()).rejects.toThrow(
          'Failed to run bake action. Error: Error: Unable to create temp directory.'
+      )
+      expect(core.setFailed).toBeCalledWith(
+         expect.stringContaining(
+            'Failed to run bake action. Error: Error: Unable to create temp directory.'
+         )
       )
    })
 
    test('HelmRenderEngine() - bake manifest using helm', async () => {
       jest.spyOn(helmUtil, 'getHelmPath').mockResolvedValue('pathToHelm')
-      jest
-         .spyOn(core, 'getInput')
-         .mockReturnValueOnce('pathToHelmChart')
-         .mockReturnValueOnce('releaseName')
+      jest.spyOn(core, 'getInput').mockImplementation((inputName, options) => {
+         if (inputName == 'helmChart') return 'pathToHelmChart'
+         if (inputName == 'releaseName') return 'releaseName'
+         if (inputName == 'renderEngine') return 'helm'
+      })
       jest.spyOn(console, 'log').mockImplementation()
       mockStatusCode = 0
       stdOutMessage = 'v2.9.1'
@@ -342,6 +354,7 @@ describe('Test all functions in run file', () => {
          if (inputName == 'helmChart') return 'pathToHelmChart'
          if (inputName == 'arguments') return 'additionalArguments'
          if (inputName == 'releaseName') return 'releaseName'
+         if (inputName == 'renderEngine') return 'helm'
       })
       jest.spyOn(console, 'log').mockImplementation()
       mockStatusCode = 0
@@ -389,6 +402,7 @@ describe('Test all functions in run file', () => {
          if (inputName == 'helmChart') return 'pathToHelmChart'
          if (inputName == 'arguments') return 'additional\nArguments'
          if (inputName == 'releaseName') return 'releaseName'
+         if (inputName == 'renderEngine') return 'helm'
       })
       jest.spyOn(console, 'log').mockImplementation()
       mockStatusCode = 0
@@ -442,6 +456,7 @@ describe('Test all functions in run file', () => {
          if (inputName == 'helmChart') return 'pathToHelmChart'
          if (inputName == 'arguments') return ''
          if (inputName == 'releaseName') return 'releaseName'
+         if (inputName == 'renderEngine') return 'helm'
       })
       jest.spyOn(console, 'log').mockImplementation()
       mockStatusCode = 0
