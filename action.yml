@@ -22,7 +22,7 @@ inputs:
       description: 'Relevant if renderEngine == helm. Release name to be used for Helm option.'
       required: false
    kustomizationPath:
-      description: 'Required if renderEngine == kustomization. Path to directory or the Git repository containing kustomization.yaml file.'
+      description: 'Required if renderEngine == kustomize. Path to directory or the Git repository containing kustomization.yaml file.'
       required: false
    dockerComposeFile:
       description: 'Required if renderEngine == kompose. Path(s) to Docker compose files'
