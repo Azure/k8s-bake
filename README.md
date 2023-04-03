@@ -9,7 +9,7 @@ Sets output variable 'manifestsBundle' which contains the location of the manife
 #### Bake using helm
 
 ```yaml
-- uses: azure/k8s-bake@v2.2
+- uses: azure/k8s-bake@v2.4
    with:
       renderEngine: 'helm'
       helmChart: './aks-helloworld/'
@@ -26,7 +26,7 @@ Sets output variable 'manifestsBundle' which contains the location of the manife
 #### Bake using Kompose
 
 ```yaml
-- uses: azure/k8s-bake@v2.2
+- uses: azure/k8s-bake@v2.4
   with:
      renderEngine: 'kompose'
      dockerComposeFile: './docker-compose.yml'
@@ -36,7 +36,7 @@ Sets output variable 'manifestsBundle' which contains the location of the manife
 #### Bake using Kubernetes Kustomize
 
 ```yaml
-- uses: azure/k8s-bake@v2.2
+- uses: azure/k8s-bake@v2.4
   with:
      renderEngine: 'kustomize'
      kustomizationPath: './kustomizeexample/'
@@ -69,18 +69,18 @@ jobs:
               docker build . -t contoso.azurecr.io/k8sdemo:${{ github.sha }}
               docker push contoso.azurecr.io/k8sdemo:${{ github.sha }}
 
-         - uses: Azure/k8s-set-context@v1
+         - uses: Azure/k8s-set-context@v3
            with:
               kubeconfig: ${{ secrets.KUBE_CONFIG }}
 
-         - uses: Azure/k8s-create-secret@v1
+         - uses: Azure/k8s-create-secret@v4
            with:
               container-registry-url: contoso.azurecr.io
               container-registry-username: ${{ secrets.REGISTRY_USERNAME }}
               container-registry-password: ${{ secrets.REGISTRY_PASSWORD }}
               secret-name: demo-k8s-secret
 
-         - uses: azure/k8s-bake@v2.2
+         - uses: azure/k8s-bake@v2.4
            with:
               renderEngine: 'helm'
               helmChart: './aks-helloworld/'
@@ -90,7 +90,7 @@ jobs:
               helm-version: 'latest'
            id: bake
 
-         - uses: Azure/k8s-deploy@v1
+         - uses: Azure/k8s-deploy@v4
            with:
               manifests: ${{ steps.bake.outputs.manifestsBundle }}
               images: |
