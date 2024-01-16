@@ -46,5 +46,5 @@ outputs:
 branding:
    color: 'green' # optional, decorates the entry in the GitHub Marketplace
 runs:
-   using: 'node20'
+   using: 'node16'
    main: 'lib/index.js'
