@@ -1,4 +1,4 @@
-name: 'Kubernetes bake'
+name: 'Kubernetes bake custom'
 description: 'Use this action to bake manifest file to be used for deployments using helm, kustomize or kompose'
 inputs:
    renderEngine:
@@ -46,5 +46,5 @@ outputs:
 branding:
    color: 'green' # optional, decorates the entry in the GitHub Marketplace
 runs:
-   using: 'node16'
+   using: 'node20'
    main: 'lib/index.js'
