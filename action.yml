@@ -1,4 +1,4 @@
-name: 'Kubernetes bake custom'
+name: 'Kubernetes bake'
 description: 'Use this action to bake manifest file to be used for deployments using helm, kustomize or kompose'
 inputs:
    renderEngine:
