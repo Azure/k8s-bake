@@ -15,7 +15,7 @@ import {
 } from './utilities'
 
 const komposeToolName = 'kompose'
-const stableKomposeVersion = 'v1.18.0'
+const defaultStableKomposeVersion = 'v1.32.0'
 
 export async function getKomposePath() {
    let komposePath = ''
@@ -52,7 +52,7 @@ export async function getKomposePath() {
 }
 
 export async function downloadKompose(
-   version: string = stableKomposeVersion
+   version: string = defaultStableKomposeVersion
 ): Promise<string> {
    let cachedToolpath = toolCache.find(komposeToolName, version)
    if (!cachedToolpath) {
@@ -69,7 +69,7 @@ export async function downloadKompose(
 
 export async function installKompose(version: string) {
    if (isEqual(version, LATEST)) {
-      version = stableKomposeVersion
+      version = defaultStableKomposeVersion
    }
    core.debug(util.format('Downloading kompose version %s', version))
    return await downloadKompose(version)

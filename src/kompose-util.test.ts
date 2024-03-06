@@ -86,7 +86,7 @@ describe('Testing all funcitons in kompose-util file.', () => {
          path.join('pathToCachedTool', 'kompose.exe')
       )
       expect(core.getInput).toBeCalledWith('kompose-version', {required: false})
-      expect(toolCache.find).toBeCalledWith('kompose', 'v1.18.0')
+      expect(toolCache.find).toBeCalledWith('kompose', 'v1.32.0')
    })
 
    test('getKomposePath() - return path to specified version kompose from toolCache', async () => {
