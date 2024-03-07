@@ -9,7 +9,7 @@ Sets output variable 'manifestsBundle' which contains the location of the manife
 #### Bake using helm
 
 ```yaml
-- uses: azure/k8s-bake@v2.4
+- uses: azure/k8s-bake@v3
    with:
       renderEngine: 'helm'
       helmChart: './aks-helloworld/'
@@ -26,7 +26,7 @@ Sets output variable 'manifestsBundle' which contains the location of the manife
 #### Bake using Kompose
 
 ```yaml
-- uses: azure/k8s-bake@v2.4
+- uses: azure/k8s-bake@v3
   with:
      renderEngine: 'kompose'
      dockerComposeFile: './docker-compose.yml'
@@ -36,7 +36,7 @@ Sets output variable 'manifestsBundle' which contains the location of the manife
 #### Bake using Kubernetes Kustomize
 
 ```yaml
-- uses: azure/k8s-bake@v2.4
+- uses: azure/k8s-bake@v3
   with:
      renderEngine: 'kustomize'
      kustomizationPath: './kustomizeexample/'
@@ -80,7 +80,7 @@ jobs:
               container-registry-password: ${{ secrets.REGISTRY_PASSWORD }}
               secret-name: demo-k8s-secret
 
-         - uses: azure/k8s-bake@v2.4
+         - uses: azure/k8s-bake@v3
            with:
               renderEngine: 'helm'
               helmChart: './aks-helloworld/'
