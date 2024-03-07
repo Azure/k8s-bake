@@ -258,7 +258,7 @@ describe('Testing all functions in helm-util file.', () => {
       jest.spyOn(os, 'type').mockReturnValue('Windows_NT')
 
       expect(await helmUtil.getHelmPath()).toBe(
-        path.join('pathToCachedDir', 'helm.exe')
+         path.join('pathToCachedDir', 'helm.exe')
       )
       expect(toolCache.find).toBeCalledWith('helm', 'v2.14.1')
    })
