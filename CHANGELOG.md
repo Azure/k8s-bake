@@ -4,7 +4,7 @@
 
 ### Changed
 
-- Upgrade to node 20 as node 16 is deprecated
+-  Upgrade to node 20 as node 16 is deprecated
 
 ### Added
 
