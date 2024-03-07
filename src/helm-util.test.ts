@@ -254,9 +254,12 @@ describe('Testing all functions in helm-util file.', () => {
 
    test('getHelmPath() - return helm From toolCache', async () => {
       jest.spyOn(core, 'getInput').mockReturnValue('v2.14.1')
-      jest.spyOn(toolCache, 'find').mockReturnValue('pathToTool')
+      jest.spyOn(toolCache, 'find').mockReturnValue('pathToCachedDir')
+      jest.spyOn(os, 'type').mockReturnValue('Windows_NT')
 
-      expect(await helmUtil.getHelmPath()).toBe('pathToTool')
+      expect(await helmUtil.getHelmPath()).toBe(
+        path.join('pathToCachedDir', 'helm.exe')
+      )
       expect(toolCache.find).toBeCalledWith('helm', 'v2.14.1')
    })
 
@@ -272,10 +275,11 @@ describe('Testing all functions in helm-util file.', () => {
    test('getHelmPath() - return path to any version helm from tool cache', async () => {
       jest.spyOn(core, 'getInput').mockReturnValue('')
       jest.spyOn(io, 'which').mockResolvedValue('')
+      jest.spyOn(toolCache, 'find').mockReturnValue('pathToCachedDir')
       jest.spyOn(toolCache, 'findAllVersions').mockReturnValue(['pathToHelm'])
 
       expect(await helmUtil.getHelmPath()).toBe(
-         path.join('pathToTool', 'helm.exe')
+         path.join('pathToCachedDir', 'helm.exe')
       )
       expect(toolCache.findAllVersions).toBeCalledWith('helm')
       expect(core.getInput).toBeCalledWith('helm-version', {required: false})
