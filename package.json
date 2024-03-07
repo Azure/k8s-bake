@@ -12,6 +12,7 @@
    },
    "main": "lib/run.js",
    "scripts": {
+      "prevuild": "npm i @vercel/ncc",
       "build": "ncc build src/run.ts -o lib",
       "test": "jest",
       "test-coverage": "jest --coverage",
