@@ -10,7 +10,7 @@ jobs:
             os: [windows-latest, ubuntu-latest, macos-latest]
       runs-on: ${{ matrix.os }}
       steps:
-         - uses: actions/checkout@v3
+         - uses: actions/checkout@v4
            name: Checkout branch
 
          - name: Install npm packages
@@ -37,7 +37,7 @@ jobs:
            id: helm-bake
 
          - name: Validate created manifest ${{ matrix.os }}
-           uses: Azure/k8s-lint@v1
+           uses: Azure/k8s-lint@v3
            with:
               manifests: ${{ steps.helm-bake.outputs.manifestsBundle }}
 
@@ -50,7 +50,7 @@ jobs:
            id: kompose-bake
 
          - name: validate created manifest ${{ matrix.os }}
-           uses: Azure/k8s-lint@v1
+           uses: Azure/k8s-lint@v3
            with:
               manifests: ${{ steps.kompose-bake.outputs.manifestsBundle }}
 
@@ -63,6 +63,6 @@ jobs:
            id: kustomize-bake
 
          - name: Validate created manifest ${{ matrix.os }}
-           uses: Azure/k8s-lint@v1
+           uses: Azure/k8s-lint@v3
            with:
               manifests: ${{ steps.kustomize-bake.outputs.manifestsBundle }}
