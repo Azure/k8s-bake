@@ -37,8 +37,8 @@ describe('Testing all functions in helm-util file.', () => {
       expect(helmUtil.walkSync('mainFolder', undefined, 'file21')).toEqual([
          path.join('mainFolder', 'folder2', 'file21')
       ])
-      expect(fs.readdirSync).toBeCalledTimes(3)
-      expect(fs.statSync).toBeCalledTimes(8)
+      expect(fs.readdirSync).toHaveBeenCalledTimes(3)
+      expect(fs.statSync).toHaveBeenCalledTimes(8)
    })
 
    test('walkSync() - return empty array if no file with name fileToFind exists', () => {
@@ -69,8 +69,8 @@ describe('Testing all functions in helm-util file.', () => {
       })
 
       expect(helmUtil.walkSync('mainFolder', undefined, 'helm.exe')).toEqual([])
-      expect(fs.readdirSync).toBeCalledTimes(2)
-      expect(fs.statSync).toBeCalledTimes(5)
+      expect(fs.readdirSync).toHaveBeenCalledTimes(2)
+      expect(fs.statSync).toHaveBeenCalledTimes(5)
    })
 
    test('downloadHelm() - throw error when unable to download', async () => {
@@ -84,8 +84,8 @@ describe('Testing all functions in helm-util file.', () => {
       await expect(helmUtil.downloadHelm('v2.14.1')).rejects.toThrow(
          'Failed to download the helm from https://get.helm.sh/helm-v2.14.1-windows-amd64.zip.  Error: Unable to download.'
       )
-      expect(toolCache.find).toBeCalledWith('helm', 'v2.14.1')
-      expect(toolCache.downloadTool).toBeCalledWith(
+      expect(toolCache.find).toHaveBeenCalledWith('helm', 'v2.14.1')
+      expect(toolCache.downloadTool).toHaveBeenCalledWith(
          'https://get.helm.sh/helm-v2.14.1-windows-amd64.zip'
       )
    })
@@ -108,8 +108,8 @@ describe('Testing all functions in helm-util file.', () => {
 
       const helmPath = await helmUtil.downloadHelm('v2.14.1')
       expect(helmPath).toBe(path.join('pathToCachedDir', 'helm.exe'))
-      expect(toolCache.find).toBeCalledWith('helm', 'v2.14.1')
-      expect(fs.chmodSync).toBeCalledWith(
+      expect(toolCache.find).toHaveBeenCalledWith('helm', 'v2.14.1')
+      expect(fs.chmodSync).toHaveBeenCalledWith(
          path.join('pathToCachedDir', 'helm.exe'),
          '777'
       )
@@ -134,12 +134,12 @@ describe('Testing all functions in helm-util file.', () => {
       await expect(helmUtil.downloadHelm('v2.14.1')).rejects.toThrow(
          'Helm executable not found in path  pathToCachedDir'
       )
-      expect(toolCache.find).toBeCalledWith('helm', 'v2.14.1')
-      expect(toolCache.downloadTool).toBeCalledWith(
+      expect(toolCache.find).toHaveBeenCalledWith('helm', 'v2.14.1')
+      expect(toolCache.downloadTool).toHaveBeenCalledWith(
          'https://get.helm.sh/helm-v2.14.1-windows-amd64.zip'
       )
-      expect(fs.chmodSync).toBeCalledWith('pathToTool', '777')
-      expect(toolCache.extractZip).toBeCalledWith('pathToTool')
+      expect(fs.chmodSync).toHaveBeenCalledWith('pathToTool', '777')
+      expect(toolCache.extractZip).toHaveBeenCalledWith('pathToTool')
    })
 
    test('downloadHelm() - get stable version of helm, download and return path', async () => {
@@ -169,13 +169,13 @@ describe('Testing all functions in helm-util file.', () => {
       expect(await helmUtil.downloadHelm('v4.0.0')).toBe(
          path.join('pathToCachedDir', 'helm.exe')
       )
-      expect(toolCache.find).toBeCalledWith('helm', 'v4.0.0')
-      expect(toolCache.downloadTool).toBeCalledWith(
+      expect(toolCache.find).toHaveBeenCalledWith('helm', 'v4.0.0')
+      expect(toolCache.downloadTool).toHaveBeenCalledWith(
          'https://get.helm.sh/helm-v4.0.0-windows-amd64.zip'
       )
-      expect(fs.chmodSync).toBeCalledWith('pathToTool', '777')
-      expect(toolCache.extractZip).toBeCalledWith('pathToTool')
-      expect(fs.chmodSync).toBeCalledWith(
+      expect(fs.chmodSync).toHaveBeenCalledWith('pathToTool', '777')
+      expect(toolCache.extractZip).toHaveBeenCalledWith('pathToTool')
+      expect(fs.chmodSync).toHaveBeenCalledWith(
          path.join('pathToCachedDir', 'helm.exe'),
          '777'
       )
@@ -257,7 +257,7 @@ describe('Testing all functions in helm-util file.', () => {
       expect(await helmUtil.getHelmPath()).toBe(
          path.join('pathToCachedDir', 'helm.exe')
       )
-      expect(toolCache.find).toBeCalledWith('helm', 'v2.14.1')
+      expect(toolCache.find).toHaveBeenCalledWith('helm', 'v2.14.1')
    })
 
    test('getHelmPath() - return helm From toolCache', async () => {
@@ -268,7 +268,7 @@ describe('Testing all functions in helm-util file.', () => {
       expect(await helmUtil.getHelmPath()).toBe(
          path.join('pathToCachedDir', 'helm.exe')
       )
-      expect(toolCache.find).toBeCalledWith('helm', 'v2.14.1')
+      expect(toolCache.find).toHaveBeenCalledWith('helm', 'v2.14.1')
    })
 
    test('getHelmPath() - return path any version helm executable if version input not specified', async () => {
@@ -276,8 +276,8 @@ describe('Testing all functions in helm-util file.', () => {
       jest.spyOn(io, 'which').mockResolvedValue('pathToHelm')
 
       expect(await helmUtil.getHelmPath()).toBe('pathToHelm')
-      expect(core.getInput).toBeCalledWith('helm-version', {required: false})
-      expect(io.which).toBeCalledWith('helm', false)
+      expect(core.getInput).toHaveBeenCalledWith('helm-version', {required: false})
+      expect(io.which).toHaveBeenCalledWith('helm', false)
    })
 
    test('getHelmPath() - return path to any version helm from tool cache', async () => {
@@ -289,9 +289,9 @@ describe('Testing all functions in helm-util file.', () => {
       expect(await helmUtil.getHelmPath()).toBe(
          path.join('pathToCachedDir', 'helm.exe')
       )
-      expect(toolCache.findAllVersions).toBeCalledWith('helm')
-      expect(core.getInput).toBeCalledWith('helm-version', {required: false})
-      expect(io.which).toBeCalledWith('helm', false)
+      expect(toolCache.findAllVersions).toHaveBeenCalledWith('helm')
+      expect(core.getInput).toHaveBeenCalledWith('helm-version', {required: false})
+      expect(io.which).toHaveBeenCalledWith('helm', false)
    })
 
    test('installHelm() - throw error when version input not specified and no executable found', async () => {
@@ -302,9 +302,9 @@ describe('Testing all functions in helm-util file.', () => {
       await expect(helmUtil.getHelmPath()).rejects.toThrow(
          'helm is not installed, either add setup-helm action or provide "helm-version" input to download helm'
       )
-      expect(toolCache.findAllVersions).toBeCalledWith('helm')
-      expect(core.getInput).toBeCalledWith('helm-version', {required: false})
-      expect(io.which).toBeCalledWith('helm', false)
+      expect(toolCache.findAllVersions).toHaveBeenCalledWith('helm')
+      expect(core.getInput).toHaveBeenCalledWith('helm-version', {required: false})
+      expect(io.which).toHaveBeenCalledWith('helm', false)
    })
 
    test('findHelm() - change access permissions and find the helm in given directory', () => {
@@ -323,8 +323,8 @@ describe('Testing all functions in helm-util file.', () => {
       expect(helmUtil.findHelm('mainFolder')).toBe(
          path.join('mainFolder', 'helm.exe')
       )
-      expect(fs.chmodSync).toBeCalledWith('mainFolder', '777')
-      expect(fs.readdirSync).toBeCalledWith('mainFolder')
-      expect(fs.statSync).toBeCalledWith(path.join('mainFolder', 'helm.exe'))
+      expect(fs.chmodSync).toHaveBeenCalledWith('mainFolder', '777')
+      expect(fs.readdirSync).toHaveBeenCalledWith('mainFolder')
+      expect(fs.statSync).toHaveBeenCalledWith(path.join('mainFolder', 'helm.exe'))
    })
 })

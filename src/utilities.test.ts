@@ -1,7 +1,7 @@
 import * as os from 'os'
 import * as fs from 'fs'
 import * as toolCache from '@actions/tool-cache'
-import {ExecOptions} from '@actions/exec/lib/interfaces'
+import {ExecOptions} from '@actions/exec'
 import * as core from '@actions/core'
 import * as utils from './utilities'
 
@@ -32,14 +32,14 @@ describe('Test all functions in utilities file', () => {
       jest.spyOn(os, 'type').mockReturnValue('Windows_NT')
 
       expect(utils.getExecutableExtension()).toBe('.exe')
-      expect(os.type).toBeCalled()
+      expect(os.type).toHaveBeenCalled()
    })
 
    test('getExecutableExtension() - return empty string for non-windows OS', () => {
       jest.spyOn(os, 'type').mockReturnValue('Darwin')
 
       expect(utils.getExecutableExtension()).toBe('')
-      expect(os.type).toBeCalled()
+      expect(os.type).toHaveBeenCalled()
    })
 
    test('execCommand() - generate and throw error if non-zero code is returned with empty stderr', async () => {
@@ -76,8 +76,8 @@ describe('Test all functions in utilities file', () => {
       const helmLinuxUrl = 'https://get.helm.sh/helm-v3.2.1-linux-amd64.zip'
 
       expect(utils.getDownloadUrl('helm', 'v3.2.1')).toBe(helmLinuxUrl)
-      expect(os.type).toBeCalled()
-      expect(os.arch).toBeCalled()
+      expect(os.type).toHaveBeenCalled()
+      expect(os.arch).toHaveBeenCalled()
    })
 
    test('getDownloadUrl() - return the URL to download helm for Linux_arm64', () => {
@@ -86,8 +86,8 @@ describe('Test all functions in utilities file', () => {
       const helmLinuxUrl = 'https://get.helm.sh/helm-v3.2.1-linux-arm64.zip'
 
       expect(utils.getDownloadUrl('helm', 'v3.2.1')).toBe(helmLinuxUrl)
-      expect(os.type).toBeCalled()
-      expect(os.arch).toBeCalled()
+      expect(os.type).toHaveBeenCalled()
+      expect(os.arch).toHaveBeenCalled()
    })
 
    test('getDownloadUrl() - return the URL to download helm for Darwin', () => {
@@ -95,7 +95,7 @@ describe('Test all functions in utilities file', () => {
       const helmDarwinUrl = 'https://get.helm.sh/helm-v3.2.1-darwin-amd64.zip'
 
       expect(utils.getDownloadUrl('helm', 'v3.2.1')).toBe(helmDarwinUrl)
-      expect(os.type).toBeCalled()
+      expect(os.type).toHaveBeenCalled()
    })
 
    test('getDownloadUrl() - return the URL to download helm for Windows', () => {
@@ -103,7 +103,7 @@ describe('Test all functions in utilities file', () => {
 
       const helmWindowsUrl = 'https://get.helm.sh/helm-v3.2.1-windows-amd64.zip'
       expect(utils.getDownloadUrl('helm', 'v3.2.1')).toBe(helmWindowsUrl)
-      expect(os.type).toBeCalled()
+      expect(os.type).toHaveBeenCalled()
    })
 
    test('getDownloadUrl() - return the URL to download kompose for Linux_x64', () => {
@@ -113,8 +113,8 @@ describe('Test all functions in utilities file', () => {
          'https://github.com/kubernetes/kompose/releases/download/v1.18.0/kompose-linux-amd64'
 
       expect(utils.getDownloadUrl('kompose', 'v1.18.0')).toBe(komposelLinuxUrl)
-      expect(os.type).toBeCalled()
-      expect(os.arch).toBeCalled()
+      expect(os.type).toHaveBeenCalled()
+      expect(os.arch).toHaveBeenCalled()
    })
 
    test('getDownloadUrl() - return the URL to download kompose for Linux_arm64', () => {
@@ -124,8 +124,8 @@ describe('Test all functions in utilities file', () => {
          'https://github.com/kubernetes/kompose/releases/download/v1.18.0/kompose-linux-arm64'
 
       expect(utils.getDownloadUrl('kompose', 'v1.18.0')).toBe(komposelLinuxUrl)
-      expect(os.type).toBeCalled()
-      expect(os.arch).toBeCalled()
+      expect(os.type).toHaveBeenCalled()
+      expect(os.arch).toHaveBeenCalled()
    })
 
    test('getDownloadUrl() - return the URL to download kompose for Darwin', () => {
@@ -134,7 +134,7 @@ describe('Test all functions in utilities file', () => {
          'https://github.com/kubernetes/kompose/releases/download/v1.18.0/kompose-darwin-amd64'
 
       expect(utils.getDownloadUrl('kompose', 'v1.18.0')).toBe(komposelDarwinUrl)
-      expect(os.type).toBeCalled()
+      expect(os.type).toHaveBeenCalled()
    })
 
    test('getDownloadUrl() - return the URL to download kompose for Windows', () => {
@@ -143,7 +143,7 @@ describe('Test all functions in utilities file', () => {
       const komposeWindowsUrl =
          'https://github.com/kubernetes/kompose/releases/download/v1.18.0/kompose-windows-amd64.exe'
       expect(utils.getDownloadUrl('kompose', 'v1.18.0')).toBe(komposeWindowsUrl)
-      expect(os.type).toBeCalled()
+      expect(os.type).toHaveBeenCalled()
    })
 
    test('getDownloadUrl() - return the URL to download kubectl for Linux_x64', () => {
@@ -153,8 +153,8 @@ describe('Test all functions in utilities file', () => {
          'https://storage.googleapis.com/kubernetes-release/release/v1.15.0/bin/linux/amd64/kubectl'
 
       expect(utils.getDownloadUrl('kubectl', 'v1.15.0')).toBe(kubectlLinuxUrl)
-      expect(os.type).toBeCalled()
-      expect(os.arch).toBeCalled()
+      expect(os.type).toHaveBeenCalled()
+      expect(os.arch).toHaveBeenCalled()
    })
 
    test('getDownloadUrl() - return the URL to download kubectl for Linux_arm64', () => {
@@ -164,8 +164,8 @@ describe('Test all functions in utilities file', () => {
          'https://storage.googleapis.com/kubernetes-release/release/v1.15.0/bin/linux/arm64/kubectl'
 
       expect(utils.getDownloadUrl('kubectl', 'v1.15.0')).toBe(kubectlLinuxUrl)
-      expect(os.type).toBeCalled()
-      expect(os.arch).toBeCalled()
+      expect(os.type).toHaveBeenCalled()
+      expect(os.arch).toHaveBeenCalled()
    })
 
    test('getDownloadUrl() - return the URL to download kubectl for Darwin', () => {
@@ -174,7 +174,7 @@ describe('Test all functions in utilities file', () => {
          'https://storage.googleapis.com/kubernetes-release/release/v1.15.0/bin/darwin/amd64/kubectl'
 
       expect(utils.getDownloadUrl('kubectl', 'v1.15.0')).toBe(kubectlDarwinUrl)
-      expect(os.type).toBeCalled()
+      expect(os.type).toHaveBeenCalled()
    })
 
    test('getDownloadUrl() - return the URL to download kubectl for Windows', () => {
@@ -183,7 +183,7 @@ describe('Test all functions in utilities file', () => {
       const kubectlWindowsUrl =
          'https://storage.googleapis.com/kubernetes-release/release/v1.15.0/bin/windows/amd64/kubectl.exe'
       expect(utils.getDownloadUrl('kubectl', 'v1.15.0')).toBe(kubectlWindowsUrl)
-      expect(os.type).toBeCalled()
+      expect(os.type).toHaveBeenCalled()
    })
 
    test('getDownloadUrl() - should throw an error if called with incorrect OS type', () => {
@@ -191,7 +191,7 @@ describe('Test all functions in utilities file', () => {
       expect(() => {
          utils.getDownloadUrl('kubectl', 'v1.15.0')
       }).toThrow('Unknown OS or render engine type')
-      expect(os.type).toBeCalled()
+      expect(os.type).toHaveBeenCalled()
    })
 
    test('getDownloadUrl() - should throw an error if called with incorrect render engine', () => {
@@ -200,7 +200,7 @@ describe('Test all functions in utilities file', () => {
       expect(() => {
          utils.getDownloadUrl('test_render_engine', 'v1.15.0')
       }).toThrow('Unknown OS or render engine type')
-      expect(os.type).toBeCalled()
+      expect(os.type).toHaveBeenCalled()
    })
 
    test('getStableVerison() - download stable version file for helm, read version and return it', async () => {
@@ -211,8 +211,8 @@ describe('Test all functions in utilities file', () => {
       jest.spyOn(fs, 'readFileSync').mockReturnValue(response)
 
       expect(await utils.getStableVerison('helm')).toBe('v4.0.0')
-      expect(toolCache.downloadTool).toBeCalled()
-      expect(fs.readFileSync).toBeCalledWith('pathToTool', 'utf8')
+      expect(toolCache.downloadTool).toHaveBeenCalled()
+      expect(fs.readFileSync).toHaveBeenCalledWith('pathToTool', 'utf8')
    })
 
    test('getStableVerison() - return default helm version if stable version file is empty', async () => {
@@ -221,8 +221,8 @@ describe('Test all functions in utilities file', () => {
       jest.spyOn(fs, 'readFileSync').mockReturnValue(response)
 
       expect(await utils.getStableVerison('helm')).toBe('v2.14.1')
-      expect(toolCache.downloadTool).toBeCalled()
-      expect(fs.readFileSync).toBeCalledWith('pathToTool', 'utf8')
+      expect(toolCache.downloadTool).toHaveBeenCalled()
+      expect(fs.readFileSync).toHaveBeenCalledWith('pathToTool', 'utf8')
    })
 
    test('getStableVerison() - return default helm version if stable version file download fails', async () => {
@@ -234,9 +234,9 @@ describe('Test all functions in utilities file', () => {
       jest.spyOn(core, 'warning').mockImplementation(() => {})
 
       expect(await utils.getStableVerison('helm')).toBe('v2.14.1')
-      expect(toolCache.downloadTool).toBeCalled()
-      expect(core.debug).toBeCalledWith('Error!!')
-      expect(core.warning).toBeCalledWith(
+      expect(toolCache.downloadTool).toHaveBeenCalled()
+      expect(core.debug).toHaveBeenCalledWith('Error!!')
+      expect(core.warning).toHaveBeenCalledWith(
          expect.stringContaining(
             'Failed to read latest helm version from URL https://api.github.com/repos/helm/helm/releases/latest.'
          )
@@ -251,7 +251,7 @@ describe('Test all functions in utilities file', () => {
       jest.spyOn(core, 'warning').mockImplementation()
 
       expect(await utils.getStableVerison('kubectl')).toBe('v1.15.0')
-      expect(toolCache.downloadTool).toBeCalled()
+      expect(toolCache.downloadTool).toHaveBeenCalled()
    })
 
    test('getStableVerison() - return default kubectl v1.15.0 if version read is empty', async () => {
@@ -260,8 +260,8 @@ describe('Test all functions in utilities file', () => {
       jest.spyOn(core, 'warning').mockImplementation()
 
       expect(await utils.getStableVerison('kubectl')).toBe('v1.15.0')
-      expect(toolCache.downloadTool).toBeCalled()
-      expect(fs.readFileSync).toBeCalledWith('pathToTool', 'utf8')
+      expect(toolCache.downloadTool).toHaveBeenCalled()
+      expect(fs.readFileSync).toHaveBeenCalledWith('pathToTool', 'utf8')
    })
 
    test('getStableVerison() - download stable kubectl version file, read version and return it', async () => {
@@ -269,7 +269,7 @@ describe('Test all functions in utilities file', () => {
       jest.spyOn(fs, 'readFileSync').mockReturnValue('v2.14.1')
 
       expect(await utils.getStableVerison('kubectl')).toBe('v2.14.1')
-      expect(toolCache.downloadTool).toBeCalled()
-      expect(fs.readFileSync).toBeCalledWith('pathToTool', 'utf8')
+      expect(toolCache.downloadTool).toHaveBeenCalled()
+      expect(fs.readFileSync).toHaveBeenCalledWith('pathToTool', 'utf8')
    })
 })

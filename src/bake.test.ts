@@ -12,7 +12,7 @@ import * as ioUtil from '@actions/io/lib/io-util'
 import * as fs from 'fs'
 import * as path from 'path'
 import * as core from '@actions/core'
-import {ExecOptions} from '@actions/exec/lib/interfaces'
+import {ExecOptions} from '@actions/exec'
 
 var mockStatusCode, stdOutMessage, stdErrMessage
 const mockExecFn = jest.fn().mockImplementation((toolPath, args, options) => {
@@ -50,8 +50,8 @@ describe('Test all functions in run file', () => {
       await expect(new KustomizeRenderEngine().bake(false)).rejects.toThrow(
          'kubectl client version equal to v1.14 or higher is required to use kustomize features'
       )
-      expect(kubectlUtil.getKubectlPath).toBeCalled()
-      expect(utils.execCommand).toBeCalledWith('pathToKubectl', [
+      expect(kubectlUtil.getKubectlPath).toHaveBeenCalled()
+      expect(utils.execCommand).toHaveBeenCalledWith('pathToKubectl', [
          'version',
          '--client=true',
          '-o',
@@ -93,28 +93,28 @@ describe('Test all functions in run file', () => {
       jest.spyOn(console, 'log').mockImplementation()
 
       expect(await new KustomizeRenderEngine().bake(true)).toBeUndefined()
-      expect(kubectlUtil.getKubectlPath).toBeCalled()
+      expect(kubectlUtil.getKubectlPath).toHaveBeenCalled()
 
-      expect(utils.execCommand).toBeCalledWith('pathToKubectl', [
+      expect(utils.execCommand).toHaveBeenCalledWith('pathToKubectl', [
          'version',
          '--client=true',
          '-o',
          'json'
       ])
-      expect(utils.execCommand).toBeCalledWith(
+      expect(utils.execCommand).toHaveBeenCalledWith(
          'pathToKubectl',
          ['kustomize', 'pathToKustomization', 'additionalArguments'],
          {silent: true} as ExecOptions
       )
 
-      expect(core.getInput).toBeCalledWith('kustomizationPath', {
+      expect(core.getInput).toHaveBeenCalledWith('kustomizationPath', {
          required: true
       })
-      expect(fs.writeFileSync).toBeCalledWith(
+      expect(fs.writeFileSync).toHaveBeenCalledWith(
          path.join('tempDir', 'baked-template-12345678.yaml'),
          'kustomizeOutput'
       )
-      expect(core.setOutput).toBeCalledWith(
+      expect(core.setOutput).toHaveBeenCalledWith(
          'manifestsBundle',
          path.join('tempDir', 'baked-template-12345678.yaml')
       )
@@ -152,14 +152,14 @@ describe('Test all functions in run file', () => {
       jest.spyOn(console, 'log').mockImplementation()
 
       expect(await new KustomizeRenderEngine().bake(true)).toBeUndefined()
-      expect(kubectlUtil.getKubectlPath).toBeCalled()
-      expect(utils.execCommand).toBeCalledWith('pathToKubectl', [
+      expect(kubectlUtil.getKubectlPath).toHaveBeenCalled()
+      expect(utils.execCommand).toHaveBeenCalledWith('pathToKubectl', [
          'version',
          '--client=true',
          '-o',
          'json'
       ])
-      expect(utils.execCommand).toBeCalledWith(
+      expect(utils.execCommand).toHaveBeenCalledWith(
          'pathToKubectl',
          ['kustomize', 'pathToKustomization', 'additional', 'Arguments'],
          {silent: true} as ExecOptions
@@ -200,14 +200,14 @@ describe('Test all functions in run file', () => {
       jest.spyOn(console, 'log').mockImplementation()
 
       expect(await new KustomizeRenderEngine().bake(true)).toBeUndefined()
-      expect(kubectlUtil.getKubectlPath).toBeCalled()
-      expect(utils.execCommand).toBeCalledWith('pathToKubectl', [
+      expect(kubectlUtil.getKubectlPath).toHaveBeenCalled()
+      expect(utils.execCommand).toHaveBeenCalledWith('pathToKubectl', [
          'version',
          '--client=true',
          '-o',
          'json'
       ])
-      expect(utils.execCommand).toBeCalledWith(
+      expect(utils.execCommand).toHaveBeenCalledWith(
          'pathToKubectl',
          [
             'kustomize',
@@ -235,7 +235,7 @@ describe('Test all functions in run file', () => {
       await expect(new KomposeRenderEngine().bake(false)).rejects.toThrow(
          'Unable to create temp directory.'
       )
-      expect(komposeUtil.getKomposePath).toBeCalled()
+      expect(komposeUtil.getKomposePath).toHaveBeenCalled()
    })
 
    test('KomposeRenderEngine() - bake using kompose', async () => {
@@ -249,8 +249,8 @@ describe('Test all functions in run file', () => {
       jest.spyOn(core, 'setOutput').mockImplementation()
 
       expect(await new KomposeRenderEngine().bake(true)).toBeUndefined()
-      expect(komposeUtil.getKomposePath).toBeCalled()
-      expect(utils.execCommand).toBeCalledWith(
+      expect(komposeUtil.getKomposePath).toHaveBeenCalled()
+      expect(utils.execCommand).toHaveBeenCalledWith(
          'pathToKompose',
          [
             'convert',
@@ -261,7 +261,7 @@ describe('Test all functions in run file', () => {
          ],
          {silent: true}
       )
-      expect(core.setOutput).toBeCalledWith(
+      expect(core.setOutput).toHaveBeenCalledWith(
          'manifestsBundle',
          path.join('tempDir', 'baked-template-12345678.yaml')
       )
@@ -272,7 +272,7 @@ describe('Test all functions in run file', () => {
       jest.spyOn(core, 'setFailed').mockImplementation(() => {})
 
       await expect(run()).rejects.toThrow('Unknown render engine')
-      expect(core.setFailed).toBeCalledWith('Unknown render engine')
+      expect(core.setFailed).toHaveBeenCalledWith('Unknown render engine')
    })
 
    test('run() - throw error if bake fails', async () => {
@@ -291,7 +291,7 @@ describe('Test all functions in run file', () => {
       await expect(run()).rejects.toThrow(
          'Failed to run bake action. Error: Error: Unable to create temp directory.'
       )
-      expect(core.setFailed).toBeCalledWith(
+      expect(core.setFailed).toHaveBeenCalledWith(
          expect.stringContaining(
             'Failed to run bake action. Error: Error: Unable to create temp directory.'
          )
@@ -321,17 +321,17 @@ describe('Test all functions in run file', () => {
          .mockResolvedValue(execResult as utils.ExecResult)
 
       expect(await new HelmRenderEngine().bake(true)).toBeUndefined()
-      expect(utils.execCommand).toBeCalledWith(
+      expect(utils.execCommand).toHaveBeenCalledWith(
          'pathToHelm',
          ['dependency', 'update', 'pathToHelmChart'],
          {silent: true}
       )
-      expect(utils.execCommand).toBeCalledWith(
+      expect(utils.execCommand).toHaveBeenCalledWith(
          'pathToHelm',
          ['version', '--template', '{{.Version}}'],
          {silent: true}
       )
-      expect(utils.execCommand).toBeCalledWith(
+      expect(utils.execCommand).toHaveBeenCalledWith(
          'pathToHelm',
          [
             'init',
@@ -341,7 +341,7 @@ describe('Test all functions in run file', () => {
          ],
          {silent: true}
       )
-      expect(core.setOutput).toBeCalledWith(
+      expect(core.setOutput).toHaveBeenCalledWith(
          'manifestsBundle',
          path.join('tempDirPath', 'baked-template-12345678.yaml')
       )
@@ -372,17 +372,17 @@ describe('Test all functions in run file', () => {
          .mockResolvedValue(execResult as utils.ExecResult)
 
       expect(await new HelmRenderEngine().bake(true)).toBeUndefined()
-      expect(utils.execCommand).toBeCalledWith(
+      expect(utils.execCommand).toHaveBeenCalledWith(
          'pathToHelm',
          ['dependency', 'update', 'pathToHelmChart'],
          {silent: true}
       )
-      expect(utils.execCommand).toBeCalledWith(
+      expect(utils.execCommand).toHaveBeenCalledWith(
          'pathToHelm',
          ['version', '--template', '{{.Version}}'],
          {silent: true}
       )
-      expect(utils.execCommand).toBeCalledWith(
+      expect(utils.execCommand).toHaveBeenCalledWith(
          'pathToHelm',
          [
             'template',
@@ -420,12 +420,12 @@ describe('Test all functions in run file', () => {
          .mockResolvedValue(execResult as utils.ExecResult)
 
       expect(await new HelmRenderEngine().bake(true)).toBeUndefined()
-      expect(utils.execCommand).toBeCalledWith(
+      expect(utils.execCommand).toHaveBeenCalledWith(
          'pathToHelm',
          ['version', '--template', '{{.Version}}'],
          {silent: true}
       )
-      expect(utils.execCommand).toBeCalledWith(
+      expect(utils.execCommand).toHaveBeenCalledWith(
          'pathToHelm',
          [
             'init',
@@ -435,7 +435,7 @@ describe('Test all functions in run file', () => {
          ],
          {silent: true}
       )
-      expect(utils.execCommand).toBeCalledWith(
+      expect(utils.execCommand).toHaveBeenCalledWith(
          'pathToHelm',
          [
             'template',
@@ -474,12 +474,12 @@ describe('Test all functions in run file', () => {
          .mockResolvedValue(execResult as utils.ExecResult)
 
       expect(await new HelmRenderEngine().bake(true)).toBeUndefined()
-      expect(utils.execCommand).toBeCalledWith(
+      expect(utils.execCommand).toHaveBeenCalledWith(
          'pathToHelm',
          ['version', '--template', '{{.Version}}'],
          {silent: true}
       )
-      expect(utils.execCommand).toBeCalledWith(
+      expect(utils.execCommand).toHaveBeenCalledWith(
          'pathToHelm',
          [
             'init',
@@ -489,7 +489,7 @@ describe('Test all functions in run file', () => {
          ],
          {silent: true}
       )
-      expect(utils.execCommand).toBeCalledWith(
+      expect(utils.execCommand).toHaveBeenCalledWith(
          'pathToHelm',
          ['template', '--name', 'releaseName', 'pathToHelmChart'],
          {silent: true}

@@ -18,7 +18,7 @@ export function getCurrentTime(): number {
    return new Date().getTime()
 }
 
-export function isEqual(str1: string, str2: string) {
+export function isEqual(str1: string | null | undefined, str2: string | null | undefined) {
    if (!str1) str1 = ''
    if (!str2) str2 = ''
    return str1.toLowerCase() === str2.toLowerCase()
