@@ -112,7 +112,9 @@ describe('Testing all functions in kubectl-util file.', () => {
       await expect(kubectlUtil.getKubectlPath()).rejects.toThrow(
          'Kubectl is not installed, either add install-kubectl action or provide "kubectl-version" input to download kubectl'
       )
-      expect(core.getInput).toHaveBeenCalledWith('kubectl-version', {required: false})
+      expect(core.getInput).toHaveBeenCalledWith('kubectl-version', {
+         required: false
+      })
       expect(io.which).toHaveBeenCalledWith('kubectl', false)
       expect(toolCache.findAllVersions).toHaveBeenCalledWith('kubectl')
    })
@@ -122,7 +124,9 @@ describe('Testing all functions in kubectl-util file.', () => {
       jest.spyOn(io, 'which').mockResolvedValue('pathToKubectl')
 
       expect(await kubectlUtil.getKubectlPath()).toBe('pathToKubectl')
-      expect(core.getInput).toHaveBeenCalledWith('kubectl-version', {required: false})
+      expect(core.getInput).toHaveBeenCalledWith('kubectl-version', {
+         required: false
+      })
       expect(io.which).toHaveBeenCalledWith('kubectl', false)
    })
 
@@ -138,7 +142,9 @@ describe('Testing all functions in kubectl-util file.', () => {
       expect(await kubectlUtil.getKubectlPath()).toBe(
          path.join('pathToCachedKubectl', 'kubectl.exe')
       )
-      expect(core.getInput).toHaveBeenCalledWith('kubectl-version', {required: false})
+      expect(core.getInput).toHaveBeenCalledWith('kubectl-version', {
+         required: false
+      })
       expect(io.which).toHaveBeenCalledWith('kubectl', false)
       expect(toolCache.findAllVersions).toHaveBeenCalledWith('kubectl')
       expect(toolCache.find).toHaveBeenCalledWith('kubectl', 'v2.0.0')
@@ -152,7 +158,9 @@ describe('Testing all functions in kubectl-util file.', () => {
       expect(await kubectlUtil.getKubectlPath()).toBe(
          path.join('pathToKubectl', 'kubectl.exe')
       )
-      expect(core.getInput).toHaveBeenCalledWith('kubectl-version', {required: false})
+      expect(core.getInput).toHaveBeenCalledWith('kubectl-version', {
+         required: false
+      })
       expect(toolCache.find).toHaveBeenCalledWith('kubectl', 'v2.0.0')
    })
 })

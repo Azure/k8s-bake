@@ -85,7 +85,9 @@ describe('Testing all functions in kompose-util file.', () => {
       expect(await komposeUtil.getKomposePath()).toBe(
          path.join('pathToCachedTool', 'kompose.exe')
       )
-      expect(core.getInput).toHaveBeenCalledWith('kompose-version', {required: false})
+      expect(core.getInput).toHaveBeenCalledWith('kompose-version', {
+         required: false
+      })
       expect(toolCache.find).toHaveBeenCalledWith('kompose', 'v1.32.0')
    })
 
@@ -96,7 +98,9 @@ describe('Testing all functions in kompose-util file.', () => {
       jest.spyOn(os, 'type').mockReturnValue('Windows_NT')
 
       expect(await komposeUtil.getKomposePath()).toBe('pathToCachedTool')
-      expect(core.getInput).toHaveBeenCalledWith('kompose-version', {required: false})
+      expect(core.getInput).toHaveBeenCalledWith('kompose-version', {
+         required: false
+      })
       expect(toolCache.find).toHaveBeenCalledWith('kompose', 'v2.0.0')
    })
 
@@ -105,7 +109,9 @@ describe('Testing all functions in kompose-util file.', () => {
       jest.spyOn(io, 'which').mockResolvedValue('pathToTool')
 
       expect(await komposeUtil.getKomposePath()).toBe('pathToTool')
-      expect(core.getInput).toHaveBeenCalledWith('kompose-version', {required: false})
+      expect(core.getInput).toHaveBeenCalledWith('kompose-version', {
+         required: false
+      })
       expect(io.which).toHaveBeenCalledWith('kompose', false)
    })
 
@@ -121,7 +127,9 @@ describe('Testing all functions in kompose-util file.', () => {
       expect(await komposeUtil.getKomposePath()).toBe(
          path.join('pathToTool', 'kompose.exe')
       )
-      expect(core.getInput).toHaveBeenCalledWith('kompose-version', {required: false})
+      expect(core.getInput).toHaveBeenCalledWith('kompose-version', {
+         required: false
+      })
       expect(io.which).toHaveBeenCalledWith('kompose', false)
       expect(toolCache.findAllVersions).toHaveBeenCalledWith('kompose')
       expect(toolCache.find).toHaveBeenCalledWith('kompose', 'v2.0.0')
@@ -135,7 +143,9 @@ describe('Testing all functions in kompose-util file.', () => {
       await expect(komposeUtil.getKomposePath()).rejects.toThrow(
          'kompose is not installed, provide "kompose-version" input to download kompose'
       )
-      expect(core.getInput).toHaveBeenCalledWith('kompose-version', {required: false})
+      expect(core.getInput).toHaveBeenCalledWith('kompose-version', {
+         required: false
+      })
       expect(io.which).toHaveBeenCalledWith('kompose', false)
       expect(toolCache.findAllVersions).toHaveBeenCalledWith('kompose')
    })

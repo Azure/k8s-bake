@@ -276,7 +276,9 @@ describe('Testing all functions in helm-util file.', () => {
       jest.spyOn(io, 'which').mockResolvedValue('pathToHelm')
 
       expect(await helmUtil.getHelmPath()).toBe('pathToHelm')
-      expect(core.getInput).toHaveBeenCalledWith('helm-version', {required: false})
+      expect(core.getInput).toHaveBeenCalledWith('helm-version', {
+         required: false
+      })
       expect(io.which).toHaveBeenCalledWith('helm', false)
    })
 
@@ -290,7 +292,9 @@ describe('Testing all functions in helm-util file.', () => {
          path.join('pathToCachedDir', 'helm.exe')
       )
       expect(toolCache.findAllVersions).toHaveBeenCalledWith('helm')
-      expect(core.getInput).toHaveBeenCalledWith('helm-version', {required: false})
+      expect(core.getInput).toHaveBeenCalledWith('helm-version', {
+         required: false
+      })
       expect(io.which).toHaveBeenCalledWith('helm', false)
    })
 
@@ -303,7 +307,9 @@ describe('Testing all functions in helm-util file.', () => {
          'helm is not installed, either add setup-helm action or provide "helm-version" input to download helm'
       )
       expect(toolCache.findAllVersions).toHaveBeenCalledWith('helm')
-      expect(core.getInput).toHaveBeenCalledWith('helm-version', {required: false})
+      expect(core.getInput).toHaveBeenCalledWith('helm-version', {
+         required: false
+      })
       expect(io.which).toHaveBeenCalledWith('helm', false)
    })
 
@@ -325,6 +331,8 @@ describe('Testing all functions in helm-util file.', () => {
       )
       expect(fs.chmodSync).toHaveBeenCalledWith('mainFolder', '777')
       expect(fs.readdirSync).toHaveBeenCalledWith('mainFolder')
-      expect(fs.statSync).toHaveBeenCalledWith(path.join('mainFolder', 'helm.exe'))
+      expect(fs.statSync).toHaveBeenCalledWith(
+         path.join('mainFolder', 'helm.exe')
+      )
    })
 })
