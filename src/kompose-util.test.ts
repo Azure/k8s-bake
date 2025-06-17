@@ -6,7 +6,7 @@ import * as toolCache from '@actions/tool-cache'
 import * as core from '@actions/core'
 import * as io from '@actions/io'
 
-describe('Testing all funcitons in kompose-util file.', () => {
+describe('Testing all functions in kompose-util file.', () => {
    test('downloadKompose() - return path to kompose from toolCache', async () => {
       jest.spyOn(toolCache, 'find').mockReturnValue('pathToCachedTool')
       jest.spyOn(fs, 'chmodSync').mockImplementation()
@@ -15,11 +15,11 @@ describe('Testing all funcitons in kompose-util file.', () => {
       expect(await komposeUtil.downloadKompose('v1.18.0')).toBe(
          path.join('pathToCachedTool', 'kompose.exe')
       )
-      expect(fs.chmodSync).toBeCalledWith(
+      expect(fs.chmodSync).toHaveBeenCalledWith(
          path.join('pathToCachedTool', 'kompose.exe'),
          0o100
       )
-      expect(toolCache.find).toBeCalledWith('kompose', 'v1.18.0')
+      expect(toolCache.find).toHaveBeenCalledWith('kompose', 'v1.18.0')
    })
 
    test('downloadKompose() - download kompose, cache it and return path', async () => {
@@ -32,14 +32,14 @@ describe('Testing all funcitons in kompose-util file.', () => {
       expect(await komposeUtil.downloadKompose('v1.18.0')).toBe(
          path.join('pathToCachedTool', 'kompose.exe')
       )
-      expect(toolCache.downloadTool).toBeCalledWith(
+      expect(toolCache.downloadTool).toHaveBeenCalledWith(
          'https://github.com/kubernetes/kompose/releases/download/v1.18.0/kompose-windows-amd64.exe'
       )
-      expect(fs.chmodSync).toBeCalledWith(
+      expect(fs.chmodSync).toHaveBeenCalledWith(
          path.join('pathToCachedTool', 'kompose.exe'),
          0o100
       )
-      expect(toolCache.find).toBeCalledWith('kompose', 'v1.18.0')
+      expect(toolCache.find).toHaveBeenCalledWith('kompose', 'v1.18.0')
    })
 
    test('downloadKompose() - throw error when unable to download', async () => {
@@ -51,7 +51,7 @@ describe('Testing all funcitons in kompose-util file.', () => {
       await expect(komposeUtil.downloadKompose('v1.18.0')).rejects.toThrow(
          'Failed to download the kompose from https://github.com/kubernetes/kompose/releases/download/v1.18.0/kompose-windows-amd64.exe.  Error: Unable to download.'
       )
-      expect(toolCache.find).toBeCalledWith('kompose', 'v1.18.0')
+      expect(toolCache.find).toHaveBeenCalledWith('kompose', 'v1.18.0')
    })
 
    test('installKompose() - return path kompose from cache', async () => {
@@ -85,8 +85,10 @@ describe('Testing all funcitons in kompose-util file.', () => {
       expect(await komposeUtil.getKomposePath()).toBe(
          path.join('pathToCachedTool', 'kompose.exe')
       )
-      expect(core.getInput).toBeCalledWith('kompose-version', {required: false})
-      expect(toolCache.find).toBeCalledWith('kompose', 'v1.32.0')
+      expect(core.getInput).toHaveBeenCalledWith('kompose-version', {
+         required: false
+      })
+      expect(toolCache.find).toHaveBeenCalledWith('kompose', 'v1.32.0')
    })
 
    test('getKomposePath() - return path to specified version kompose from toolCache', async () => {
@@ -96,8 +98,10 @@ describe('Testing all funcitons in kompose-util file.', () => {
       jest.spyOn(os, 'type').mockReturnValue('Windows_NT')
 
       expect(await komposeUtil.getKomposePath()).toBe('pathToCachedTool')
-      expect(core.getInput).toBeCalledWith('kompose-version', {required: false})
-      expect(toolCache.find).toBeCalledWith('kompose', 'v2.0.0')
+      expect(core.getInput).toHaveBeenCalledWith('kompose-version', {
+         required: false
+      })
+      expect(toolCache.find).toHaveBeenCalledWith('kompose', 'v2.0.0')
    })
 
    test('getKomposePath() - return path to any version executable when input is not given', async () => {
@@ -105,8 +109,10 @@ describe('Testing all funcitons in kompose-util file.', () => {
       jest.spyOn(io, 'which').mockResolvedValue('pathToTool')
 
       expect(await komposeUtil.getKomposePath()).toBe('pathToTool')
-      expect(core.getInput).toBeCalledWith('kompose-version', {required: false})
-      expect(io.which).toBeCalledWith('kompose', false)
+      expect(core.getInput).toHaveBeenCalledWith('kompose-version', {
+         required: false
+      })
+      expect(io.which).toHaveBeenCalledWith('kompose', false)
    })
 
    test('getKomposePath() - return path to any version kompose from toolCache when input is not given', async () => {
@@ -121,10 +127,12 @@ describe('Testing all funcitons in kompose-util file.', () => {
       expect(await komposeUtil.getKomposePath()).toBe(
          path.join('pathToTool', 'kompose.exe')
       )
-      expect(core.getInput).toBeCalledWith('kompose-version', {required: false})
-      expect(io.which).toBeCalledWith('kompose', false)
-      expect(toolCache.findAllVersions).toBeCalledWith('kompose')
-      expect(toolCache.find).toBeCalledWith('kompose', 'v2.0.0')
+      expect(core.getInput).toHaveBeenCalledWith('kompose-version', {
+         required: false
+      })
+      expect(io.which).toHaveBeenCalledWith('kompose', false)
+      expect(toolCache.findAllVersions).toHaveBeenCalledWith('kompose')
+      expect(toolCache.find).toHaveBeenCalledWith('kompose', 'v2.0.0')
    })
 
    test('getKomposePath() - throw error when version input is not given and not kompose already exists', async () => {
@@ -135,8 +143,10 @@ describe('Testing all funcitons in kompose-util file.', () => {
       await expect(komposeUtil.getKomposePath()).rejects.toThrow(
          'kompose is not installed, provide "kompose-version" input to download kompose'
       )
-      expect(core.getInput).toBeCalledWith('kompose-version', {required: false})
-      expect(io.which).toBeCalledWith('kompose', false)
-      expect(toolCache.findAllVersions).toBeCalledWith('kompose')
+      expect(core.getInput).toHaveBeenCalledWith('kompose-version', {
+         required: false
+      })
+      expect(io.which).toHaveBeenCalledWith('kompose', false)
+      expect(toolCache.findAllVersions).toHaveBeenCalledWith('kompose')
    })
 })
