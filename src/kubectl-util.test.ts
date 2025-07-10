@@ -165,6 +165,8 @@ describe('Testing all functions in kubectl-util file.', () => {
    })
 
    test('getKubectlPath() - installs kubectl if version is provided but not cached', async () => {
+      jest.restoreAllMocks()
+      
       jest.spyOn(core, 'getInput').mockReturnValue('v2.0.0')
       jest.spyOn(toolCache, 'find').mockReturnValue(undefined)
       jest.spyOn(kubectlUtil, 'installKubectl').mockResolvedValue('installedPath')
