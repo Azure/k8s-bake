@@ -50,6 +50,11 @@ export async function getKubectlPath() {
             )
          }
       }
+
+      if (!kubectlPath) {
+            kubectlPath = await installKubectl(version)
+      }
+      
    } else {
       kubectlPath = await io.which(kubectlToolName, false)
       if (!kubectlPath) {
