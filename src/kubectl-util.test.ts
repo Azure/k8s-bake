@@ -164,29 +164,27 @@ describe('Testing all functions in kubectl-util file.', () => {
       expect(toolCache.find).toHaveBeenCalledWith('kubectl', 'v2.0.0')
    })
 
-   test('getKubectlPath() - download and install specified version when not cached', async () => {
-      jest.spyOn(core, 'getInput').mockReturnValue('v1.27.7')
-      jest.spyOn(toolCache, 'find').mockReturnValue('') // Not cached
-      jest.spyOn(toolCache, 'downloadTool').mockResolvedValue('pathToTool')
-      jest.spyOn(toolCache, 'cacheFile').mockResolvedValue('pathToCachedTool')
-      jest.spyOn(os, 'type').mockReturnValue('Windows_NT')
-      jest.spyOn(fs, 'chmodSync').mockImplementation()
-      jest.spyOn(core, 'debug').mockImplementation()
+ test('getKubectlPath() - download and install specified version when not cached', async () => {
+   jest.spyOn(core, 'getInput').mockReturnValue('v1.27.7')
+   jest.spyOn(toolCache, 'find').mockReturnValue('') 
+   jest
+      .spyOn(utils, 'setCachedToolPath')
+      .mockResolvedValue('pathToCachedTool')
+   jest.spyOn(os, 'type').mockReturnValue('Windows_NT')
+   jest.spyOn(fs, 'chmodSync').mockImplementation()
+   jest.spyOn(core, 'debug').mockImplementation()
 
-      expect(await kubectlUtil.getKubectlPath()).toBe(
-         path.join('pathToCachedTool', 'kubectl.exe')
-      )
-      expect(core.getInput).toHaveBeenCalledWith('kubectl-version', {
-         required: false
-      })
-      expect(toolCache.find).toHaveBeenCalledWith('kubectl', 'v1.27.7')
-      expect(toolCache.downloadTool).toHaveBeenCalled()
-      expect(toolCache.cacheFile).toHaveBeenCalled()
-      expect(fs.chmodSync).toHaveBeenCalledWith(
-         path.join('pathToCachedTool', 'kubectl.exe'),
-         '777'
-      )
+   expect(await kubectlUtil.getKubectlPath()).toBe(
+      path.join('pathToCachedTool', 'kubectl.exe')
+   )
+   expect(core.getInput).toHaveBeenCalledWith('kubectl-version', {
+      required: false
    })
-
-   
+   expect(toolCache.find).toHaveBeenCalledWith('kubectl', 'v1.27.7')
+   expect(utils.setCachedToolPath).toHaveBeenCalledWith('kubectl', 'v1.27.7')
+   expect(fs.chmodSync).toHaveBeenCalledWith(
+      path.join('pathToCachedTool', 'kubectl.exe'),
+      '777'
+   )
+})   
 })
