@@ -165,6 +165,8 @@ describe('Testing all functions in kubectl-util file.', () => {
    })
 
    test('getKubectlPath() - download and install specified version when not cached', async () => {
+      jest.clearAllMocks() 
+      
       jest.spyOn(core, 'getInput').mockReturnValue('v1.27.7')
       jest
          .spyOn(toolCache, 'find')
@@ -189,5 +191,5 @@ describe('Testing all functions in kubectl-util file.', () => {
          path.join('pathToCachedTool', 'kubectl.exe'),
          '777'
       )
-   }) 
+   })
 })
