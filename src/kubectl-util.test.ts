@@ -165,12 +165,16 @@ describe('Testing all functions in kubectl-util file.', () => {
    })
 
    test('getKubectlPath() - download specified version when not cached', async () => {
+      jest.clearAllMocks() // Clear any previous mocks to avoid interference
+      
       jest.spyOn(core, 'getInput').mockReturnValue('v1.27.7')
       jest.spyOn(toolCache, 'find').mockReturnValue('')
-      const installKubectlSpy = jest.spyOn(kubectlUtil, 'installKubectl').mockResolvedValue('mocked-path')
+      const installKubectlSpy = jest
+         .spyOn(kubectlUtil, 'installKubectl')
+         .mockResolvedValue('mocked-path')
 
       const result = await kubectlUtil.getKubectlPath()
-      
+
       expect(toolCache.find).toHaveBeenCalledWith('kubectl', 'v1.27.7')
       expect(installKubectlSpy).toHaveBeenCalledWith('v1.27.7')
       expect(result).toBe('mocked-path')

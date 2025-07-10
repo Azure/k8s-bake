@@ -42,15 +42,13 @@ export async function getKubectlPath() {
       if (!!version && version != LATEST) {
          const cachedToolPath = toolCache.find(kubectlToolName, version)
          if (!cachedToolPath) {
+            kubectlPath = await installKubectl(version)
+         } else {
             kubectlPath = path.join(
                cachedToolPath,
                kubectlToolName + getExecutableExtension()
             )
          }
-      }
-
-      if (!kubectlPath) {
-         kubectlPath = await installKubectl(version)
       }
    } else {
       kubectlPath = await io.which(kubectlToolName, false)
