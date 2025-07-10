@@ -41,9 +41,7 @@ export async function getKubectlPath() {
    if (version) {
       if (!!version && version != LATEST) {
          const cachedToolPath = toolCache.find(kubectlToolName, version)
-         if (!cachedToolPath) {
-            kubectlPath = await installKubectl(version)
-         } else {
+         if (cachedToolPath) {
             kubectlPath = path.join(
                cachedToolPath,
                kubectlToolName + getExecutableExtension()
@@ -52,9 +50,8 @@ export async function getKubectlPath() {
       }
 
       if (!kubectlPath) {
-            kubectlPath = await installKubectl(version)
+         kubectlPath = await installKubectl(version)
       }
-      
    } else {
       kubectlPath = await io.which(kubectlToolName, false)
       if (!kubectlPath) {
