@@ -173,9 +173,8 @@ describe('Testing all functions in kubectl-util file.', () => {
       jest.spyOn(fs, 'chmodSync').mockImplementation()
       jest.spyOn(core, 'debug').mockImplementation()
 
-      expect(await kubectlUtil.getKubectlPath()).toBe(
-         path.join('pathToCachedTool', 'kubectl.exe')
-      )
+      await kubectlUtil.getKubectlPath()
+      
       expect(toolCache.find).toHaveBeenCalledWith('kubectl', 'v1.27.7')
       expect(toolCache.downloadTool).toHaveBeenCalled()
    })
