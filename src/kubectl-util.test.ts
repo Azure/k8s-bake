@@ -8,7 +8,6 @@ import * as io from '@actions/io'
 import * as utils from './utilities'
 
 describe('Testing all functions in kubectl-util file.', () => {
-
    afterEach(() => jest.restoreAllMocks())
    test('downloadKubectl() - download kubectl, add it to toolCache and return path to it', async () => {
       jest.spyOn(toolCache, 'find').mockReturnValue('')
@@ -32,6 +31,7 @@ describe('Testing all functions in kubectl-util file.', () => {
 
    test('downloadKubectl() - throw DownloadKubectlFailed error when unable to download kubectl', async () => {
       jest.spyOn(toolCache, 'find').mockReturnValue('')
+      jest.spyOn(os, 'type').mockReturnValue('Windows_NT')
       jest
          .spyOn(toolCache, 'downloadTool')
          .mockRejectedValue('Unable to download kubectl.')
