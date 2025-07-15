@@ -85,6 +85,11 @@ export class HelmRenderEngine extends RenderEngine {
          const overrideInput = arg.split(':')
          const overrideName = overrideInput[0]
          const overrideValue = overrideInput.slice(1).join(':').trim()
+         if (overrideValue === '' && overrideName.includes('=')) {
+            core.warning(
+               `It looks like you used '=' as a separator in "${arg}". Did you mean to use ':' instead?`
+            )
+         }
          overrideValues.push({
             name: overrideName,
             value: overrideValue

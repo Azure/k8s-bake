@@ -302,6 +302,7 @@ describe('Test all functions in run file', () => {
       jest.spyOn(helmUtil, 'getHelmPath').mockResolvedValue('pathToHelm')
       jest.spyOn(core, 'getInput').mockImplementation((inputName, options) => {
          if (inputName == 'helmChart') return 'pathToHelmChart'
+         if (inputName == 'overrides') return 'replicas=2'
          if (inputName == 'releaseName') return 'releaseName'
          if (inputName == 'renderEngine') return 'helm'
       })
@@ -312,6 +313,7 @@ describe('Test all functions in run file', () => {
       jest.spyOn(fs, 'writeFileSync').mockImplementation()
       jest.spyOn(utils, 'getCurrentTime').mockReturnValue(12345678)
       jest.spyOn(core, 'setOutput').mockImplementation()
+      const warnSpy = jest.spyOn(core, 'warning').mockImplementation()
 
       const execResult = {
          stdout: 'test output'
@@ -345,6 +347,10 @@ describe('Test all functions in run file', () => {
          'manifestsBundle',
          path.join('tempDirPath', 'baked-template-12345678.yaml')
       )
+      expect(warnSpy).toHaveBeenCalledWith(
+         expect.stringContaining("Did you mean to use ':' instead?")
+      )
+      warnSpy.mockRestore()
    })
 
    test('HelmRenderEngine() - single additional argument', async () => {
