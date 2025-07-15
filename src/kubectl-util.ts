@@ -41,10 +41,12 @@ export async function getKubectlPath() {
    if (version) {
       if (!!version && version != LATEST) {
          const cachedToolPath = toolCache.find(kubectlToolName, version)
-         kubectlPath = path.join(
-            cachedToolPath,
-            kubectlToolName + getExecutableExtension()
-         )
+         if (cachedToolPath) {
+            kubectlPath = path.join(
+               cachedToolPath,
+               kubectlToolName + getExecutableExtension()
+            )
+         }
       }
 
       if (!kubectlPath) {

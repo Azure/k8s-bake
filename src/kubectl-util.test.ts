@@ -163,4 +163,18 @@ describe('Testing all functions in kubectl-util file.', () => {
       })
       expect(toolCache.find).toHaveBeenCalledWith('kubectl', 'v2.0.0')
    })
+
+   test('getKubectlPath() - installs kubectl if version is provided but not cached', async () => {
+      jest.restoreAllMocks()
+
+      jest.spyOn(core, 'getInput').mockReturnValue('v1.15.0')
+      jest.spyOn(toolCache, 'find').mockReturnValue(undefined)
+      jest.spyOn(os, 'type').mockReturnValue('Windows_NT')
+
+      const expectedPath = await kubectlUtil.installKubectl('v1.15.0')
+
+      const result = await kubectlUtil.getKubectlPath()
+
+      expect(result).toBe(expectedPath)
+   })
 })
