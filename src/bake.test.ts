@@ -31,6 +31,8 @@ jest.mock('@actions/exec/lib/toolrunner', () => {
 })
 
 describe('Test all functions in run file', () => {
+   afterEach(() => jest.restoreAllMocks())
+
    test("KustomizeRenderEngine() - throw error if kubectl doesn't meet required version", async () => {
       jest
          .spyOn(kubectlUtil, 'getKubectlPath')
@@ -348,9 +350,10 @@ describe('Test all functions in run file', () => {
          path.join('tempDirPath', 'baked-template-12345678.yaml')
       )
       expect(warnSpy).toHaveBeenCalledWith(
-         expect.stringContaining("Did you mean to use ':' instead?")
+         expect.stringContaining(
+            "is missing a ':' separator. Please use the format key:value."
+         )
       )
-      warnSpy.mockRestore()
    })
 
    test('HelmRenderEngine() - single additional argument', async () => {
