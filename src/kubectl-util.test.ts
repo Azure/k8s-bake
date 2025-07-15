@@ -170,11 +170,12 @@ describe('Testing all functions in kubectl-util file.', () => {
       jest.spyOn(core, 'getInput').mockReturnValue('v1.15.0')
       jest.spyOn(toolCache, 'find').mockReturnValue(undefined)
       jest.spyOn(os, 'type').mockReturnValue('Windows_NT')
-
-      const expectedPath = await kubectlUtil.installKubectl('v1.15.0')
+      jest
+         .spyOn(kubectlUtil, 'installKubectl')
+         .mockResolvedValue('mocked/path/to/kubectl.exe') 
 
       const result = await kubectlUtil.getKubectlPath()
 
-      expect(result).toBe(expectedPath)
+      expect(result).toBe('mocked/path/to/kubectl.exe')
    })
 })
