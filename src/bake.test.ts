@@ -249,6 +249,11 @@ describe('Test all functions in run file', () => {
       process.env['RUNNER_TEMP'] = 'tempDir'
       jest.spyOn(utils, 'getCurrentTime').mockReturnValue(12345678)
       jest.spyOn(core, 'setOutput').mockImplementation()
+      jest.spyOn(utils, 'execCommand').mockResolvedValue({
+         code: 0,
+         stdout: 'kompose output',
+         stderr: ''
+      } as any)
 
       expect(await new KomposeRenderEngine().bake(true)).toBeUndefined()
       expect(komposeUtil.getKomposePath).toHaveBeenCalled()
