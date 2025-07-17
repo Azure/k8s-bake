@@ -82,6 +82,12 @@ export class HelmRenderEngine extends RenderEngine {
    private getOverrideValues(overrides: string[]) {
       const overrideValues: NameValuePair[] = []
       overrides.forEach((arg) => {
+         if (!arg.includes(':')) {
+            core.warning(
+               `Override "${arg}" is missing a ':' separator. Please use the format key:value.`
+            )
+            return
+         }
          const overrideInput = arg.split(':')
          const overrideName = overrideInput[0]
          const overrideValue = overrideInput.slice(1).join(':').trim()

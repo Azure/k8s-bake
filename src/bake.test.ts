@@ -31,6 +31,8 @@ jest.mock('@actions/exec/lib/toolrunner', () => {
 })
 
 describe('Test all functions in run file', () => {
+   afterEach(() => jest.restoreAllMocks())
+
    test("KustomizeRenderEngine() - throw error if kubectl doesn't meet required version", async () => {
       jest
          .spyOn(kubectlUtil, 'getKubectlPath')
@@ -247,6 +249,11 @@ describe('Test all functions in run file', () => {
       process.env['RUNNER_TEMP'] = 'tempDir'
       jest.spyOn(utils, 'getCurrentTime').mockReturnValue(12345678)
       jest.spyOn(core, 'setOutput').mockImplementation()
+      jest.spyOn(utils, 'execCommand').mockResolvedValue({
+         code: 0,
+         stdout: 'kompose output',
+         stderr: ''
+      } as any)
 
       expect(await new KomposeRenderEngine().bake(true)).toBeUndefined()
       expect(komposeUtil.getKomposePath).toHaveBeenCalled()
@@ -302,6 +309,7 @@ describe('Test all functions in run file', () => {
       jest.spyOn(helmUtil, 'getHelmPath').mockResolvedValue('pathToHelm')
       jest.spyOn(core, 'getInput').mockImplementation((inputName, options) => {
          if (inputName == 'helmChart') return 'pathToHelmChart'
+         if (inputName == 'overrides') return 'replicas=2'
          if (inputName == 'releaseName') return 'releaseName'
          if (inputName == 'renderEngine') return 'helm'
       })
@@ -312,6 +320,7 @@ describe('Test all functions in run file', () => {
       jest.spyOn(fs, 'writeFileSync').mockImplementation()
       jest.spyOn(utils, 'getCurrentTime').mockReturnValue(12345678)
       jest.spyOn(core, 'setOutput').mockImplementation()
+      const warnSpy = jest.spyOn(core, 'warning').mockImplementation()
 
       const execResult = {
          stdout: 'test output'
@@ -344,6 +353,11 @@ describe('Test all functions in run file', () => {
       expect(core.setOutput).toHaveBeenCalledWith(
          'manifestsBundle',
          path.join('tempDirPath', 'baked-template-12345678.yaml')
+      )
+      expect(warnSpy).toHaveBeenCalledWith(
+         expect.stringContaining(
+            "is missing a ':' separator. Please use the format key:value."
+         )
       )
    })
 
