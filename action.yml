@@ -35,7 +35,7 @@ inputs:
       description: 'Version of kubectl. Installs a specific version of kubectl binary'
       required: false
    kompose-version:
-      description: 'Version of kubectl. Installs a specific version of kompose binary'
+      description: 'Version of kompose. Installs a specific version of kompose binary'
       required: false
    silent:
       description: 'When set to true, the output of the bake command would not be shown.'

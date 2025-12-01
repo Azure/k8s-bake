@@ -271,24 +271,24 @@ export async function resolveHelmVersion(
 
       // Clean version tags (remove 'v' prefix for semver comparison)
       const cleanVersions = versions
-         .map((v) => ({original: v, clean: v.replace(/^v/, '')}))
-         .filter((v) => semver.valid(v.clean))
+         .map((v) => v.replace(/^v/, ''))
+         .filter((v) => semver.valid(v))
 
       // Find the maximum version that satisfies the range
-      const matched = cleanVersions.find((v) =>
-         semver.satisfies(v.clean, versionInput)
-      )
+      const maxVersion = semver.maxSatisfying(cleanVersions, versionInput)
 
-      if (!matched) {
+      if (!maxVersion) {
          throw new Error(
             `Unable to find a helm version that satisfies "${versionInput}". Available versions: ${versions.slice(0, 10).join(', ')}...`
          )
       }
 
+      // Add back the 'v' prefix for the original tag name
+      const matchedTag = `v${maxVersion}`
       core.info(
-         `Resolved helm version range "${versionInput}" to "${matched.original}"`
+         `Resolved helm version range "${versionInput}" to "${matchedTag}"`
       )
-      return matched.original
+      return matchedTag
    }
 
    // Otherwise, return the version as-is (exact version like v3.2.1)
