@@ -67,9 +67,7 @@ describe('Testing all functions in kubectl-util file.', () => {
       jest.spyOn(os, 'type').mockReturnValue('Windows_NT')
       jest
          .spyOn(fs, 'readdirSync')
-         .mockImplementation((file, _) => [
-            'kubectl.exe' as unknown as fs.Dirent<Buffer<ArrayBufferLike>>
-         ])
+         .mockImplementation((file, _) => ['kubectl.exe'] as any)
       jest.spyOn(fs, 'statSync').mockImplementation((file) => {
          const isDirectory =
             (file as string).indexOf('folder') == -1 ? false : true
