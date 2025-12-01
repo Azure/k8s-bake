@@ -272,4 +272,103 @@ describe('Test all functions in utilities file', () => {
       expect(toolCache.downloadTool).toHaveBeenCalled()
       expect(fs.readFileSync).toHaveBeenCalledWith('pathToTool', 'utf8')
    })
+
+   test('isSemverRange() - return true for semver range patterns', () => {
+      expect(utils.isSemverRange('^3.0.0')).toBe(true)
+      expect(utils.isSemverRange('~3.0.0')).toBe(true)
+      expect(utils.isSemverRange('>=3.0.0')).toBe(true)
+      expect(utils.isSemverRange('<=3.0.0')).toBe(true)
+      expect(utils.isSemverRange('>3.0.0')).toBe(true)
+      expect(utils.isSemverRange('<3.0.0')).toBe(true)
+      expect(utils.isSemverRange('3.x')).toBe(true)
+      expect(utils.isSemverRange('*')).toBe(true)
+      expect(utils.isSemverRange('3.0.0 - 4.0.0')).toBe(true)
+      expect(utils.isSemverRange('^3.0.0 || ^4.0.0')).toBe(true)
+   })
+
+   test('isSemverRange() - return false for exact versions', () => {
+      expect(utils.isSemverRange('v3.0.0')).toBe(false)
+      expect(utils.isSemverRange('3.0.0')).toBe(false)
+      expect(utils.isSemverRange('v3.12.1')).toBe(false)
+      expect(utils.isSemverRange('latest')).toBe(false)
+   })
+
+   test('getHelmVersions() - fetch helm versions from GitHub API', async () => {
+      const mockReleases = JSON.stringify([
+         {tag_name: 'v3.12.0', prerelease: false, draft: false},
+         {tag_name: 'v3.11.0', prerelease: false, draft: false},
+         {tag_name: 'v3.11.0-rc.1', prerelease: true, draft: false},
+         {tag_name: 'v3.10.0', prerelease: false, draft: false}
+      ])
+      jest.spyOn(toolCache, 'downloadTool').mockResolvedValue('pathToTool')
+      jest.spyOn(fs, 'readFileSync').mockReturnValue(mockReleases)
+
+      const versions = await utils.getHelmVersions()
+      expect(versions).toEqual(['v3.12.0', 'v3.11.0', 'v3.10.0'])
+      expect(toolCache.downloadTool).toHaveBeenCalled()
+   })
+
+   test('getHelmVersions() - return empty array on error', async () => {
+      jest
+         .spyOn(toolCache, 'downloadTool')
+         .mockRejectedValue(new Error('Network error'))
+      jest.spyOn(core, 'debug').mockImplementation()
+      jest.spyOn(core, 'warning').mockImplementation()
+
+      const versions = await utils.getHelmVersions()
+      expect(versions).toEqual([])
+      expect(core.warning).toHaveBeenCalled()
+   })
+
+   test('resolveHelmVersion() - return latest as-is', async () => {
+      const result = await utils.resolveHelmVersion('latest')
+      expect(result).toBe('latest')
+   })
+
+   test('resolveHelmVersion() - return exact version as-is', async () => {
+      const result = await utils.resolveHelmVersion('v3.12.0')
+      expect(result).toBe('v3.12.0')
+   })
+
+   test('resolveHelmVersion() - resolve semver range to matching version', async () => {
+      const mockReleases = JSON.stringify([
+         {tag_name: 'v3.12.0', prerelease: false, draft: false},
+         {tag_name: 'v3.11.0', prerelease: false, draft: false},
+         {tag_name: 'v3.10.0', prerelease: false, draft: false},
+         {tag_name: 'v2.17.0', prerelease: false, draft: false}
+      ])
+      jest.spyOn(toolCache, 'downloadTool').mockResolvedValue('pathToTool')
+      jest.spyOn(fs, 'readFileSync').mockReturnValue(mockReleases)
+      jest.spyOn(core, 'debug').mockImplementation()
+      jest.spyOn(core, 'info').mockImplementation()
+
+      const result = await utils.resolveHelmVersion('^3.0.0')
+      expect(result).toBe('v3.12.0')
+   })
+
+   test('resolveHelmVersion() - throw error when no version satisfies range', async () => {
+      const mockReleases = JSON.stringify([
+         {tag_name: 'v2.17.0', prerelease: false, draft: false},
+         {tag_name: 'v2.16.0', prerelease: false, draft: false}
+      ])
+      jest.spyOn(toolCache, 'downloadTool').mockResolvedValue('pathToTool')
+      jest.spyOn(fs, 'readFileSync').mockReturnValue(mockReleases)
+      jest.spyOn(core, 'debug').mockImplementation()
+
+      await expect(utils.resolveHelmVersion('^3.0.0')).rejects.toThrow(
+         'Unable to find a helm version that satisfies "^3.0.0"'
+      )
+   })
+
+   test('resolveHelmVersion() - throw error when no versions are available', async () => {
+      jest
+         .spyOn(toolCache, 'downloadTool')
+         .mockRejectedValue(new Error('Network error'))
+      jest.spyOn(core, 'debug').mockImplementation()
+      jest.spyOn(core, 'warning').mockImplementation()
+
+      await expect(utils.resolveHelmVersion('^3.0.0')).rejects.toThrow(
+         'Unable to resolve helm version range "^3.0.0": Could not fetch available versions'
+      )
+   })
 })

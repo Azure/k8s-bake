@@ -28,8 +28,9 @@ inputs:
       description: 'Required if renderEngine == kompose. Path(s) to Docker compose files'
       required: false
    helm-version:
-      description: 'Version of kubectl. Installs a specific version of helm binary'
+      description: 'Version of helm. Installs a specific version of helm binary. Supports semver ranges like ^3.0.0'
       required: false
+      default: '^3.0.0'
    kubectl-version:
       description: 'Version of kubectl. Installs a specific version of kubectl binary'
       required: false

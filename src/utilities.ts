@@ -8,6 +8,7 @@ import {ToolRunner} from '@actions/exec/lib/toolrunner'
 import {ExecOptions} from '@actions/exec/lib/interfaces'
 import * as toolCache from '@actions/tool-cache'
 import * as core from '@actions/core'
+import * as semver from 'semver'
 
 export interface ExecResult {
    stdout: string
@@ -193,3 +194,103 @@ const downloadLinks = {
 
 export const LATEST = 'latest'
 export const MIN_KUBECTL_CLIENT_VERSION = '1.14'
+
+const helmReleasesUrl = 'https://api.github.com/repos/helm/helm/releases'
+
+export interface HelmRelease {
+   tag_name: string
+   prerelease: boolean
+   draft: boolean
+}
+
+export async function getHelmVersions(): Promise<string[]> {
+   const versions: string[] = []
+   let page = 1
+   const perPage = 100
+
+   try {
+      // Fetch up to 3 pages (300 releases should cover most use cases)
+      for (let i = 0; i < 3; i++) {
+         const url = `${helmReleasesUrl}?page=${page}&per_page=${perPage}`
+         const downloadPath = await toolCache.downloadTool(url)
+         const response = fs
+            .readFileSync(downloadPath, 'utf8')
+            .toString()
+            .trim()
+         const releases: HelmRelease[] = JSON.parse(response)
+
+         if (releases.length === 0) {
+            break
+         }
+
+         for (const release of releases) {
+            // Skip prereleases and drafts
+            if (!release.prerelease && !release.draft && release.tag_name) {
+               versions.push(release.tag_name)
+            }
+         }
+
+         if (releases.length < perPage) {
+            break
+         }
+         page++
+      }
+   } catch (err) {
+      core.debug(`Failed to fetch helm versions: ${err}`)
+      core.warning(
+         'Failed to fetch helm versions from GitHub API. Falling back to default behavior.'
+      )
+   }
+
+   return versions
+}
+
+export function isSemverRange(version: string): boolean {
+   // Check if the version contains semver range characters
+   return /[\^~*x]|>=|<=|>|<|\s-\s|\|\|/.test(version)
+}
+
+export async function resolveHelmVersion(
+   versionInput: string
+): Promise<string> {
+   // If it's "latest", return as-is to be handled by getStableVersion
+   if (isEqual(versionInput, LATEST)) {
+      return versionInput
+   }
+
+   // If it looks like a semver range, resolve it
+   if (isSemverRange(versionInput)) {
+      core.debug(`Resolving semver range: ${versionInput}`)
+      const versions = await getHelmVersions()
+
+      if (versions.length === 0) {
+         throw new Error(
+            `Unable to resolve helm version range "${versionInput}": Could not fetch available versions`
+         )
+      }
+
+      // Clean version tags (remove 'v' prefix for semver comparison)
+      const cleanVersions = versions
+         .map((v) => ({original: v, clean: v.replace(/^v/, '')}))
+         .filter((v) => semver.valid(v.clean))
+
+      // Find the maximum version that satisfies the range
+      const matched = cleanVersions.find((v) =>
+         semver.satisfies(v.clean, versionInput)
+      )
+
+      if (!matched) {
+         throw new Error(
+            `Unable to find a helm version that satisfies "${versionInput}". Available versions: ${versions.slice(0, 10).join(', ')}...`
+         )
+      }
+
+      core.info(
+         `Resolved helm version range "${versionInput}" to "${matched.original}"`
+      )
+      return matched.original
+   }
+
+   // Otherwise, return the version as-is (exact version like v3.2.1)
+   return versionInput
+}
