@@ -23,6 +23,17 @@ Sets output variable 'manifestsBundle' which contains the location of the manife
       silent: 'false'
 ```
 
+#### Helm Version Selection
+
+The `helm-version` input supports semver-compatible version ranges. This is useful for ensuring compatibility while allowing automatic updates within a major version.
+
+**Examples:**
+
+- `^3.0.0` - Use the latest helm v3.x.x release (default). This avoids breaking changes that may occur with helm v4.
+- `~3.12.0` - Use the latest helm v3.12.x patch release
+- `v3.12.1` - Use an exact version
+- `latest` - Use the latest stable release (may include breaking changes across major versions)
+
 #### Bake using Kompose
 
 ```yaml

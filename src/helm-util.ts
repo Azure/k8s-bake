@@ -12,7 +12,8 @@ import {
    isEqual,
    LATEST,
    setCachedToolPath,
-   getStableVerison
+   getStableVerison,
+   resolveHelmVersion
 } from './utilities'
 
 const helmToolName = 'helm'
@@ -70,8 +71,11 @@ export function findHelm(rootFolder: string): string {
 
 export async function getHelmPath() {
    let helmPath = ''
-   const version = core.getInput('helm-version', {required: false})
+   let version = core.getInput('helm-version', {required: false})
    if (version) {
+      // Resolve semver range to a specific version
+      version = await resolveHelmVersion(version)
+
       if (!!version && version != LATEST) {
          helmPath = toolCache.find(helmToolName, version)
       }

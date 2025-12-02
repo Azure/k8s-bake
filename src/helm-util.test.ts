@@ -335,4 +335,43 @@ describe('Testing all functions in helm-util file.', () => {
          path.join('mainFolder', 'helm.exe')
       )
    })
+
+   test('getHelmPath() - resolve semver range and download helm', async () => {
+      const mockReleases = JSON.stringify([
+         {tag_name: 'v3.12.0', prerelease: false, draft: false},
+         {tag_name: 'v3.11.0', prerelease: false, draft: false}
+      ])
+      jest.spyOn(core, 'getInput').mockReturnValue('^3.0.0')
+      jest.spyOn(toolCache, 'downloadTool').mockResolvedValue('pathToTool')
+      jest.spyOn(fs, 'readFileSync').mockReturnValue(mockReleases)
+      jest.spyOn(toolCache, 'find').mockReturnValue('pathToCachedDir')
+      jest.spyOn(os, 'type').mockReturnValue('Windows_NT')
+      jest.spyOn(core, 'debug').mockImplementation()
+      jest.spyOn(core, 'info').mockImplementation()
+
+      expect(await helmUtil.getHelmPath()).toBe(
+         path.join('pathToCachedDir', 'helm.exe')
+      )
+      expect(toolCache.find).toHaveBeenCalledWith('helm', 'v3.12.0')
+   })
+
+   test('getHelmPath() - resolve tilde semver range', async () => {
+      const mockReleases = JSON.stringify([
+         {tag_name: 'v3.12.5', prerelease: false, draft: false},
+         {tag_name: 'v3.12.0', prerelease: false, draft: false},
+         {tag_name: 'v3.11.0', prerelease: false, draft: false}
+      ])
+      jest.spyOn(core, 'getInput').mockReturnValue('~3.12.0')
+      jest.spyOn(toolCache, 'downloadTool').mockResolvedValue('pathToTool')
+      jest.spyOn(fs, 'readFileSync').mockReturnValue(mockReleases)
+      jest.spyOn(toolCache, 'find').mockReturnValue('pathToCachedDir')
+      jest.spyOn(os, 'type').mockReturnValue('Windows_NT')
+      jest.spyOn(core, 'debug').mockImplementation()
+      jest.spyOn(core, 'info').mockImplementation()
+
+      expect(await helmUtil.getHelmPath()).toBe(
+         path.join('pathToCachedDir', 'helm.exe')
+      )
+      expect(toolCache.find).toHaveBeenCalledWith('helm', 'v3.12.5')
+   })
 })

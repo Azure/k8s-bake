@@ -329,3 +329,5 @@ ASALocalRun/
 .mfractor/
 
 node_modules
+# Build output
+lib/
