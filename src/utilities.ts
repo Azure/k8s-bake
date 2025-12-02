@@ -203,14 +203,28 @@ export interface HelmRelease {
    draft: boolean
 }
 
+// Helper function to add random jitter delay to avoid rate-limiting
+async function sleepWithJitter(
+   baseMs: number,
+   jitterMs: number
+): Promise<void> {
+   const delay = baseMs + Math.random() * jitterMs
+   return new Promise((resolve) => setTimeout(resolve, delay))
+}
+
 export async function getHelmVersions(): Promise<string[]> {
    const versions: string[] = []
    let page = 1
    const perPage = 100
+   const maxPages = 5 // Fetch up to 500 releases to cover helm's extensive release history
 
    try {
-      // Fetch up to 3 pages (300 releases should cover most use cases)
-      for (let i = 0; i < 3; i++) {
+      for (let i = 0; i < maxPages; i++) {
+         // Add jitter delay for follow-up requests to avoid rate-limiting
+         if (i > 0) {
+            await sleepWithJitter(100, 200) // 100-300ms delay between requests
+         }
+
          const url = `${helmReleasesUrl}?page=${page}&per_page=${perPage}`
          const downloadPath = await toolCache.downloadTool(url)
          const response = fs
