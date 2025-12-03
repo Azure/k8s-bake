@@ -172,10 +172,11 @@ export class HelmRenderEngine extends RenderEngine {
          ['version', '--template', '{{.Version}}'],
          {silent: true}
       )
-      const majorVersion = parseInt(
-         result.stdout.split('.')[0].replace('v', ''),
-         10
-      )
+      const versionPart = result.stdout.split('.')[0].replace('v', '')
+      const majorVersion = parseInt(versionPart, 10)
+      if (isNaN(majorVersion)) {
+         throw new Error(`Unable to parse Helm version from: ${result.stdout}`)
+      }
       // Helm v3+ doesn't require init (Tiller was removed)
       return majorVersion >= 3
    }
