@@ -42,17 +42,17 @@ export class HelmRenderEngine extends RenderEngine {
       await utilities.execCommand(helmPath, dependencyArgs, options)
 
       console.log('Getting helm version..')
-      let isV3 = true
-      await this.isHelmV3(helmPath)
+      let isV3OrNewer = true
+      await this.isHelmV3OrNewer(helmPath)
          .then((result) => {
-            isV3 = result
+            isV3OrNewer = result
          })
          .catch(() => {
-            isV3 = false
+            isV3OrNewer = false
          })
 
       try {
-         if (!isV3) {
+         if (!isV3OrNewer) {
             await utilities.execCommand(
                helmPath,
                [
@@ -69,7 +69,7 @@ export class HelmRenderEngine extends RenderEngine {
       }
 
       console.log('Creating the template argument string..')
-      const args = await this.getHelmTemplateArgs(chartPath, isV3)
+      const args = await this.getHelmTemplateArgs(chartPath, isV3OrNewer)
 
       console.log('Running helm template command..')
       const result = await utilities.execCommand(helmPath, args, options)
@@ -111,7 +111,7 @@ export class HelmRenderEngine extends RenderEngine {
 
    private async getHelmTemplateArgs(
       chartPath: string,
-      isV3: boolean
+      isV3OrNewer: boolean
    ): Promise<string[]> {
       const releaseName = core.getInput('releaseName', {required: false})
       let args: string[] = []
@@ -125,7 +125,7 @@ export class HelmRenderEngine extends RenderEngine {
          args.push(namespace)
       }
 
-      if (isV3) {
+      if (isV3OrNewer) {
          if (releaseName) {
             args.push(releaseName)
          }
@@ -166,13 +166,18 @@ export class HelmRenderEngine extends RenderEngine {
       return args
    }
 
-   private async isHelmV3(path: string) {
+   private async isHelmV3OrNewer(path: string) {
       let result = await utilities.execCommand(
          path,
          ['version', '--template', '{{.Version}}'],
          {silent: true}
       )
-      return result.stdout.split('.')[0] === 'v3'
+      const majorVersion = parseInt(
+         result.stdout.split('.')[0].replace('v', ''),
+         10
+      )
+      // Helm v3+ doesn't require init (Tiller was removed)
+      return majorVersion >= 3
    }
 }
 
