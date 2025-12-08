@@ -16,15 +16,17 @@ describe('Testing all functions in helm-util file.', () => {
                'file2',
                'folder1',
                'folder2'
-            ] as unknown as fs.Dirent<Buffer<ArrayBufferLike>>[]
+            ] as unknown as fs.Dirent<NonSharedBuffer>[]
          if (file == path.join('mainFolder', 'folder1'))
-            return ['file11', 'file12'] as unknown as fs.Dirent<
-               Buffer<ArrayBufferLike>
-            >[]
+            return [
+               'file11',
+               'file12'
+            ] as unknown as fs.Dirent<NonSharedBuffer>[]
          if (file == path.join('mainFolder', 'folder2'))
-            return ['file21', 'file22'] as unknown as fs.Dirent<
-               Buffer<ArrayBufferLike>
-            >[]
+            return [
+               'file21',
+               'file22'
+            ] as unknown as fs.Dirent<NonSharedBuffer>[]
          return []
       })
       jest.spyOn(core, 'debug').mockImplementation()
@@ -44,21 +46,26 @@ describe('Testing all functions in helm-util file.', () => {
    test('walkSync() - return empty array if no file with name fileToFind exists', () => {
       jest.spyOn(fs, 'readdirSync').mockImplementation((file, _) => {
          if (file == 'mainFolder')
-            return ['file1', 'file2', 'folder2'] as unknown as fs.Dirent<
-               Buffer<ArrayBufferLike>
-            >[]
+            return [
+               'file1',
+               'file2',
+               'folder2'
+            ] as unknown as fs.Dirent<NonSharedBuffer>[]
          if (file == path.join('mainFolder', 'folder1'))
-            return ['file11', 'file12'] as unknown as fs.Dirent<
-               Buffer<ArrayBufferLike>
-            >[]
+            return [
+               'file11',
+               'file12'
+            ] as unknown as fs.Dirent<NonSharedBuffer>[]
          if (file == path.join('mainFolder', 'folder2'))
-            return ['file21', 'file22'] as unknown as fs.Dirent<
-               Buffer<ArrayBufferLike>
-            >[]
+            return [
+               'file21',
+               'file22'
+            ] as unknown as fs.Dirent<NonSharedBuffer>[]
          if (file == path.join('mainFolder', 'folder2'))
-            return ['file21', 'file22'] as unknown as fs.Dirent<
-               Buffer<ArrayBufferLike>
-            >[]
+            return [
+               'file21',
+               'file22'
+            ] as unknown as fs.Dirent<NonSharedBuffer>[]
          return []
       })
       jest.spyOn(core, 'debug').mockImplementation()
