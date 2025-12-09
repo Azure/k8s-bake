@@ -61,11 +61,6 @@ describe('Testing all functions in helm-util file.', () => {
                'file21',
                'file22'
             ] as unknown as fs.Dirent<NonSharedBuffer>[]
-         if (file == path.join('mainFolder', 'folder2'))
-            return [
-               'file21',
-               'file22'
-            ] as unknown as fs.Dirent<NonSharedBuffer>[]
          return []
       })
       jest.spyOn(core, 'debug').mockImplementation()
