@@ -9,7 +9,8 @@
       "@actions/exec": "^2.0.0",
       "@actions/io": "^2.0.0",
       "@actions/tool-cache": "^2.0.2",
-      "husky": "^9.1.7"
+      "husky": "^9.1.7",
+      "semver": "^7.7.3"
    },
    "main": "lib/run.js",
    "scripts": {
@@ -24,6 +25,7 @@
    "devDependencies": {
       "@types/jest": "^30.0.0",
       "@types/node": "^25.0.0",
+      "@types/semver": "^7.7.1",
       "@vercel/ncc": "^0.38.4",
       "jest": "^30.2.0",
       "prettier": "^3.7.4",
