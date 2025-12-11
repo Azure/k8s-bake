@@ -509,4 +509,79 @@ describe('Test all functions in run file', () => {
          {silent: true}
       )
    })
+
+   test.each<[string, string, boolean]>([
+      // Valid versions
+      ['v2.17.0', 'v2 legacy', false],
+      ['v3.0.0', 'v3 minimum', true],
+      ['v3.19.0', 'v3 latest', true],
+      ['v4.0.1', 'v4 latest', true],
+      ['v5.0.0', 'v5 future', true],
+
+      // Invalid versions (fall back to legacy behavior)
+      ['invalid-version', 'invalid string', false],
+      ['', 'empty string', false],
+      ['xyz.1.2', 'unparseable major', false]
+   ])(
+      'HelmRenderEngine() - helm %s (%s) uses correct init and template behavior',
+      async (version, _description, isModernHelm) => {
+         jest.spyOn(helmUtil, 'getHelmPath').mockResolvedValue('pathToHelm')
+         jest.spyOn(core, 'getInput').mockImplementation((inputName) => {
+            if (inputName === 'helmChart') return 'pathToHelmChart'
+            if (inputName === 'releaseName') return 'releaseName'
+            if (inputName === 'renderEngine') return 'helm'
+            return ''
+         })
+         jest.spyOn(console, 'log').mockImplementation()
+         jest.spyOn(core, 'warning').mockImplementation()
+         process.env['RUNNER_TEMP'] = 'tempDirPath'
+         jest.spyOn(fs, 'writeFileSync').mockImplementation()
+         jest.spyOn(utils, 'getCurrentTime').mockReturnValue(12345678)
+         jest.spyOn(core, 'setOutput').mockImplementation()
+
+         jest
+            .spyOn(utils, 'execCommand')
+            .mockImplementation(async (path, args) => {
+               if (args.includes('version')) {
+                  return {stdout: version, stderr: '', code: 0}
+               }
+               return {stdout: 'template output', stderr: '', code: 0}
+            })
+
+         await new HelmRenderEngine().bake(true)
+
+         if (isModernHelm) {
+            // v3+: init should NOT be called
+            expect(utils.execCommand).not.toHaveBeenCalledWith(
+               'pathToHelm',
+               expect.arrayContaining(['init']),
+               expect.anything()
+            )
+            // v3+: template uses positional releaseName
+            expect(utils.execCommand).toHaveBeenCalledWith(
+               'pathToHelm',
+               ['template', 'releaseName', 'pathToHelmChart'],
+               {silent: true}
+            )
+         } else {
+            // v2 or invalid: init SHOULD be called
+            expect(utils.execCommand).toHaveBeenCalledWith(
+               'pathToHelm',
+               [
+                  'init',
+                  '--client-only',
+                  '--stable-repo-url',
+                  'https://charts.helm.sh/stable'
+               ],
+               {silent: true}
+            )
+            // v2 or invalid: template uses --name flag
+            expect(utils.execCommand).toHaveBeenCalledWith(
+               'pathToHelm',
+               ['template', '--name', 'releaseName', 'pathToHelmChart'],
+               {silent: true}
+            )
+         }
+      }
+   )
 })
