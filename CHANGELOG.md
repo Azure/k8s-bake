@@ -1,5 +1,11 @@
 # Changelog
 
+## [3.0.4] - 2025-12-11
+
+- #218 [Added semver range support for helm-version input with ^3.0.0 default](https://github.com/Azure/k8s-bake/pull/218)
+- #211 [Added helm version check to support v4+](https://github.com/Azure/k8s-bake/pull/211)
+- Version bumps
+
 ## [3.0.3] - 2025-12-01
 
 ### Updated
