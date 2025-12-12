@@ -220,7 +220,7 @@ describe('Test all functions in utilities file', () => {
       const response = JSON.stringify({})
       jest.spyOn(fs, 'readFileSync').mockReturnValue(response)
 
-      expect(await utils.getStableVerison('helm')).toBe('v2.14.1')
+      expect(await utils.getStableVerison('helm')).toBe('v3.19.3')
       expect(toolCache.downloadTool).toHaveBeenCalled()
       expect(fs.readFileSync).toHaveBeenCalledWith('pathToTool', 'utf8')
    })
@@ -233,7 +233,7 @@ describe('Test all functions in utilities file', () => {
       jest.spyOn(core, 'debug').mockImplementation(() => {})
       jest.spyOn(core, 'warning').mockImplementation(() => {})
 
-      expect(await utils.getStableVerison('helm')).toBe('v2.14.1')
+      expect(await utils.getStableVerison('helm')).toBe('v3.19.3')
       expect(toolCache.downloadTool).toHaveBeenCalled()
       expect(core.debug).toHaveBeenCalledWith('Error!!')
       expect(core.warning).toHaveBeenCalledWith(
@@ -243,23 +243,23 @@ describe('Test all functions in utilities file', () => {
       )
    })
 
-   test('getStableVerison() - return default kubectl v1.15.0 if unable to download file', async () => {
+   test('getStableVerison() - return default kubectl v1.34.3 if unable to download file', async () => {
       jest
          .spyOn(toolCache, 'downloadTool')
          .mockRejectedValue('Unable to download.')
       jest.spyOn(core, 'debug').mockImplementation()
       jest.spyOn(core, 'warning').mockImplementation()
 
-      expect(await utils.getStableVerison('kubectl')).toBe('v1.15.0')
+      expect(await utils.getStableVerison('kubectl')).toBe('v1.34.3')
       expect(toolCache.downloadTool).toHaveBeenCalled()
    })
 
-   test('getStableVerison() - return default kubectl v1.15.0 if version read is empty', async () => {
+   test('getStableVerison() - return default kubectl v1.34.3 if version read is empty', async () => {
       jest.spyOn(toolCache, 'downloadTool').mockResolvedValue('pathToTool')
       jest.spyOn(fs, 'readFileSync').mockReturnValue('')
       jest.spyOn(core, 'warning').mockImplementation()
 
-      expect(await utils.getStableVerison('kubectl')).toBe('v1.15.0')
+      expect(await utils.getStableVerison('kubectl')).toBe('v1.34.3')
       expect(toolCache.downloadTool).toHaveBeenCalled()
       expect(fs.readFileSync).toHaveBeenCalledWith('pathToTool', 'utf8')
    })
@@ -360,15 +360,17 @@ describe('Test all functions in utilities file', () => {
       )
    })
 
-   test('resolveHelmVersion() - throw error when no versions are available', async () => {
+   test('resolveHelmVersion() - use fallback version when no versions are available', async () => {
       jest
          .spyOn(toolCache, 'downloadTool')
          .mockRejectedValue(new Error('Network error'))
       jest.spyOn(core, 'debug').mockImplementation()
       jest.spyOn(core, 'warning').mockImplementation()
 
-      await expect(utils.resolveHelmVersion('^3.0.0')).rejects.toThrow(
-         'Unable to resolve helm version range "^3.0.0": Could not fetch available versions'
+      const result = await utils.resolveHelmVersion('^3.0.0')
+      expect(result).toBe('v3.0.0')
+      expect(core.warning).toHaveBeenCalledWith(
+         'Unable to fetch helm versions from GitHub API. Using fallback version v3.0.0 based on range "^3.0.0"'
       )
    })
 })
