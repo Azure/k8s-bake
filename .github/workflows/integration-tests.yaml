@@ -29,7 +29,6 @@ jobs:
               renderEngine: 'helm'
               helmChart: './testResources/Helm/HelmCharts'
               helm-version: 'latest'
-              releaseName: 'my-release'
               silent: 'false'
               namespace: 'namespaceExample'
               overrideFiles: './testResources/Helm/values.yaml'
