@@ -29,6 +29,7 @@ jobs:
               renderEngine: 'helm'
               helmChart: './testResources/Helm/HelmCharts'
               helm-version: 'latest'
+              releaseName: 'my-release'
               silent: 'false'
               namespace: 'namespaceExample'
               overrideFiles: './testResources/Helm/values.yaml'
@@ -40,6 +41,50 @@ jobs:
            uses: Azure/k8s-lint@v3
            with:
               manifests: ${{ steps.helm-bake.outputs.manifestsBundle }}
+
+         - name: Bake using Helm with semver range on ${{ matrix.os }}
+           uses: ./
+           with:
+              renderEngine: 'helm'
+              helmChart: './testResources/Helm/HelmCharts'
+              helm-version: '^3.10.0'
+              releaseName: 'semver-test-release'
+              silent: 'false'
+              namespace: 'semver-namespace'
+              overrideFiles: './testResources/Helm/values.yaml'
+              overrides: |
+                 replicaCount:3
+              arguments: '--debug'
+           id: helm-semver-bake
+
+         - name: Verify helm semver version was resolved ${{ matrix.os }}
+           shell: bash
+           run: |
+              helm version --short
+              HELM_VERSION=$(helm version --short | grep -oP 'v\d+\.\d+\.\d+' || helm version --template='{{.Version}}')
+              echo "Resolved Helm version: $HELM_VERSION"
+
+              # Extract major and minor version
+              MAJOR=$(echo $HELM_VERSION | cut -d. -f1 | tr -d 'v')
+              MINOR=$(echo $HELM_VERSION | cut -d. -f2)
+
+              # Verify it's >= 3.10.0
+              if [ "$MAJOR" -lt 3 ]; then
+                echo "ERROR: Expected helm version >= 3.10.0, got $HELM_VERSION"
+                exit 1
+              fi
+
+              if [ "$MAJOR" -eq 3 ] && [ "$MINOR" -lt 10 ]; then
+                echo "ERROR: Expected helm version >= 3.10.0, got $HELM_VERSION"
+                exit 1
+              fi
+
+              echo "✓ Helm version $HELM_VERSION satisfies ^3.10.0"
+
+         - name: Validate created manifest with semver helm ${{ matrix.os }}
+           uses: Azure/k8s-lint@v3
+           with:
+              manifests: ${{ steps.helm-semver-bake.outputs.manifestsBundle }}
 
          - name: Executing latest changes on ${{ matrix.os }}
            uses: ./
@@ -60,9 +105,24 @@ jobs:
               renderEngine: 'kustomize'
               kustomizationPath: './testResources/Kustomize'
               kubectl-version: 'latest'
+              silent: 'false'
            id: kustomize-bake
 
          - name: Validate created manifest ${{ matrix.os }}
            uses: Azure/k8s-lint@v3
            with:
               manifests: ${{ steps.kustomize-bake.outputs.manifestsBundle }}
+
+         - name: Bake using Kustomize with arguments on ${{ matrix.os }}
+           uses: ./
+           with:
+              renderEngine: 'kustomize'
+              kustomizationPath: './testResources/Kustomize'
+              kubectl-version: 'latest'
+              arguments: '--load-restrictor=LoadRestrictionsNone'
+           id: kustomize-args-bake
+
+         - name: Validate created manifest with arguments ${{ matrix.os }}
+           uses: Azure/k8s-lint@v3
+           with:
+              manifests: ${{ steps.kustomize-args-bake.outputs.manifestsBundle }}
