@@ -41,6 +41,26 @@ jobs:
            with:
               manifests: ${{ steps.helm-bake.outputs.manifestsBundle }}
 
+         - name: Bake using Helm with semver range on ${{ matrix.os }}
+           uses: ./
+           with:
+              renderEngine: 'helm'
+              helmChart: './testResources/Helm/HelmCharts'
+              helm-version: '^3.10.0'
+              releaseName: 'semver-test-release'
+              silent: 'false'
+              namespace: 'semver-namespace'
+              overrideFiles: './testResources/Helm/values.yaml'
+              overrides: |
+                 replicaCount:3
+              arguments: '--debug'
+           id: helm-semver-bake
+
+         - name: Validate created manifest with semver helm ${{ matrix.os }}
+           uses: Azure/k8s-lint@v3
+           with:
+              manifests: ${{ steps.helm-semver-bake.outputs.manifestsBundle }}
+
          - name: Executing latest changes on ${{ matrix.os }}
            uses: ./
            with:
@@ -60,9 +80,24 @@ jobs:
               renderEngine: 'kustomize'
               kustomizationPath: './testResources/Kustomize'
               kubectl-version: 'latest'
+              silent: 'false'
            id: kustomize-bake
 
          - name: Validate created manifest ${{ matrix.os }}
            uses: Azure/k8s-lint@v3
            with:
               manifests: ${{ steps.kustomize-bake.outputs.manifestsBundle }}
+
+         - name: Bake using Kustomize with arguments on ${{ matrix.os }}
+           uses: ./
+           with:
+              renderEngine: 'kustomize'
+              kustomizationPath: './testResources/Kustomize'
+              kubectl-version: 'latest'
+              arguments: '--load-restrictor=LoadRestrictionsNone'
+           id: kustomize-args-bake
+
+         - name: Validate created manifest with arguments ${{ matrix.os }}
+           uses: Azure/k8s-lint@v3
+           with:
+              manifests: ${{ steps.kustomize-args-bake.outputs.manifestsBundle }}
