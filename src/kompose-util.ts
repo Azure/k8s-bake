@@ -15,7 +15,7 @@ import {
 } from './utilities'
 
 const komposeToolName = 'kompose'
-const defaultStableKomposeVersion = 'v1.32.0'
+const defaultStableKomposeVersion = 'v1.37.0'
 
 export async function getKomposePath() {
    let komposePath = ''

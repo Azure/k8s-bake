@@ -152,8 +152,8 @@ export async function getStableVerison(toolName: string) {
    )
 }
 
-const defaultStableHelmVersion = 'v2.14.1'
-const defaultStableKubectlVersion = 'v1.15.0'
+const defaultStableHelmVersion = 'v3.19.3'
+const defaultStableKubectlVersion = 'v1.34.3'
 
 const stableVersionUrls = {
    kubectl:
@@ -278,8 +278,16 @@ export async function resolveHelmVersion(
       const versions = await getHelmVersions()
 
       if (versions.length === 0) {
+         const versionMatch = versionInput.match(/(\d+\.\d+\.\d+)/)
+         if (versionMatch) {
+            const fallbackVersion = `v${versionMatch[1]}`
+            core.warning(
+               `Unable to fetch helm versions from GitHub API. Using fallback version ${fallbackVersion} based on range "${versionInput}"`
+            )
+            return fallbackVersion
+         }
          throw new Error(
-            `Unable to resolve helm version range "${versionInput}": Could not fetch available versions`
+            `Unable to resolve helm version range "${versionInput}": Could not fetch available versions and could not extract version from range`
          )
       }
 

@@ -88,7 +88,7 @@ describe('Testing all functions in kompose-util file.', () => {
       expect(core.getInput).toHaveBeenCalledWith('kompose-version', {
          required: false
       })
-      expect(toolCache.find).toHaveBeenCalledWith('kompose', 'v1.32.0')
+      expect(toolCache.find).toHaveBeenCalledWith('kompose', 'v1.37.0')
    })
 
    test('getKomposePath() - return path to specified version kompose from toolCache', async () => {
