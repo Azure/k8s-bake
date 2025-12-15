@@ -19,7 +19,7 @@ Sets output variable 'manifestsBundle' which contains the location of the manife
       overrideFiles: './aks-helloworld/values-override.yaml'
       overrides: |
           replicas:2
-      helm-version: 'latest'
+      helm-version: '^3.0.0' # Use 'latest' to get the latest stable release (may include breaking changes across major versions)
       silent: 'false'
 ```
 
