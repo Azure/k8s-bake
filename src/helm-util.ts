@@ -80,7 +80,7 @@ export async function getHelmPath() {
          helmPath = toolCache.find(helmToolName, version)
       }
       if (helmPath) {
-         helmPath = path.join(helmPath, `helm${getExecutableExtension()}`)
+         helmPath = findHelm(helmPath)
       } else {
          helmPath = await installHelm(version)
       }
@@ -97,7 +97,7 @@ export async function getHelmPath() {
                'helm is not installed, either add setup-helm action or provide "helm-version" input to download helm'
             )
          }
-         helmPath = path.join(helmPath, `helm${getExecutableExtension()}`)
+         helmPath = findHelm(helmPath)
       }
    }
 
