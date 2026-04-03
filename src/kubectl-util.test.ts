@@ -1,7 +1,7 @@
 import * as kubectlUtil from './kubectl-util'
-import * as os from 'os'
-import * as fs from 'fs'
-import * as path from 'path'
+import os from 'os'
+import fs from 'fs'
+import path from 'path'
 import * as toolCache from '@actions/tool-cache'
 import * as core from '@actions/core'
 import * as io from '@actions/io'
@@ -14,7 +14,7 @@ describe('Testing all functions in kubectl-util file.', () => {
       jest.spyOn(toolCache, 'downloadTool').mockResolvedValue('pathToTool')
       jest.spyOn(toolCache, 'cacheFile').mockResolvedValue('pathToCachedTool')
       jest.spyOn(os, 'type').mockReturnValue('Windows_NT')
-      jest.spyOn(fs, 'chmodSync').mockImplementation()
+      jest.spyOn(fs, 'chmodSync').mockImplementation(() => {})
 
       expect(await kubectlUtil.downloadKubectl('v1.15.0')).toBe(
          path.join('pathToCachedTool', 'kubectl.exe')
@@ -75,8 +75,8 @@ describe('Testing all functions in kubectl-util file.', () => {
             (file as string).indexOf('folder') == -1 ? false : true
          return {isDirectory: () => isDirectory} as fs.Stats
       })
-      jest.spyOn(fs, 'chmodSync').mockImplementation()
-      jest.spyOn(core, 'debug').mockImplementation()
+      jest.spyOn(fs, 'chmodSync').mockImplementation(() => {})
+      jest.spyOn(core, 'debug').mockImplementation(() => {})
 
       expect(await kubectlUtil.installKubectl('v1.15.0')).toBe(
          path.join('pathToCachedDir', 'kubectl.exe')
@@ -89,9 +89,9 @@ describe('Testing all functions in kubectl-util file.', () => {
       jest.spyOn(toolCache, 'downloadTool').mockResolvedValue('pathToTool')
       jest.spyOn(toolCache, 'cacheFile').mockResolvedValue('pathToCachedTool')
       jest.spyOn(os, 'type').mockReturnValue('Windows_NT')
-      jest.spyOn(fs, 'chmodSync').mockImplementation()
+      jest.spyOn(fs, 'chmodSync').mockImplementation(() => {})
       jest.spyOn(fs, 'readFileSync').mockReturnValue('v1.15.0')
-      jest.spyOn(core, 'debug').mockImplementation()
+      jest.spyOn(core, 'debug').mockImplementation(() => {})
 
       expect(await kubectlUtil.installKubectl('latest')).toBe(
          path.join('pathToCachedTool', 'kubectl.exe')
@@ -174,7 +174,7 @@ describe('Testing all functions in kubectl-util file.', () => {
          .spyOn(toolCache, 'downloadTool')
          .mockResolvedValue('mockedDownloadPath')
       jest.spyOn(toolCache, 'cacheFile').mockResolvedValue('mockedCachePath')
-      jest.spyOn(fs, 'chmodSync').mockImplementation()
+      jest.spyOn(fs, 'chmodSync').mockImplementation(() => {})
       const expectedPath = path.join('mockedCachePath', 'kubectl.exe')
 
       const result = await kubectlUtil.getKubectlPath()

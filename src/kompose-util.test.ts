@@ -1,7 +1,7 @@
 import * as komposeUtil from './kompose-util'
-import * as os from 'os'
-import * as fs from 'fs'
-import * as path from 'path'
+import os from 'os'
+import fs from 'fs'
+import path from 'path'
 import * as toolCache from '@actions/tool-cache'
 import * as core from '@actions/core'
 import * as io from '@actions/io'
@@ -9,7 +9,7 @@ import * as io from '@actions/io'
 describe('Testing all functions in kompose-util file.', () => {
    test('downloadKompose() - return path to kompose from toolCache', async () => {
       jest.spyOn(toolCache, 'find').mockReturnValue('pathToCachedTool')
-      jest.spyOn(fs, 'chmodSync').mockImplementation()
+      jest.spyOn(fs, 'chmodSync').mockImplementation(() => {})
       jest.spyOn(os, 'type').mockReturnValue('Windows_NT')
 
       expect(await komposeUtil.downloadKompose('v1.18.0')).toBe(
@@ -26,7 +26,7 @@ describe('Testing all functions in kompose-util file.', () => {
       jest.spyOn(toolCache, 'find').mockReturnValue('')
       jest.spyOn(toolCache, 'downloadTool').mockResolvedValue('pathToTool')
       jest.spyOn(toolCache, 'cacheFile').mockResolvedValue('pathToCachedTool')
-      jest.spyOn(fs, 'chmodSync').mockImplementation()
+      jest.spyOn(fs, 'chmodSync').mockImplementation(() => {})
       jest.spyOn(os, 'type').mockReturnValue('Windows_NT')
 
       expect(await komposeUtil.downloadKompose('v1.18.0')).toBe(
@@ -56,9 +56,9 @@ describe('Testing all functions in kompose-util file.', () => {
 
    test('installKompose() - return path kompose from cache', async () => {
       jest.spyOn(toolCache, 'find').mockReturnValue('pathToCachedTool')
-      jest.spyOn(fs, 'chmodSync').mockImplementation()
+      jest.spyOn(fs, 'chmodSync').mockImplementation(() => {})
       jest.spyOn(os, 'type').mockReturnValue('Windows_NT')
-      jest.spyOn(core, 'debug').mockImplementation()
+      jest.spyOn(core, 'debug').mockImplementation(() => {})
 
       expect(await komposeUtil.installKompose('v1.20.0')).toBe(
          path.join('pathToCachedTool', 'kompose.exe')
@@ -67,9 +67,9 @@ describe('Testing all functions in kompose-util file.', () => {
 
    test('installKompose() - return path to kompose v1.18.0 when input is latest', async () => {
       jest.spyOn(toolCache, 'find').mockReturnValue('pathToCachedTool')
-      jest.spyOn(fs, 'chmodSync').mockImplementation()
+      jest.spyOn(fs, 'chmodSync').mockImplementation(() => {})
       jest.spyOn(os, 'type').mockReturnValue('Windows_NT')
-      jest.spyOn(core, 'debug').mockImplementation()
+      jest.spyOn(core, 'debug').mockImplementation(() => {})
 
       expect(await komposeUtil.installKompose('latest')).toBe(
          path.join('pathToCachedTool', 'kompose.exe')
@@ -79,7 +79,7 @@ describe('Testing all functions in kompose-util file.', () => {
    test('getKomposePath() - return path to latest version kompose from toolCache', async () => {
       jest.spyOn(core, 'getInput').mockReturnValue('latest')
       jest.spyOn(toolCache, 'find').mockReturnValue('pathToCachedTool')
-      jest.spyOn(fs, 'chmodSync').mockImplementation()
+      jest.spyOn(fs, 'chmodSync').mockImplementation(() => {})
       jest.spyOn(os, 'type').mockReturnValue('Windows_NT')
 
       expect(await komposeUtil.getKomposePath()).toBe(
@@ -94,7 +94,7 @@ describe('Testing all functions in kompose-util file.', () => {
    test('getKomposePath() - return path to specified version kompose from toolCache', async () => {
       jest.spyOn(core, 'getInput').mockReturnValue('v2.0.0')
       jest.spyOn(toolCache, 'find').mockReturnValue('pathToCachedTool')
-      jest.spyOn(fs, 'chmodSync').mockImplementation()
+      jest.spyOn(fs, 'chmodSync').mockImplementation(() => {})
       jest.spyOn(os, 'type').mockReturnValue('Windows_NT')
 
       expect(await komposeUtil.getKomposePath()).toBe('pathToCachedTool')

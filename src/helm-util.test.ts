@@ -1,7 +1,7 @@
 import * as helmUtil from './helm-util'
-import * as os from 'os'
-import * as fs from 'fs'
-import * as path from 'path'
+import os from 'os'
+import fs from 'fs'
+import path from 'path'
 import * as toolCache from '@actions/tool-cache'
 import * as core from '@actions/core'
 import * as io from '@actions/io'
@@ -29,7 +29,7 @@ describe('Testing all functions in helm-util file.', () => {
             ] as unknown as fs.Dirent<NonSharedBuffer>[]
          return []
       })
-      jest.spyOn(core, 'debug').mockImplementation()
+      jest.spyOn(core, 'debug').mockImplementation(() => {})
       jest.spyOn(fs, 'statSync').mockImplementation((file) => {
          const isDirectory =
             (file as string).toLowerCase().indexOf('file') == -1 ? true : false
@@ -63,7 +63,7 @@ describe('Testing all functions in helm-util file.', () => {
             ] as unknown as fs.Dirent<NonSharedBuffer>[]
          return []
       })
-      jest.spyOn(core, 'debug').mockImplementation()
+      jest.spyOn(core, 'debug').mockImplementation(() => {})
       jest.spyOn(fs, 'statSync').mockImplementation((file) => {
          const isDirectory =
             (file as string).toLowerCase().indexOf('file') == -1 ? true : false
@@ -81,7 +81,7 @@ describe('Testing all functions in helm-util file.', () => {
          throw 'Unable to download.'
       })
       jest.spyOn(os, 'type').mockReturnValue('Windows_NT')
-      jest.spyOn(core, 'debug').mockImplementation()
+      jest.spyOn(core, 'debug').mockImplementation(() => {})
 
       await expect(helmUtil.downloadHelm('v2.14.1')).rejects.toThrow(
          'Failed to download the helm from https://get.helm.sh/helm-v2.14.1-windows-amd64.zip.  Error: Unable to download.'
@@ -106,7 +106,7 @@ describe('Testing all functions in helm-util file.', () => {
          return {isDirectory: () => isDirectory} as fs.Stats
       })
       jest.spyOn(fs, 'chmodSync').mockImplementation(() => {})
-      jest.spyOn(core, 'debug').mockImplementation()
+      jest.spyOn(core, 'debug').mockImplementation(() => {})
 
       const helmPath = await helmUtil.downloadHelm('v2.14.1')
       expect(helmPath).toBe(path.join('pathToCachedDir', 'helm.exe'))
@@ -200,7 +200,7 @@ describe('Testing all functions in helm-util file.', () => {
          return {isDirectory: () => isDirectory} as fs.Stats
       })
       jest.spyOn(fs, 'chmodSync').mockImplementation(() => {})
-      jest.spyOn(core, 'debug').mockImplementation()
+      jest.spyOn(core, 'debug').mockImplementation(() => {})
 
       expect(await helmUtil.installHelm('v2.14.1')).toBe(
          path.join('pathToCachedDir', 'helm.exe')
@@ -230,7 +230,7 @@ describe('Testing all functions in helm-util file.', () => {
             (file as string).indexOf('folder') == -1 ? false : true
          return {isDirectory: () => isDirectory} as fs.Stats
       })
-      jest.spyOn(core, 'debug').mockImplementation()
+      jest.spyOn(core, 'debug').mockImplementation(() => {})
 
       expect(await helmUtil.installHelm('latest')).toBe(
          path.join('pathToCachedDir', 'helm.exe')
@@ -254,7 +254,7 @@ describe('Testing all functions in helm-util file.', () => {
             (file as string).indexOf('folder') == -1 ? false : true
          return {isDirectory: () => isDirectory} as fs.Stats
       })
-      jest.spyOn(fs, 'chmodSync').mockImplementation()
+      jest.spyOn(fs, 'chmodSync').mockImplementation(() => {})
 
       expect(await helmUtil.getHelmPath()).toBe(
          path.join('pathToCachedDir', 'helm.exe')
@@ -348,8 +348,8 @@ describe('Testing all functions in helm-util file.', () => {
       jest.spyOn(fs, 'readFileSync').mockReturnValue(mockReleases)
       jest.spyOn(toolCache, 'find').mockReturnValue('pathToCachedDir')
       jest.spyOn(os, 'type').mockReturnValue('Windows_NT')
-      jest.spyOn(core, 'debug').mockImplementation()
-      jest.spyOn(core, 'info').mockImplementation()
+      jest.spyOn(core, 'debug').mockImplementation(() => {})
+      jest.spyOn(core, 'info').mockImplementation(() => {})
 
       expect(await helmUtil.getHelmPath()).toBe(
          path.join('pathToCachedDir', 'helm.exe')
@@ -368,8 +368,8 @@ describe('Testing all functions in helm-util file.', () => {
       jest.spyOn(fs, 'readFileSync').mockReturnValue(mockReleases)
       jest.spyOn(toolCache, 'find').mockReturnValue('pathToCachedDir')
       jest.spyOn(os, 'type').mockReturnValue('Windows_NT')
-      jest.spyOn(core, 'debug').mockImplementation()
-      jest.spyOn(core, 'info').mockImplementation()
+      jest.spyOn(core, 'debug').mockImplementation(() => {})
+      jest.spyOn(core, 'info').mockImplementation(() => {})
 
       expect(await helmUtil.getHelmPath()).toBe(
          path.join('pathToCachedDir', 'helm.exe')

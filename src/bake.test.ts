@@ -9,26 +9,21 @@ import {
    run
 } from './bake'
 import * as ioUtil from '@actions/io/lib/io-util'
-import * as fs from 'fs'
-import * as path from 'path'
+import fs from 'fs'
+import path from 'path'
 import * as core from '@actions/core'
 import {ExecOptions} from '@actions/exec'
 
 var mockStatusCode, stdOutMessage, stdErrMessage
 const mockExecFn = jest.fn().mockImplementation((toolPath, args, options) => {
-   options.listeners.stdout(!stdOutMessage ? '' : stdOutMessage)
-   options.listeners.stderr(!stdErrMessage ? '' : stdErrMessage)
-   return mockStatusCode
-})
-jest.mock('@actions/exec/lib/toolrunner', () => {
    return {
-      ToolRunner: jest.fn().mockImplementation((toolPath, args, options) => {
-         return {
-            exec: () => mockExecFn(toolPath, args, options)
-         }
-      })
+      exitCode: mockStatusCode,
+      stdout: !stdOutMessage ? '' : stdOutMessage,
+      stderr: !stdErrMessage ? '' : stdErrMessage
    }
 })
+;(globalThis as unknown as {__mockExecFn: typeof mockExecFn}).__mockExecFn =
+   mockExecFn
 
 describe('Test all functions in run file', () => {
    afterEach(() => jest.restoreAllMocks())
@@ -87,12 +82,12 @@ describe('Test all functions in run file', () => {
          if (inputName == 'arguments') return 'additionalArguments'
       })
       jest.spyOn(ioUtil, 'exists').mockResolvedValue(true)
-      jest.spyOn(fs, 'writeFileSync').mockImplementation()
+      jest.spyOn(fs, 'writeFileSync').mockImplementation(() => {})
       process.env['RUNNER_TEMP'] = 'tempDir'
       jest.spyOn(utils, 'getCurrentTime').mockReturnValue(12345678)
-      jest.spyOn(core, 'debug').mockImplementation()
-      jest.spyOn(core, 'setOutput').mockImplementation()
-      jest.spyOn(console, 'log').mockImplementation()
+      jest.spyOn(core, 'debug').mockImplementation(() => {})
+      jest.spyOn(core, 'setOutput').mockImplementation(() => {})
+      jest.spyOn(console, 'log').mockImplementation(() => {})
 
       expect(await new KustomizeRenderEngine().bake(true)).toBeUndefined()
       expect(kubectlUtil.getKubectlPath).toHaveBeenCalled()
@@ -146,12 +141,12 @@ describe('Test all functions in run file', () => {
          if (inputName == 'arguments') return ' additional \n  Arguments  '
       })
       jest.spyOn(ioUtil, 'exists').mockResolvedValue(true)
-      jest.spyOn(fs, 'writeFileSync').mockImplementation()
+      jest.spyOn(fs, 'writeFileSync').mockImplementation(() => {})
       process.env['RUNNER_TEMP'] = 'tempDir'
       jest.spyOn(utils, 'getCurrentTime').mockReturnValue(12345678)
-      jest.spyOn(core, 'debug').mockImplementation()
-      jest.spyOn(core, 'setOutput').mockImplementation()
-      jest.spyOn(console, 'log').mockImplementation()
+      jest.spyOn(core, 'debug').mockImplementation(() => {})
+      jest.spyOn(core, 'setOutput').mockImplementation(() => {})
+      jest.spyOn(console, 'log').mockImplementation(() => {})
 
       expect(await new KustomizeRenderEngine().bake(true)).toBeUndefined()
       expect(kubectlUtil.getKubectlPath).toHaveBeenCalled()
@@ -194,12 +189,12 @@ describe('Test all functions in run file', () => {
             return 'add1 tional,\nArguments\nnore\nargu ments'
       })
       jest.spyOn(ioUtil, 'exists').mockResolvedValue(true)
-      jest.spyOn(fs, 'writeFileSync').mockImplementation()
+      jest.spyOn(fs, 'writeFileSync').mockImplementation(() => {})
       process.env['RUNNER_TEMP'] = 'tempDir'
       jest.spyOn(utils, 'getCurrentTime').mockReturnValue(12345678)
-      jest.spyOn(core, 'debug').mockImplementation()
-      jest.spyOn(core, 'setOutput').mockImplementation()
-      jest.spyOn(console, 'log').mockImplementation()
+      jest.spyOn(core, 'debug').mockImplementation(() => {})
+      jest.spyOn(core, 'setOutput').mockImplementation(() => {})
+      jest.spyOn(console, 'log').mockImplementation(() => {})
 
       expect(await new KustomizeRenderEngine().bake(true)).toBeUndefined()
       expect(kubectlUtil.getKubectlPath).toHaveBeenCalled()
@@ -231,8 +226,8 @@ describe('Test all functions in run file', () => {
          .mockResolvedValue('pathToKompose')
       process.env['RUNNER_TEMP'] = ''
       jest.spyOn(utils, 'getCurrentTime').mockReturnValue(12345678)
-      jest.spyOn(core, 'debug').mockImplementation()
-      jest.spyOn(console, 'log').mockImplementation()
+      jest.spyOn(core, 'debug').mockImplementation(() => {})
+      jest.spyOn(console, 'log').mockImplementation(() => {})
 
       await expect(new KomposeRenderEngine().bake(false)).rejects.toThrow(
          'Unable to create temp directory.'
@@ -248,7 +243,7 @@ describe('Test all functions in run file', () => {
          .mockResolvedValue('pathToKompose')
       process.env['RUNNER_TEMP'] = 'tempDir'
       jest.spyOn(utils, 'getCurrentTime').mockReturnValue(12345678)
-      jest.spyOn(core, 'setOutput').mockImplementation()
+      jest.spyOn(core, 'setOutput').mockImplementation(() => {})
       jest.spyOn(utils, 'execCommand').mockResolvedValue({
          code: 0,
          stdout: 'kompose output',
@@ -313,14 +308,14 @@ describe('Test all functions in run file', () => {
          if (inputName == 'releaseName') return 'releaseName'
          if (inputName == 'renderEngine') return 'helm'
       })
-      jest.spyOn(console, 'log').mockImplementation()
+      jest.spyOn(console, 'log').mockImplementation(() => {})
       mockStatusCode = 0
       stdOutMessage = 'v2.9.1'
       process.env['RUNNER_TEMP'] = 'tempDirPath'
-      jest.spyOn(fs, 'writeFileSync').mockImplementation()
+      jest.spyOn(fs, 'writeFileSync').mockImplementation(() => {})
       jest.spyOn(utils, 'getCurrentTime').mockReturnValue(12345678)
-      jest.spyOn(core, 'setOutput').mockImplementation()
-      const warnSpy = jest.spyOn(core, 'warning').mockImplementation()
+      jest.spyOn(core, 'setOutput').mockImplementation(() => {})
+      const warnSpy = jest.spyOn(core, 'warning').mockImplementation(() => {})
 
       const execResult = {
          stdout: 'test output'
@@ -370,13 +365,13 @@ describe('Test all functions in run file', () => {
          if (inputName == 'releaseName') return 'releaseName'
          if (inputName == 'renderEngine') return 'helm'
       })
-      jest.spyOn(console, 'log').mockImplementation()
+      jest.spyOn(console, 'log').mockImplementation(() => {})
       mockStatusCode = 0
       stdOutMessage = 'v2.9.1'
       process.env['RUNNER_TEMP'] = 'tempDirPath'
-      jest.spyOn(fs, 'writeFileSync').mockImplementation()
+      jest.spyOn(fs, 'writeFileSync').mockImplementation(() => {})
       jest.spyOn(utils, 'getCurrentTime').mockReturnValue(12345678)
-      jest.spyOn(core, 'setOutput').mockImplementation()
+      jest.spyOn(core, 'setOutput').mockImplementation(() => {})
 
       const execResult = {
          stdout: 'test output'
@@ -418,13 +413,13 @@ describe('Test all functions in run file', () => {
          if (inputName == 'releaseName') return 'releaseName'
          if (inputName == 'renderEngine') return 'helm'
       })
-      jest.spyOn(console, 'log').mockImplementation()
+      jest.spyOn(console, 'log').mockImplementation(() => {})
       mockStatusCode = 0
       stdOutMessage = 'v2.9.1'
       process.env['RUNNER_TEMP'] = 'tempDirPath'
-      jest.spyOn(fs, 'writeFileSync').mockImplementation()
+      jest.spyOn(fs, 'writeFileSync').mockImplementation(() => {})
       jest.spyOn(utils, 'getCurrentTime').mockReturnValue(12345678)
-      jest.spyOn(core, 'setOutput').mockImplementation()
+      jest.spyOn(core, 'setOutput').mockImplementation(() => {})
 
       const execResult = {
          stdout: 'test output'
@@ -472,13 +467,13 @@ describe('Test all functions in run file', () => {
          if (inputName == 'releaseName') return 'releaseName'
          if (inputName == 'renderEngine') return 'helm'
       })
-      jest.spyOn(console, 'log').mockImplementation()
+      jest.spyOn(console, 'log').mockImplementation(() => {})
       mockStatusCode = 0
       stdOutMessage = 'v2.9.1'
       process.env['RUNNER_TEMP'] = 'tempDirPath'
-      jest.spyOn(fs, 'writeFileSync').mockImplementation()
+      jest.spyOn(fs, 'writeFileSync').mockImplementation(() => {})
       jest.spyOn(utils, 'getCurrentTime').mockReturnValue(12345678)
-      jest.spyOn(core, 'setOutput').mockImplementation()
+      jest.spyOn(core, 'setOutput').mockImplementation(() => {})
 
       const execResult = {
          stdout: 'test output'
@@ -532,12 +527,12 @@ describe('Test all functions in run file', () => {
             if (inputName === 'renderEngine') return 'helm'
             return ''
          })
-         jest.spyOn(console, 'log').mockImplementation()
-         jest.spyOn(core, 'warning').mockImplementation()
+         jest.spyOn(console, 'log').mockImplementation(() => {})
+         jest.spyOn(core, 'warning').mockImplementation(() => {})
          process.env['RUNNER_TEMP'] = 'tempDirPath'
-         jest.spyOn(fs, 'writeFileSync').mockImplementation()
+         jest.spyOn(fs, 'writeFileSync').mockImplementation(() => {})
          jest.spyOn(utils, 'getCurrentTime').mockReturnValue(12345678)
-         jest.spyOn(core, 'setOutput').mockImplementation()
+         jest.spyOn(core, 'setOutput').mockImplementation(() => {})
 
          jest
             .spyOn(utils, 'execCommand')

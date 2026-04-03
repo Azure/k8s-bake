@@ -1,5 +1,5 @@
-import * as os from 'os'
-import * as fs from 'fs'
+import os from 'os'
+import fs from 'fs'
 import * as toolCache from '@actions/tool-cache'
 import {ExecOptions} from '@actions/exec'
 import * as core from '@actions/core'
@@ -7,19 +7,14 @@ import * as utils from './utilities'
 
 var mockStatusCode, stdOutMessage, stdErrMessage
 const mockExecFn = jest.fn().mockImplementation((toolPath, args, options) => {
-   options.listeners.stdout(!stdOutMessage ? '' : stdOutMessage)
-   options.listeners.stderr(!stdErrMessage ? '' : stdErrMessage)
-   return mockStatusCode
-})
-jest.mock('@actions/exec/lib/toolrunner', () => {
    return {
-      ToolRunner: jest.fn().mockImplementation((toolPath, args, options) => {
-         return {
-            exec: () => mockExecFn(toolPath, args, options)
-         }
-      })
+      exitCode: mockStatusCode,
+      stdout: !stdOutMessage ? '' : stdOutMessage,
+      stderr: !stdErrMessage ? '' : stdErrMessage
    }
 })
+;(globalThis as unknown as {__mockExecFn: typeof mockExecFn}).__mockExecFn =
+   mockExecFn
 
 describe('Test all functions in utilities file', () => {
    test('isEqual() - ', () => {
@@ -247,8 +242,8 @@ describe('Test all functions in utilities file', () => {
       jest
          .spyOn(toolCache, 'downloadTool')
          .mockRejectedValue('Unable to download.')
-      jest.spyOn(core, 'debug').mockImplementation()
-      jest.spyOn(core, 'warning').mockImplementation()
+      jest.spyOn(core, 'debug').mockImplementation(() => {})
+      jest.spyOn(core, 'warning').mockImplementation(() => {})
 
       expect(await utils.getStableVerison('kubectl')).toBe('v1.34.3')
       expect(toolCache.downloadTool).toHaveBeenCalled()
@@ -257,7 +252,7 @@ describe('Test all functions in utilities file', () => {
    test('getStableVerison() - return default kubectl v1.34.3 if version read is empty', async () => {
       jest.spyOn(toolCache, 'downloadTool').mockResolvedValue('pathToTool')
       jest.spyOn(fs, 'readFileSync').mockReturnValue('')
-      jest.spyOn(core, 'warning').mockImplementation()
+      jest.spyOn(core, 'warning').mockImplementation(() => {})
 
       expect(await utils.getStableVerison('kubectl')).toBe('v1.34.3')
       expect(toolCache.downloadTool).toHaveBeenCalled()
@@ -312,8 +307,8 @@ describe('Test all functions in utilities file', () => {
       jest
          .spyOn(toolCache, 'downloadTool')
          .mockRejectedValue(new Error('Network error'))
-      jest.spyOn(core, 'debug').mockImplementation()
-      jest.spyOn(core, 'warning').mockImplementation()
+      jest.spyOn(core, 'debug').mockImplementation(() => {})
+      jest.spyOn(core, 'warning').mockImplementation(() => {})
 
       const versions = await utils.getHelmVersions()
       expect(versions).toEqual([])
@@ -339,8 +334,8 @@ describe('Test all functions in utilities file', () => {
       ])
       jest.spyOn(toolCache, 'downloadTool').mockResolvedValue('pathToTool')
       jest.spyOn(fs, 'readFileSync').mockReturnValue(mockReleases)
-      jest.spyOn(core, 'debug').mockImplementation()
-      jest.spyOn(core, 'info').mockImplementation()
+      jest.spyOn(core, 'debug').mockImplementation(() => {})
+      jest.spyOn(core, 'info').mockImplementation(() => {})
 
       const result = await utils.resolveHelmVersion('^3.0.0')
       expect(result).toBe('v3.12.0')
@@ -353,7 +348,7 @@ describe('Test all functions in utilities file', () => {
       ])
       jest.spyOn(toolCache, 'downloadTool').mockResolvedValue('pathToTool')
       jest.spyOn(fs, 'readFileSync').mockReturnValue(mockReleases)
-      jest.spyOn(core, 'debug').mockImplementation()
+      jest.spyOn(core, 'debug').mockImplementation(() => {})
 
       await expect(utils.resolveHelmVersion('^3.0.0')).rejects.toThrow(
          'Unable to find a helm version that satisfies "^3.0.0"'
@@ -364,8 +359,8 @@ describe('Test all functions in utilities file', () => {
       jest
          .spyOn(toolCache, 'downloadTool')
          .mockRejectedValue(new Error('Network error'))
-      jest.spyOn(core, 'debug').mockImplementation()
-      jest.spyOn(core, 'warning').mockImplementation()
+      jest.spyOn(core, 'debug').mockImplementation(() => {})
+      jest.spyOn(core, 'warning').mockImplementation(() => {})
 
       const result = await utils.resolveHelmVersion('^3.0.0')
       expect(result).toBe('v3.0.0')

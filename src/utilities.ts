@@ -1,11 +1,10 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
 
-import * as os from 'os'
-import * as fs from 'fs'
-import * as util from 'util'
-import {ToolRunner} from '@actions/exec/lib/toolrunner'
-import {ExecOptions} from '@actions/exec/lib/interfaces'
+import os from 'os'
+import fs from 'fs'
+import util from 'util'
+import {getExecOutput, ExecOptions} from '@actions/exec'
 import * as toolCache from '@actions/tool-cache'
 import * as core from '@actions/core'
 import * as semver from 'semver'
@@ -40,33 +39,25 @@ export async function execCommand(
    args: string[],
    options: ExecOptions = {} as ExecOptions
 ): Promise<ExecResult> {
-   const execResult = {
-      stdout: '',
-      stderr: ''
-   } as ExecResult
-
-   options.listeners = {
-      stdout: (data: Buffer) => {
-         execResult.stdout += data.toString()
-      },
-      stderr: (data: Buffer) => {
-         execResult.stderr += data.toString()
-      }
-   }
-
-   let toolRunner = new ToolRunner(toolPath, args, options)
-   const result = await toolRunner.exec()
-   if (result != 0) {
-      if (!!execResult.stderr) {
-         throw Error(execResult.stderr)
+   const result = await getExecOutput(toolPath, args, options)
+   if (result.exitCode != 0) {
+      if (!!result.stderr) {
+         throw Error(result.stderr)
       } else {
          throw Error(
-            util.format('%s exited with result code %s', toolPath, result)
+            util.format(
+               '%s exited with result code %s',
+               toolPath,
+               result.exitCode
+            )
          )
       }
    }
 
-   return execResult
+   return {
+      stdout: result.stdout,
+      stderr: result.stderr
+   }
 }
 
 export async function setCachedToolPath(toolName: string, version: string) {
