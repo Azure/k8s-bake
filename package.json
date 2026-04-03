@@ -15,7 +15,7 @@
    },
    "main": "lib/index.js",
    "scripts": {
-      "build": "esbuild src/run.ts --bundle --platform=node --target=node20 --format=esm --outfile=lib/index.js",
+      "build": "node esbuild.config.mjs",
       "test": "vitest run",
       "test-coverage": "vitest run --coverage",
       "format": "prettier --write .",
