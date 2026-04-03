@@ -17,11 +17,8 @@ jobs:
            run: |
               npm install --legacy-peer-deps
 
-         - name: Install ncc
-           run: npm i -g @vercel/ncc
-
          - name: Build
-           run: ncc build src/run.ts -o lib
+           run: npm run build
 
          - name: Bake using Helm on ${{ matrix.os }}
            uses: ./
