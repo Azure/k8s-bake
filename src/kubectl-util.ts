@@ -13,7 +13,7 @@ import {
    LATEST,
    setCachedToolPath,
    getStableVerison
-} from './utilities'
+} from './utilities.js'
 
 const kubectlToolName = 'kubectl'
 

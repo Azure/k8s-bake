@@ -4,13 +4,13 @@
 import * as core from '@actions/core'
 import * as ioUtil from '@actions/io/lib/io-util'
 import {ExecOptions} from '@actions/exec'
-import * as utilities from './utilities'
+import * as utilities from './utilities.js'
 import path from 'path'
 import fs from 'fs'
 import util from 'util'
-import {getHelmPath, NameValuePair} from './helm-util'
-import {getKubectlPath} from './kubectl-util'
-import {getKomposePath} from './kompose-util'
+import {getHelmPath, NameValuePair} from './helm-util.js'
+import {getKubectlPath} from './kubectl-util.js'
+import {getKomposePath} from './kompose-util.js'
 
 abstract class RenderEngine {
    public bake!: (isSilent: boolean) => Promise<any>
@@ -316,7 +316,7 @@ export async function run() {
          throw Error(util.format('Failed to run bake action. Error: %s', err))
       }
    } catch (error) {
-      core.setFailed(error.message)
+      core.setFailed((error as Error).message)
       throw error
    }
 }

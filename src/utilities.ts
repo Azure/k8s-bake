@@ -146,13 +146,13 @@ export async function getStableVerison(toolName: string) {
 const defaultStableHelmVersion = 'v3.19.3'
 const defaultStableKubectlVersion = 'v1.34.3'
 
-const stableVersionUrls = {
+const stableVersionUrls: Record<string, string> = {
    kubectl:
       'https://storage.googleapis.com/kubernetes-release/release/stable.txt',
    helm: 'https://api.github.com/repos/helm/helm/releases/latest'
 }
 
-const downloadLinks = {
+const downloadLinks: Record<string, Record<string, string>> = {
    Linux_x64: {
       helm: 'https://get.helm.sh/helm-%s-linux-amd64.zip',
       kompose:

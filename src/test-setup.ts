@@ -1,5 +1,4 @@
 import {vi} from 'vitest'
-;(globalThis as unknown as {jest: typeof vi}).jest = vi
 
 vi.mock('@actions/core', () => ({
    getInput: vi.fn(),

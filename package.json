@@ -15,7 +15,8 @@
    },
    "main": "lib/index.js",
    "scripts": {
-      "build": "node esbuild.config.mjs",
+      "build": "tsc --noEmit && node esbuild.config.mjs",
+      "check": "tsc --noEmit",
       "test": "vitest run",
       "test-coverage": "vitest run --coverage",
       "format": "prettier --write .",

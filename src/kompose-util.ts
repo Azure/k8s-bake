@@ -12,7 +12,7 @@ import {
    isEqual,
    setCachedToolPath,
    LATEST
-} from './utilities'
+} from './utilities.js'
 
 const komposeToolName = 'kompose'
 const defaultStableKomposeVersion = 'v1.37.0'

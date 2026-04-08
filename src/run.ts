@@ -1,3 +1,3 @@
-import {run} from './bake'
+import {run} from './bake.js'
 
 run()

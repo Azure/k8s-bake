@@ -1,12 +1,13 @@
+import {vi} from 'vitest'
 import os from 'os'
 import fs from 'fs'
 import * as toolCache from '@actions/tool-cache'
 import {ExecOptions} from '@actions/exec'
 import * as core from '@actions/core'
-import * as utils from './utilities'
+import * as utils from './utilities.js'
 
 var mockStatusCode, stdOutMessage, stdErrMessage
-const mockExecFn = jest.fn().mockImplementation((toolPath, args, options) => {
+const mockExecFn = vi.fn().mockImplementation((toolPath, args, options) => {
    return {
       exitCode: mockStatusCode,
       stdout: !stdOutMessage ? '' : stdOutMessage,
@@ -24,14 +25,14 @@ describe('Test all functions in utilities file', () => {
    })
 
    test('getExecutableExtension() - return .exe when os is Windows', () => {
-      jest.spyOn(os, 'type').mockReturnValue('Windows_NT')
+      vi.spyOn(os, 'type').mockReturnValue('Windows_NT')
 
       expect(utils.getExecutableExtension()).toBe('.exe')
       expect(os.type).toHaveBeenCalled()
    })
 
    test('getExecutableExtension() - return empty string for non-windows OS', () => {
-      jest.spyOn(os, 'type').mockReturnValue('Darwin')
+      vi.spyOn(os, 'type').mockReturnValue('Darwin')
 
       expect(utils.getExecutableExtension()).toBe('')
       expect(os.type).toHaveBeenCalled()
@@ -66,8 +67,8 @@ describe('Test all functions in utilities file', () => {
    })
 
    test('getDownloadUrl() - return the URL to download helm for Linux_x64', () => {
-      jest.spyOn(os, 'type').mockReturnValue('Linux')
-      jest.spyOn(os, 'arch').mockReturnValue('x64')
+      vi.spyOn(os, 'type').mockReturnValue('Linux')
+      vi.spyOn(os, 'arch').mockReturnValue('x64')
       const helmLinuxUrl = 'https://get.helm.sh/helm-v3.2.1-linux-amd64.zip'
 
       expect(utils.getDownloadUrl('helm', 'v3.2.1')).toBe(helmLinuxUrl)
@@ -76,8 +77,8 @@ describe('Test all functions in utilities file', () => {
    })
 
    test('getDownloadUrl() - return the URL to download helm for Linux_arm64', () => {
-      jest.spyOn(os, 'type').mockReturnValue('Linux')
-      jest.spyOn(os, 'arch').mockReturnValue('arm64')
+      vi.spyOn(os, 'type').mockReturnValue('Linux')
+      vi.spyOn(os, 'arch').mockReturnValue('arm64')
       const helmLinuxUrl = 'https://get.helm.sh/helm-v3.2.1-linux-arm64.zip'
 
       expect(utils.getDownloadUrl('helm', 'v3.2.1')).toBe(helmLinuxUrl)
@@ -86,7 +87,7 @@ describe('Test all functions in utilities file', () => {
    })
 
    test('getDownloadUrl() - return the URL to download helm for Darwin', () => {
-      jest.spyOn(os, 'type').mockReturnValue('Darwin')
+      vi.spyOn(os, 'type').mockReturnValue('Darwin')
       const helmDarwinUrl = 'https://get.helm.sh/helm-v3.2.1-darwin-amd64.zip'
 
       expect(utils.getDownloadUrl('helm', 'v3.2.1')).toBe(helmDarwinUrl)
@@ -94,7 +95,7 @@ describe('Test all functions in utilities file', () => {
    })
 
    test('getDownloadUrl() - return the URL to download helm for Windows', () => {
-      jest.spyOn(os, 'type').mockReturnValue('Windows_NT')
+      vi.spyOn(os, 'type').mockReturnValue('Windows_NT')
 
       const helmWindowsUrl = 'https://get.helm.sh/helm-v3.2.1-windows-amd64.zip'
       expect(utils.getDownloadUrl('helm', 'v3.2.1')).toBe(helmWindowsUrl)
@@ -102,8 +103,8 @@ describe('Test all functions in utilities file', () => {
    })
 
    test('getDownloadUrl() - return the URL to download kompose for Linux_x64', () => {
-      jest.spyOn(os, 'type').mockReturnValue('Linux')
-      jest.spyOn(os, 'arch').mockReturnValue('x64')
+      vi.spyOn(os, 'type').mockReturnValue('Linux')
+      vi.spyOn(os, 'arch').mockReturnValue('x64')
       const komposelLinuxUrl =
          'https://github.com/kubernetes/kompose/releases/download/v1.18.0/kompose-linux-amd64'
 
@@ -113,8 +114,8 @@ describe('Test all functions in utilities file', () => {
    })
 
    test('getDownloadUrl() - return the URL to download kompose for Linux_arm64', () => {
-      jest.spyOn(os, 'type').mockReturnValue('Linux')
-      jest.spyOn(os, 'arch').mockReturnValue('arm64')
+      vi.spyOn(os, 'type').mockReturnValue('Linux')
+      vi.spyOn(os, 'arch').mockReturnValue('arm64')
       const komposelLinuxUrl =
          'https://github.com/kubernetes/kompose/releases/download/v1.18.0/kompose-linux-arm64'
 
@@ -124,7 +125,7 @@ describe('Test all functions in utilities file', () => {
    })
 
    test('getDownloadUrl() - return the URL to download kompose for Darwin', () => {
-      jest.spyOn(os, 'type').mockReturnValue('Darwin')
+      vi.spyOn(os, 'type').mockReturnValue('Darwin')
       const komposelDarwinUrl =
          'https://github.com/kubernetes/kompose/releases/download/v1.18.0/kompose-darwin-amd64'
 
@@ -133,7 +134,7 @@ describe('Test all functions in utilities file', () => {
    })
 
    test('getDownloadUrl() - return the URL to download kompose for Windows', () => {
-      jest.spyOn(os, 'type').mockReturnValue('Windows_NT')
+      vi.spyOn(os, 'type').mockReturnValue('Windows_NT')
 
       const komposeWindowsUrl =
          'https://github.com/kubernetes/kompose/releases/download/v1.18.0/kompose-windows-amd64.exe'
@@ -142,8 +143,8 @@ describe('Test all functions in utilities file', () => {
    })
 
    test('getDownloadUrl() - return the URL to download kubectl for Linux_x64', () => {
-      jest.spyOn(os, 'type').mockReturnValue('Linux')
-      jest.spyOn(os, 'arch').mockReturnValue('x64')
+      vi.spyOn(os, 'type').mockReturnValue('Linux')
+      vi.spyOn(os, 'arch').mockReturnValue('x64')
       const kubectlLinuxUrl =
          'https://storage.googleapis.com/kubernetes-release/release/v1.15.0/bin/linux/amd64/kubectl'
 
@@ -153,8 +154,8 @@ describe('Test all functions in utilities file', () => {
    })
 
    test('getDownloadUrl() - return the URL to download kubectl for Linux_arm64', () => {
-      jest.spyOn(os, 'type').mockReturnValue('Linux')
-      jest.spyOn(os, 'arch').mockReturnValue('arm64')
+      vi.spyOn(os, 'type').mockReturnValue('Linux')
+      vi.spyOn(os, 'arch').mockReturnValue('arm64')
       const kubectlLinuxUrl =
          'https://storage.googleapis.com/kubernetes-release/release/v1.15.0/bin/linux/arm64/kubectl'
 
@@ -164,7 +165,7 @@ describe('Test all functions in utilities file', () => {
    })
 
    test('getDownloadUrl() - return the URL to download kubectl for Darwin', () => {
-      jest.spyOn(os, 'type').mockReturnValue('Darwin')
+      vi.spyOn(os, 'type').mockReturnValue('Darwin')
       const kubectlDarwinUrl =
          'https://storage.googleapis.com/kubernetes-release/release/v1.15.0/bin/darwin/amd64/kubectl'
 
@@ -173,7 +174,7 @@ describe('Test all functions in utilities file', () => {
    })
 
    test('getDownloadUrl() - return the URL to download kubectl for Windows', () => {
-      jest.spyOn(os, 'type').mockReturnValue('Windows_NT')
+      vi.spyOn(os, 'type').mockReturnValue('Windows_NT')
 
       const kubectlWindowsUrl =
          'https://storage.googleapis.com/kubernetes-release/release/v1.15.0/bin/windows/amd64/kubectl.exe'
@@ -182,7 +183,7 @@ describe('Test all functions in utilities file', () => {
    })
 
    test('getDownloadUrl() - should throw an error if called with incorrect OS type', () => {
-      jest.spyOn(os, 'type').mockReturnValue('wrong_os')
+      vi.spyOn(os, 'type').mockReturnValue('wrong_os')
       expect(() => {
          utils.getDownloadUrl('kubectl', 'v1.15.0')
       }).toThrow('Unknown OS or render engine type')
@@ -190,7 +191,7 @@ describe('Test all functions in utilities file', () => {
    })
 
    test('getDownloadUrl() - should throw an error if called with incorrect render engine', () => {
-      jest.spyOn(os, 'type').mockReturnValue('test_os')
+      vi.spyOn(os, 'type').mockReturnValue('test_os')
 
       expect(() => {
          utils.getDownloadUrl('test_render_engine', 'v1.15.0')
@@ -199,11 +200,11 @@ describe('Test all functions in utilities file', () => {
    })
 
    test('getStableVerison() - download stable version file for helm, read version and return it', async () => {
-      jest.spyOn(toolCache, 'downloadTool').mockResolvedValue('pathToTool')
+      vi.spyOn(toolCache, 'downloadTool').mockResolvedValue('pathToTool')
       const response = JSON.stringify({
          tag_name: 'v4.0.0'
       })
-      jest.spyOn(fs, 'readFileSync').mockReturnValue(response)
+      vi.spyOn(fs, 'readFileSync').mockReturnValue(response)
 
       expect(await utils.getStableVerison('helm')).toBe('v4.0.0')
       expect(toolCache.downloadTool).toHaveBeenCalled()
@@ -211,9 +212,9 @@ describe('Test all functions in utilities file', () => {
    })
 
    test('getStableVerison() - return default helm version if stable version file is empty', async () => {
-      jest.spyOn(toolCache, 'downloadTool').mockResolvedValue('pathToTool')
+      vi.spyOn(toolCache, 'downloadTool').mockResolvedValue('pathToTool')
       const response = JSON.stringify({})
-      jest.spyOn(fs, 'readFileSync').mockReturnValue(response)
+      vi.spyOn(fs, 'readFileSync').mockReturnValue(response)
 
       expect(await utils.getStableVerison('helm')).toBe('v3.19.3')
       expect(toolCache.downloadTool).toHaveBeenCalled()
@@ -221,12 +222,12 @@ describe('Test all functions in utilities file', () => {
    })
 
    test('getStableVerison() - return default helm version if stable version file download fails', async () => {
-      jest.spyOn(toolCache, 'downloadTool').mockImplementation(async () => {
+      vi.spyOn(toolCache, 'downloadTool').mockImplementation(async () => {
          throw 'Error!!'
       })
-      jest.spyOn(core, 'setFailed').mockImplementation(() => {})
-      jest.spyOn(core, 'debug').mockImplementation(() => {})
-      jest.spyOn(core, 'warning').mockImplementation(() => {})
+      vi.spyOn(core, 'setFailed').mockImplementation(() => {})
+      vi.spyOn(core, 'debug').mockImplementation(() => {})
+      vi.spyOn(core, 'warning').mockImplementation(() => {})
 
       expect(await utils.getStableVerison('helm')).toBe('v3.19.3')
       expect(toolCache.downloadTool).toHaveBeenCalled()
@@ -239,20 +240,20 @@ describe('Test all functions in utilities file', () => {
    })
 
    test('getStableVerison() - return default kubectl v1.34.3 if unable to download file', async () => {
-      jest
-         .spyOn(toolCache, 'downloadTool')
-         .mockRejectedValue('Unable to download.')
-      jest.spyOn(core, 'debug').mockImplementation(() => {})
-      jest.spyOn(core, 'warning').mockImplementation(() => {})
+      vi.spyOn(toolCache, 'downloadTool').mockRejectedValue(
+         'Unable to download.'
+      )
+      vi.spyOn(core, 'debug').mockImplementation(() => {})
+      vi.spyOn(core, 'warning').mockImplementation(() => {})
 
       expect(await utils.getStableVerison('kubectl')).toBe('v1.34.3')
       expect(toolCache.downloadTool).toHaveBeenCalled()
    })
 
    test('getStableVerison() - return default kubectl v1.34.3 if version read is empty', async () => {
-      jest.spyOn(toolCache, 'downloadTool').mockResolvedValue('pathToTool')
-      jest.spyOn(fs, 'readFileSync').mockReturnValue('')
-      jest.spyOn(core, 'warning').mockImplementation(() => {})
+      vi.spyOn(toolCache, 'downloadTool').mockResolvedValue('pathToTool')
+      vi.spyOn(fs, 'readFileSync').mockReturnValue('')
+      vi.spyOn(core, 'warning').mockImplementation(() => {})
 
       expect(await utils.getStableVerison('kubectl')).toBe('v1.34.3')
       expect(toolCache.downloadTool).toHaveBeenCalled()
@@ -260,8 +261,8 @@ describe('Test all functions in utilities file', () => {
    })
 
    test('getStableVerison() - download stable kubectl version file, read version and return it', async () => {
-      jest.spyOn(toolCache, 'downloadTool').mockResolvedValue('pathToTool')
-      jest.spyOn(fs, 'readFileSync').mockReturnValue('v2.14.1')
+      vi.spyOn(toolCache, 'downloadTool').mockResolvedValue('pathToTool')
+      vi.spyOn(fs, 'readFileSync').mockReturnValue('v2.14.1')
 
       expect(await utils.getStableVerison('kubectl')).toBe('v2.14.1')
       expect(toolCache.downloadTool).toHaveBeenCalled()
@@ -295,8 +296,8 @@ describe('Test all functions in utilities file', () => {
          {tag_name: 'v3.11.0-rc.1', prerelease: true, draft: false},
          {tag_name: 'v3.10.0', prerelease: false, draft: false}
       ])
-      jest.spyOn(toolCache, 'downloadTool').mockResolvedValue('pathToTool')
-      jest.spyOn(fs, 'readFileSync').mockReturnValue(mockReleases)
+      vi.spyOn(toolCache, 'downloadTool').mockResolvedValue('pathToTool')
+      vi.spyOn(fs, 'readFileSync').mockReturnValue(mockReleases)
 
       const versions = await utils.getHelmVersions()
       expect(versions).toEqual(['v3.12.0', 'v3.11.0', 'v3.10.0'])
@@ -304,11 +305,11 @@ describe('Test all functions in utilities file', () => {
    })
 
    test('getHelmVersions() - return empty array on error', async () => {
-      jest
-         .spyOn(toolCache, 'downloadTool')
-         .mockRejectedValue(new Error('Network error'))
-      jest.spyOn(core, 'debug').mockImplementation(() => {})
-      jest.spyOn(core, 'warning').mockImplementation(() => {})
+      vi.spyOn(toolCache, 'downloadTool').mockRejectedValue(
+         new Error('Network error')
+      )
+      vi.spyOn(core, 'debug').mockImplementation(() => {})
+      vi.spyOn(core, 'warning').mockImplementation(() => {})
 
       const versions = await utils.getHelmVersions()
       expect(versions).toEqual([])
@@ -332,10 +333,10 @@ describe('Test all functions in utilities file', () => {
          {tag_name: 'v3.10.0', prerelease: false, draft: false},
          {tag_name: 'v2.17.0', prerelease: false, draft: false}
       ])
-      jest.spyOn(toolCache, 'downloadTool').mockResolvedValue('pathToTool')
-      jest.spyOn(fs, 'readFileSync').mockReturnValue(mockReleases)
-      jest.spyOn(core, 'debug').mockImplementation(() => {})
-      jest.spyOn(core, 'info').mockImplementation(() => {})
+      vi.spyOn(toolCache, 'downloadTool').mockResolvedValue('pathToTool')
+      vi.spyOn(fs, 'readFileSync').mockReturnValue(mockReleases)
+      vi.spyOn(core, 'debug').mockImplementation(() => {})
+      vi.spyOn(core, 'info').mockImplementation(() => {})
 
       const result = await utils.resolveHelmVersion('^3.0.0')
       expect(result).toBe('v3.12.0')
@@ -346,9 +347,9 @@ describe('Test all functions in utilities file', () => {
          {tag_name: 'v2.17.0', prerelease: false, draft: false},
          {tag_name: 'v2.16.0', prerelease: false, draft: false}
       ])
-      jest.spyOn(toolCache, 'downloadTool').mockResolvedValue('pathToTool')
-      jest.spyOn(fs, 'readFileSync').mockReturnValue(mockReleases)
-      jest.spyOn(core, 'debug').mockImplementation(() => {})
+      vi.spyOn(toolCache, 'downloadTool').mockResolvedValue('pathToTool')
+      vi.spyOn(fs, 'readFileSync').mockReturnValue(mockReleases)
+      vi.spyOn(core, 'debug').mockImplementation(() => {})
 
       await expect(utils.resolveHelmVersion('^3.0.0')).rejects.toThrow(
          'Unable to find a helm version that satisfies "^3.0.0"'
@@ -356,11 +357,11 @@ describe('Test all functions in utilities file', () => {
    })
 
    test('resolveHelmVersion() - use fallback version when no versions are available', async () => {
-      jest
-         .spyOn(toolCache, 'downloadTool')
-         .mockRejectedValue(new Error('Network error'))
-      jest.spyOn(core, 'debug').mockImplementation(() => {})
-      jest.spyOn(core, 'warning').mockImplementation(() => {})
+      vi.spyOn(toolCache, 'downloadTool').mockRejectedValue(
+         new Error('Network error')
+      )
+      vi.spyOn(core, 'debug').mockImplementation(() => {})
+      vi.spyOn(core, 'warning').mockImplementation(() => {})
 
       const result = await utils.resolveHelmVersion('^3.0.0')
       expect(result).toBe('v3.0.0')
