@@ -15,17 +15,6 @@ import path from 'path'
 import * as core from '@actions/core'
 import {ExecOptions} from '@actions/exec'
 
-var mockStatusCode, stdOutMessage, stdErrMessage
-const mockExecFn = vi.fn().mockImplementation((toolPath, args, options) => {
-   return {
-      exitCode: mockStatusCode,
-      stdout: !stdOutMessage ? '' : stdOutMessage,
-      stderr: !stdErrMessage ? '' : stdErrMessage
-   }
-})
-;(globalThis as unknown as {__mockExecFn: typeof mockExecFn}).__mockExecFn =
-   mockExecFn
-
 describe('Test all functions in run file', () => {
    afterEach(() => vi.restoreAllMocks())
 
@@ -294,8 +283,6 @@ describe('Test all functions in run file', () => {
          if (inputName == 'renderEngine') return 'helm'
       })
       vi.spyOn(console, 'log').mockImplementation(() => {})
-      mockStatusCode = 0
-      stdOutMessage = 'v2.9.1'
       process.env['RUNNER_TEMP'] = 'tempDirPath'
       vi.spyOn(fs, 'writeFileSync').mockImplementation(() => {})
       vi.spyOn(utils, 'getCurrentTime').mockReturnValue(12345678)
@@ -351,8 +338,6 @@ describe('Test all functions in run file', () => {
          if (inputName == 'renderEngine') return 'helm'
       })
       vi.spyOn(console, 'log').mockImplementation(() => {})
-      mockStatusCode = 0
-      stdOutMessage = 'v2.9.1'
       process.env['RUNNER_TEMP'] = 'tempDirPath'
       vi.spyOn(fs, 'writeFileSync').mockImplementation(() => {})
       vi.spyOn(utils, 'getCurrentTime').mockReturnValue(12345678)
@@ -399,8 +384,6 @@ describe('Test all functions in run file', () => {
          if (inputName == 'renderEngine') return 'helm'
       })
       vi.spyOn(console, 'log').mockImplementation(() => {})
-      mockStatusCode = 0
-      stdOutMessage = 'v2.9.1'
       process.env['RUNNER_TEMP'] = 'tempDirPath'
       vi.spyOn(fs, 'writeFileSync').mockImplementation(() => {})
       vi.spyOn(utils, 'getCurrentTime').mockReturnValue(12345678)
@@ -453,8 +436,6 @@ describe('Test all functions in run file', () => {
          if (inputName == 'renderEngine') return 'helm'
       })
       vi.spyOn(console, 'log').mockImplementation(() => {})
-      mockStatusCode = 0
-      stdOutMessage = 'v2.9.1'
       process.env['RUNNER_TEMP'] = 'tempDirPath'
       vi.spyOn(fs, 'writeFileSync').mockImplementation(() => {})
       vi.spyOn(utils, 'getCurrentTime').mockReturnValue(12345678)

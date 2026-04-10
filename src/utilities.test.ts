@@ -6,16 +6,19 @@ import {ExecOptions} from '@actions/exec'
 import * as core from '@actions/core'
 import * as utils from './utilities.js'
 
-var mockStatusCode, stdOutMessage, stdErrMessage
-const mockExecFn = vi.fn().mockImplementation((toolPath, args, options) => {
-   return {
-      exitCode: mockStatusCode,
-      stdout: !stdOutMessage ? '' : stdOutMessage,
-      stderr: !stdErrMessage ? '' : stdErrMessage
-   }
-})
-;(globalThis as unknown as {__mockExecFn: typeof mockExecFn}).__mockExecFn =
-   mockExecFn
+const mockExec = vi.hoisted(() => ({
+   exitCode: 0 as number,
+   stdout: '' as string,
+   stderr: '' as string
+}))
+
+vi.mock('@actions/exec', () => ({
+   getExecOutput: vi.fn().mockImplementation(async () => ({
+      exitCode: mockExec.exitCode,
+      stdout: mockExec.stdout,
+      stderr: mockExec.stderr
+   }))
+}))
 
 describe('Test all functions in utilities file', () => {
    test('isEqual() - ', () => {
@@ -39,9 +42,9 @@ describe('Test all functions in utilities file', () => {
    })
 
    test('execCommand() - generate and throw error if non-zero code is returned with empty stderr', async () => {
-      mockStatusCode = 1
-      stdOutMessage = ''
-      stdErrMessage = ''
+      mockExec.exitCode = 1
+      mockExec.stdout = ''
+      mockExec.stderr = ''
 
       await expect(
          utils.execCommand('cd', ['nonEsistingDirectory'])
@@ -49,18 +52,18 @@ describe('Test all functions in utilities file', () => {
    })
 
    test('execCommand() - throw stderr if non zero code is returned', async () => {
-      mockStatusCode = 1
-      stdOutMessage = ''
-      stdErrMessage = "Directory doesn't exist"
+      mockExec.exitCode = 1
+      mockExec.stdout = ''
+      mockExec.stderr = "Directory doesn't exist"
       await expect(
          utils.execCommand('cd', ['nonEsistingDirectory'], {} as ExecOptions)
       ).rejects.toThrow("Directory doesn't exist")
    })
 
    test('execCommand() - return ExecOptions type object with stdout if exit code is 0', async () => {
-      mockStatusCode = 0
-      stdOutMessage = 'list of files'
-      stdErrMessage = ''
+      mockExec.exitCode = 0
+      mockExec.stdout = 'list of files'
+      mockExec.stderr = ''
       expect(
          await utils.execCommand('ls', [], {} as ExecOptions)
       ).toMatchObject({stderr: '', stdout: 'list of files'})

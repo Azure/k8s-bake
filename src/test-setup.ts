@@ -25,21 +25,3 @@ vi.mock('@actions/io', () => ({
 vi.mock('@actions/io/lib/io-util', () => ({
    exists: vi.fn()
 }))
-
-vi.mock('@actions/exec', async () => {
-   const globalState = globalThis as unknown as {
-      __mockExecFn?: (...args: any[]) => any
-   }
-
-   return {
-      getExecOutput: vi
-         .fn()
-         .mockImplementation(async (toolPath, args, options) => {
-            if (!globalState.__mockExecFn) {
-               throw new Error('__mockExecFn is not initialized')
-            }
-
-            return globalState.__mockExecFn(toolPath, args, options)
-         })
-   }
-})
