@@ -1,9 +1,9 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
 
-import * as path from 'path'
-import * as fs from 'fs'
-import * as util from 'util'
+import path from 'path'
+import fs from 'fs'
+import util from 'util'
 import * as toolCache from '@actions/tool-cache'
 import * as core from '@actions/core'
 import * as io from '@actions/io'
@@ -12,7 +12,7 @@ import {
    isEqual,
    setCachedToolPath,
    LATEST
-} from './utilities'
+} from './utilities.js'
 
 const komposeToolName = 'kompose'
 const defaultStableKomposeVersion = 'v1.37.0'

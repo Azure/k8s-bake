@@ -1,42 +1,25 @@
-import * as helmUtil from './helm-util'
-import * as kubectlUtil from './kubectl-util'
-import * as komposeUtil from './kompose-util'
-import * as utils from './utilities'
+import {vi} from 'vitest'
+import * as helmUtil from './helm-util.js'
+import * as kubectlUtil from './kubectl-util.js'
+import * as komposeUtil from './kompose-util.js'
+import * as utils from './utilities.js'
 import {
    KustomizeRenderEngine,
    KomposeRenderEngine,
    HelmRenderEngine,
    run
-} from './bake'
+} from './bake.js'
 import * as ioUtil from '@actions/io/lib/io-util'
-import * as fs from 'fs'
-import * as path from 'path'
+import fs from 'fs'
+import path from 'path'
 import * as core from '@actions/core'
 import {ExecOptions} from '@actions/exec'
 
-var mockStatusCode, stdOutMessage, stdErrMessage
-const mockExecFn = jest.fn().mockImplementation((toolPath, args, options) => {
-   options.listeners.stdout(!stdOutMessage ? '' : stdOutMessage)
-   options.listeners.stderr(!stdErrMessage ? '' : stdErrMessage)
-   return mockStatusCode
-})
-jest.mock('@actions/exec/lib/toolrunner', () => {
-   return {
-      ToolRunner: jest.fn().mockImplementation((toolPath, args, options) => {
-         return {
-            exec: () => mockExecFn(toolPath, args, options)
-         }
-      })
-   }
-})
-
 describe('Test all functions in run file', () => {
-   afterEach(() => jest.restoreAllMocks())
+   afterEach(() => vi.restoreAllMocks())
 
    test("KustomizeRenderEngine() - throw error if kubectl doesn't meet required version", async () => {
-      jest
-         .spyOn(kubectlUtil, 'getKubectlPath')
-         .mockResolvedValue('pathToKubectl')
+      vi.spyOn(kubectlUtil, 'getKubectlPath').mockResolvedValue('pathToKubectl')
       const kubectlVersionResponse = {
          stdout: JSON.stringify({
             clientVersion: {
@@ -45,9 +28,9 @@ describe('Test all functions in run file', () => {
             }
          })
       }
-      jest
-         .spyOn(utils, 'execCommand')
-         .mockResolvedValue(kubectlVersionResponse as utils.ExecResult)
+      vi.spyOn(utils, 'execCommand').mockResolvedValue(
+         kubectlVersionResponse as utils.ExecResult
+      )
 
       await expect(new KustomizeRenderEngine().bake(false)).rejects.toThrow(
          'kubectl client version equal to v1.14 or higher is required to use kustomize features'
@@ -62,9 +45,7 @@ describe('Test all functions in run file', () => {
    })
 
    test('KustomizeRenderEngine() - validate kubetl and bake using kustomize', async () => {
-      jest
-         .spyOn(kubectlUtil, 'getKubectlPath')
-         .mockResolvedValue('pathToKubectl')
+      vi.spyOn(kubectlUtil, 'getKubectlPath').mockResolvedValue('pathToKubectl')
       const responseStdout = JSON.stringify({
          clientVersion: {
             major: '1',
@@ -77,22 +58,21 @@ describe('Test all functions in run file', () => {
       const kustomizeResponse = {
          stdout: 'kustomizeOutput'
       }
-      jest
-         .spyOn(utils, 'execCommand')
+      vi.spyOn(utils, 'execCommand')
          .mockResolvedValueOnce(kubectlVersionResponse as utils.ExecResult)
          .mockResolvedValueOnce(kustomizeResponse as utils.ExecResult)
-      jest.spyOn(core, 'getInput').mockImplementation((inputName) => {
+      vi.spyOn(core, 'getInput').mockImplementation((inputName) => {
          if (inputName == 'kustomizationPath') return 'pathToKustomization'
          if (inputName == 'renderEngine') return 'kustomize'
          if (inputName == 'arguments') return 'additionalArguments'
       })
-      jest.spyOn(ioUtil, 'exists').mockResolvedValue(true)
-      jest.spyOn(fs, 'writeFileSync').mockImplementation()
+      vi.spyOn(ioUtil, 'exists').mockResolvedValue(true)
+      vi.spyOn(fs, 'writeFileSync').mockImplementation(() => {})
       process.env['RUNNER_TEMP'] = 'tempDir'
-      jest.spyOn(utils, 'getCurrentTime').mockReturnValue(12345678)
-      jest.spyOn(core, 'debug').mockImplementation()
-      jest.spyOn(core, 'setOutput').mockImplementation()
-      jest.spyOn(console, 'log').mockImplementation()
+      vi.spyOn(utils, 'getCurrentTime').mockReturnValue(12345678)
+      vi.spyOn(core, 'debug').mockImplementation(() => {})
+      vi.spyOn(core, 'setOutput').mockImplementation(() => {})
+      vi.spyOn(console, 'log').mockImplementation(() => {})
 
       expect(await new KustomizeRenderEngine().bake(true)).toBeUndefined()
       expect(kubectlUtil.getKubectlPath).toHaveBeenCalled()
@@ -123,9 +103,7 @@ describe('Test all functions in run file', () => {
    })
 
    test('KustomizeRenderEngine() - multiple additional arguments with leading/trailing spaces', async () => {
-      jest
-         .spyOn(kubectlUtil, 'getKubectlPath')
-         .mockResolvedValue('pathToKubectl')
+      vi.spyOn(kubectlUtil, 'getKubectlPath').mockResolvedValue('pathToKubectl')
       const kubectlVersionResponse = {
          stdout: JSON.stringify({
             clientVersion: {
@@ -137,21 +115,21 @@ describe('Test all functions in run file', () => {
       const kustomizeResponse = {
          stdout: 'kustomizeOutput'
       }
-      jest
-         .spyOn(utils, 'execCommand')
-         .mockResolvedValue(kubectlVersionResponse as utils.ExecResult)
-      jest.spyOn(core, 'getInput').mockImplementation((inputName, options) => {
+      vi.spyOn(utils, 'execCommand').mockResolvedValue(
+         kubectlVersionResponse as utils.ExecResult
+      )
+      vi.spyOn(core, 'getInput').mockImplementation((inputName, options) => {
          if (inputName == 'kustomizationPath') return 'pathToKustomization'
          if (inputName == 'renderEngine') return 'kustomize'
          if (inputName == 'arguments') return ' additional \n  Arguments  '
       })
-      jest.spyOn(ioUtil, 'exists').mockResolvedValue(true)
-      jest.spyOn(fs, 'writeFileSync').mockImplementation()
+      vi.spyOn(ioUtil, 'exists').mockResolvedValue(true)
+      vi.spyOn(fs, 'writeFileSync').mockImplementation(() => {})
       process.env['RUNNER_TEMP'] = 'tempDir'
-      jest.spyOn(utils, 'getCurrentTime').mockReturnValue(12345678)
-      jest.spyOn(core, 'debug').mockImplementation()
-      jest.spyOn(core, 'setOutput').mockImplementation()
-      jest.spyOn(console, 'log').mockImplementation()
+      vi.spyOn(utils, 'getCurrentTime').mockReturnValue(12345678)
+      vi.spyOn(core, 'debug').mockImplementation(() => {})
+      vi.spyOn(core, 'setOutput').mockImplementation(() => {})
+      vi.spyOn(console, 'log').mockImplementation(() => {})
 
       expect(await new KustomizeRenderEngine().bake(true)).toBeUndefined()
       expect(kubectlUtil.getKubectlPath).toHaveBeenCalled()
@@ -169,9 +147,7 @@ describe('Test all functions in run file', () => {
    })
 
    test('KustomizeRenderEngine() - multiple additional argument', async () => {
-      jest
-         .spyOn(kubectlUtil, 'getKubectlPath')
-         .mockResolvedValue('pathToKubectl')
+      vi.spyOn(kubectlUtil, 'getKubectlPath').mockResolvedValue('pathToKubectl')
       const kubectlVersionResponse = {
          stdout: JSON.stringify({
             clientVersion: {
@@ -183,23 +159,22 @@ describe('Test all functions in run file', () => {
       const kustomizeResponse = {
          stdout: 'kustomizeOutput'
       }
-      jest
-         .spyOn(utils, 'execCommand')
+      vi.spyOn(utils, 'execCommand')
          .mockResolvedValueOnce(kubectlVersionResponse as utils.ExecResult)
          .mockResolvedValueOnce(kustomizeResponse as utils.ExecResult)
-      jest.spyOn(core, 'getInput').mockImplementation((inputName, options) => {
+      vi.spyOn(core, 'getInput').mockImplementation((inputName, options) => {
          if (inputName == 'kustomizationPath') return 'pathToKustomization'
          if (inputName == 'renderEngine') return 'kustomize'
          if (inputName == 'arguments')
             return 'add1 tional,\nArguments\nnore\nargu ments'
       })
-      jest.spyOn(ioUtil, 'exists').mockResolvedValue(true)
-      jest.spyOn(fs, 'writeFileSync').mockImplementation()
+      vi.spyOn(ioUtil, 'exists').mockResolvedValue(true)
+      vi.spyOn(fs, 'writeFileSync').mockImplementation(() => {})
       process.env['RUNNER_TEMP'] = 'tempDir'
-      jest.spyOn(utils, 'getCurrentTime').mockReturnValue(12345678)
-      jest.spyOn(core, 'debug').mockImplementation()
-      jest.spyOn(core, 'setOutput').mockImplementation()
-      jest.spyOn(console, 'log').mockImplementation()
+      vi.spyOn(utils, 'getCurrentTime').mockReturnValue(12345678)
+      vi.spyOn(core, 'debug').mockImplementation(() => {})
+      vi.spyOn(core, 'setOutput').mockImplementation(() => {})
+      vi.spyOn(console, 'log').mockImplementation(() => {})
 
       expect(await new KustomizeRenderEngine().bake(true)).toBeUndefined()
       expect(kubectlUtil.getKubectlPath).toHaveBeenCalled()
@@ -224,15 +199,13 @@ describe('Test all functions in run file', () => {
    })
 
    test('KomposeRenderEngine() - throw error if unable to find temp directory', async () => {
-      jest.spyOn(core, 'getInput').mockReturnValue('pathToKompose')
-      jest.spyOn(ioUtil, 'exists').mockResolvedValue(true)
-      jest
-         .spyOn(komposeUtil, 'getKomposePath')
-         .mockResolvedValue('pathToKompose')
+      vi.spyOn(core, 'getInput').mockReturnValue('pathToKompose')
+      vi.spyOn(ioUtil, 'exists').mockResolvedValue(true)
+      vi.spyOn(komposeUtil, 'getKomposePath').mockResolvedValue('pathToKompose')
       process.env['RUNNER_TEMP'] = ''
-      jest.spyOn(utils, 'getCurrentTime').mockReturnValue(12345678)
-      jest.spyOn(core, 'debug').mockImplementation()
-      jest.spyOn(console, 'log').mockImplementation()
+      vi.spyOn(utils, 'getCurrentTime').mockReturnValue(12345678)
+      vi.spyOn(core, 'debug').mockImplementation(() => {})
+      vi.spyOn(console, 'log').mockImplementation(() => {})
 
       await expect(new KomposeRenderEngine().bake(false)).rejects.toThrow(
          'Unable to create temp directory.'
@@ -241,15 +214,13 @@ describe('Test all functions in run file', () => {
    })
 
    test('KomposeRenderEngine() - bake using kompose', async () => {
-      jest.spyOn(core, 'getInput').mockReturnValue('pathToDockerCompose')
-      jest.spyOn(ioUtil, 'exists').mockResolvedValue(true)
-      jest
-         .spyOn(komposeUtil, 'getKomposePath')
-         .mockResolvedValue('pathToKompose')
+      vi.spyOn(core, 'getInput').mockReturnValue('pathToDockerCompose')
+      vi.spyOn(ioUtil, 'exists').mockResolvedValue(true)
+      vi.spyOn(komposeUtil, 'getKomposePath').mockResolvedValue('pathToKompose')
       process.env['RUNNER_TEMP'] = 'tempDir'
-      jest.spyOn(utils, 'getCurrentTime').mockReturnValue(12345678)
-      jest.spyOn(core, 'setOutput').mockImplementation()
-      jest.spyOn(utils, 'execCommand').mockResolvedValue({
+      vi.spyOn(utils, 'getCurrentTime').mockReturnValue(12345678)
+      vi.spyOn(core, 'setOutput').mockImplementation(() => {})
+      vi.spyOn(utils, 'execCommand').mockResolvedValue({
          code: 0,
          stdout: 'kompose output',
          stderr: ''
@@ -275,25 +246,23 @@ describe('Test all functions in run file', () => {
    })
 
    test('run() - throw error on wrong input from render-engine', async () => {
-      jest.spyOn(core, 'getInput').mockReturnValue('someRenderEngine')
-      jest.spyOn(core, 'setFailed').mockImplementation(() => {})
+      vi.spyOn(core, 'getInput').mockReturnValue('someRenderEngine')
+      vi.spyOn(core, 'setFailed').mockImplementation(() => {})
 
       await expect(run()).rejects.toThrow('Unknown render engine')
       expect(core.setFailed).toHaveBeenCalledWith('Unknown render engine')
    })
 
    test('run() - throw error if bake fails', async () => {
-      jest.spyOn(core, 'getInput').mockImplementation((inputName, options) => {
+      vi.spyOn(core, 'getInput').mockImplementation((inputName, options) => {
          if (inputName == 'renderEngine') return 'kompose'
          if (inputName == 'dockerComposeFile') return 'pathToDockerComposeFile'
       })
-      jest.spyOn(ioUtil, 'exists').mockResolvedValue(true)
-      jest
-         .spyOn(komposeUtil, 'getKomposePath')
-         .mockResolvedValue('pathToKompose')
+      vi.spyOn(ioUtil, 'exists').mockResolvedValue(true)
+      vi.spyOn(komposeUtil, 'getKomposePath').mockResolvedValue('pathToKompose')
       process.env['RUNNER_TEMP'] = ''
-      jest.spyOn(utils, 'getCurrentTime').mockReturnValue(12345678)
-      jest.spyOn(core, 'setFailed').mockImplementation(() => {})
+      vi.spyOn(utils, 'getCurrentTime').mockReturnValue(12345678)
+      vi.spyOn(core, 'setFailed').mockImplementation(() => {})
 
       await expect(run()).rejects.toThrow(
          'Failed to run bake action. Error: Error: Unable to create temp directory.'
@@ -306,28 +275,26 @@ describe('Test all functions in run file', () => {
    })
 
    test('HelmRenderEngine() - bake manifest using helm', async () => {
-      jest.spyOn(helmUtil, 'getHelmPath').mockResolvedValue('pathToHelm')
-      jest.spyOn(core, 'getInput').mockImplementation((inputName, options) => {
+      vi.spyOn(helmUtil, 'getHelmPath').mockResolvedValue('pathToHelm')
+      vi.spyOn(core, 'getInput').mockImplementation((inputName, options) => {
          if (inputName == 'helmChart') return 'pathToHelmChart'
          if (inputName == 'overrides') return 'replicas=2'
          if (inputName == 'releaseName') return 'releaseName'
          if (inputName == 'renderEngine') return 'helm'
       })
-      jest.spyOn(console, 'log').mockImplementation()
-      mockStatusCode = 0
-      stdOutMessage = 'v2.9.1'
+      vi.spyOn(console, 'log').mockImplementation(() => {})
       process.env['RUNNER_TEMP'] = 'tempDirPath'
-      jest.spyOn(fs, 'writeFileSync').mockImplementation()
-      jest.spyOn(utils, 'getCurrentTime').mockReturnValue(12345678)
-      jest.spyOn(core, 'setOutput').mockImplementation()
-      const warnSpy = jest.spyOn(core, 'warning').mockImplementation()
+      vi.spyOn(fs, 'writeFileSync').mockImplementation(() => {})
+      vi.spyOn(utils, 'getCurrentTime').mockReturnValue(12345678)
+      vi.spyOn(core, 'setOutput').mockImplementation(() => {})
+      const warnSpy = vi.spyOn(core, 'warning').mockImplementation(() => {})
 
       const execResult = {
          stdout: 'test output'
       }
-      jest
-         .spyOn(utils, 'execCommand')
-         .mockResolvedValue(execResult as utils.ExecResult)
+      vi.spyOn(utils, 'execCommand').mockResolvedValue(
+         execResult as utils.ExecResult
+      )
 
       expect(await new HelmRenderEngine().bake(true)).toBeUndefined()
       expect(utils.execCommand).toHaveBeenCalledWith(
@@ -363,27 +330,25 @@ describe('Test all functions in run file', () => {
 
    test('HelmRenderEngine() - single additional argument', async () => {
       process.env['INPUT_RENDERENGINE'] = 'helm'
-      jest.spyOn(helmUtil, 'getHelmPath').mockResolvedValue('pathToHelm')
-      jest.spyOn(core, 'getInput').mockImplementation((inputName, options) => {
+      vi.spyOn(helmUtil, 'getHelmPath').mockResolvedValue('pathToHelm')
+      vi.spyOn(core, 'getInput').mockImplementation((inputName, options) => {
          if (inputName == 'helmChart') return 'pathToHelmChart'
          if (inputName == 'arguments') return 'additionalArguments'
          if (inputName == 'releaseName') return 'releaseName'
          if (inputName == 'renderEngine') return 'helm'
       })
-      jest.spyOn(console, 'log').mockImplementation()
-      mockStatusCode = 0
-      stdOutMessage = 'v2.9.1'
+      vi.spyOn(console, 'log').mockImplementation(() => {})
       process.env['RUNNER_TEMP'] = 'tempDirPath'
-      jest.spyOn(fs, 'writeFileSync').mockImplementation()
-      jest.spyOn(utils, 'getCurrentTime').mockReturnValue(12345678)
-      jest.spyOn(core, 'setOutput').mockImplementation()
+      vi.spyOn(fs, 'writeFileSync').mockImplementation(() => {})
+      vi.spyOn(utils, 'getCurrentTime').mockReturnValue(12345678)
+      vi.spyOn(core, 'setOutput').mockImplementation(() => {})
 
       const execResult = {
          stdout: 'test output'
       }
-      jest
-         .spyOn(utils, 'execCommand')
-         .mockResolvedValue(execResult as utils.ExecResult)
+      vi.spyOn(utils, 'execCommand').mockResolvedValue(
+         execResult as utils.ExecResult
+      )
 
       expect(await new HelmRenderEngine().bake(true)).toBeUndefined()
       expect(utils.execCommand).toHaveBeenCalledWith(
@@ -411,27 +376,25 @@ describe('Test all functions in run file', () => {
 
    test('HelmRenderEngine() - multiple additional arguments', async () => {
       process.env['INPUT_RENDERENGINE'] = 'helm'
-      jest.spyOn(helmUtil, 'getHelmPath').mockResolvedValue('pathToHelm')
-      jest.spyOn(core, 'getInput').mockImplementation((inputName, options) => {
+      vi.spyOn(helmUtil, 'getHelmPath').mockResolvedValue('pathToHelm')
+      vi.spyOn(core, 'getInput').mockImplementation((inputName, options) => {
          if (inputName == 'helmChart') return 'pathToHelmChart'
          if (inputName == 'arguments') return 'additional\nArguments'
          if (inputName == 'releaseName') return 'releaseName'
          if (inputName == 'renderEngine') return 'helm'
       })
-      jest.spyOn(console, 'log').mockImplementation()
-      mockStatusCode = 0
-      stdOutMessage = 'v2.9.1'
+      vi.spyOn(console, 'log').mockImplementation(() => {})
       process.env['RUNNER_TEMP'] = 'tempDirPath'
-      jest.spyOn(fs, 'writeFileSync').mockImplementation()
-      jest.spyOn(utils, 'getCurrentTime').mockReturnValue(12345678)
-      jest.spyOn(core, 'setOutput').mockImplementation()
+      vi.spyOn(fs, 'writeFileSync').mockImplementation(() => {})
+      vi.spyOn(utils, 'getCurrentTime').mockReturnValue(12345678)
+      vi.spyOn(core, 'setOutput').mockImplementation(() => {})
 
       const execResult = {
          stdout: 'test output'
       }
-      jest
-         .spyOn(utils, 'execCommand')
-         .mockResolvedValue(execResult as utils.ExecResult)
+      vi.spyOn(utils, 'execCommand').mockResolvedValue(
+         execResult as utils.ExecResult
+      )
 
       expect(await new HelmRenderEngine().bake(true)).toBeUndefined()
       expect(utils.execCommand).toHaveBeenCalledWith(
@@ -465,27 +428,25 @@ describe('Test all functions in run file', () => {
 
    test('HelmRenderEngine() - no additional arguments', async () => {
       process.env['INPUT_RENDERENGINE'] = 'helm'
-      jest.spyOn(helmUtil, 'getHelmPath').mockResolvedValue('pathToHelm')
-      jest.spyOn(core, 'getInput').mockImplementation((inputName, options) => {
+      vi.spyOn(helmUtil, 'getHelmPath').mockResolvedValue('pathToHelm')
+      vi.spyOn(core, 'getInput').mockImplementation((inputName, options) => {
          if (inputName == 'helmChart') return 'pathToHelmChart'
          if (inputName == 'arguments') return ''
          if (inputName == 'releaseName') return 'releaseName'
          if (inputName == 'renderEngine') return 'helm'
       })
-      jest.spyOn(console, 'log').mockImplementation()
-      mockStatusCode = 0
-      stdOutMessage = 'v2.9.1'
+      vi.spyOn(console, 'log').mockImplementation(() => {})
       process.env['RUNNER_TEMP'] = 'tempDirPath'
-      jest.spyOn(fs, 'writeFileSync').mockImplementation()
-      jest.spyOn(utils, 'getCurrentTime').mockReturnValue(12345678)
-      jest.spyOn(core, 'setOutput').mockImplementation()
+      vi.spyOn(fs, 'writeFileSync').mockImplementation(() => {})
+      vi.spyOn(utils, 'getCurrentTime').mockReturnValue(12345678)
+      vi.spyOn(core, 'setOutput').mockImplementation(() => {})
 
       const execResult = {
          stdout: 'test output'
       }
-      jest
-         .spyOn(utils, 'execCommand')
-         .mockResolvedValue(execResult as utils.ExecResult)
+      vi.spyOn(utils, 'execCommand').mockResolvedValue(
+         execResult as utils.ExecResult
+      )
 
       expect(await new HelmRenderEngine().bake(true)).toBeUndefined()
       expect(utils.execCommand).toHaveBeenCalledWith(
@@ -525,28 +486,28 @@ describe('Test all functions in run file', () => {
    ])(
       'HelmRenderEngine() - helm %s (%s) uses correct init and template behavior',
       async (version, _description, isModernHelm) => {
-         jest.spyOn(helmUtil, 'getHelmPath').mockResolvedValue('pathToHelm')
-         jest.spyOn(core, 'getInput').mockImplementation((inputName) => {
+         vi.spyOn(helmUtil, 'getHelmPath').mockResolvedValue('pathToHelm')
+         vi.spyOn(core, 'getInput').mockImplementation((inputName) => {
             if (inputName === 'helmChart') return 'pathToHelmChart'
             if (inputName === 'releaseName') return 'releaseName'
             if (inputName === 'renderEngine') return 'helm'
             return ''
          })
-         jest.spyOn(console, 'log').mockImplementation()
-         jest.spyOn(core, 'warning').mockImplementation()
+         vi.spyOn(console, 'log').mockImplementation(() => {})
+         vi.spyOn(core, 'warning').mockImplementation(() => {})
          process.env['RUNNER_TEMP'] = 'tempDirPath'
-         jest.spyOn(fs, 'writeFileSync').mockImplementation()
-         jest.spyOn(utils, 'getCurrentTime').mockReturnValue(12345678)
-         jest.spyOn(core, 'setOutput').mockImplementation()
+         vi.spyOn(fs, 'writeFileSync').mockImplementation(() => {})
+         vi.spyOn(utils, 'getCurrentTime').mockReturnValue(12345678)
+         vi.spyOn(core, 'setOutput').mockImplementation(() => {})
 
-         jest
-            .spyOn(utils, 'execCommand')
-            .mockImplementation(async (path, args) => {
+         vi.spyOn(utils, 'execCommand').mockImplementation(
+            async (path, args) => {
                if (args.includes('version')) {
                   return {stdout: version, stderr: '', code: 0}
                }
                return {stdout: 'template output', stderr: '', code: 0}
-            })
+            }
+         )
 
          await new HelmRenderEngine().bake(true)
 
