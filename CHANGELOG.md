@@ -1,5 +1,22 @@
 # Changelog
 
+## [4.0.0] - 2026-04-17
+
+### Changed
+
+- #252 [Migrate project to ESM with esbuild and vitest](https://github.com/Azure/k8s-bake/pull/252)
+- #243 [Update Node.js runtime from node20 to node24](https://github.com/Azure/k8s-bake/pull/243)
+- #225 [Fix Helm cached tool path](https://github.com/Azure/k8s-bake/pull/225)
+
+### Security
+
+- #250 [Bump handlebars from 4.7.8 to 4.7.9](https://github.com/Azure/k8s-bake/pull/250)
+- #248 [Bump picomatch](https://github.com/Azure/k8s-bake/pull/248)
+- #245 [Bump undici from 6.23.0 to 6.24.1](https://github.com/Azure/k8s-bake/pull/245)
+- #240 [Bump minimatch](https://github.com/Azure/k8s-bake/pull/240)
+- #237 [Bump undici and @actions/http-client](https://github.com/Azure/k8s-bake/pull/237)
+- Version bumps
+
 ## [3.0.4] - 2025-12-11
 
 - #221 [Updated default versions for kompose/helm/kubectl](https://github.com/Azure/k8s-bake/pull/221)
