@@ -1,6 +1,6 @@
 {
    "name": "k8sbake",
-   "version": "3.0.4",
+   "version": "4.0.0",
    "type": "module",
    "description": "Kubernetes Bake",
    "author": "Anumita Shenoy",
