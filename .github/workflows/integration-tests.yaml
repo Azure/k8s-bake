@@ -34,7 +34,7 @@ jobs:
            id: helm-bake
 
          - name: Validate created manifest ${{ matrix.os }}
-           uses: Azure/k8s-lint@v3
+           uses: Azure/k8s-lint@v4
            with:
               manifests: ${{ steps.helm-bake.outputs.manifestsBundle }}
 
@@ -54,7 +54,7 @@ jobs:
            id: helm-semver-bake
 
          - name: Validate created manifest with semver helm ${{ matrix.os }}
-           uses: Azure/k8s-lint@v3
+           uses: Azure/k8s-lint@v4
            with:
               manifests: ${{ steps.helm-semver-bake.outputs.manifestsBundle }}
 
@@ -67,7 +67,7 @@ jobs:
            id: kompose-bake
 
          - name: validate created manifest ${{ matrix.os }}
-           uses: Azure/k8s-lint@v3
+           uses: Azure/k8s-lint@v4
            with:
               manifests: ${{ steps.kompose-bake.outputs.manifestsBundle }}
 
@@ -81,7 +81,7 @@ jobs:
            id: kustomize-bake
 
          - name: Validate created manifest ${{ matrix.os }}
-           uses: Azure/k8s-lint@v3
+           uses: Azure/k8s-lint@v4
            with:
               manifests: ${{ steps.kustomize-bake.outputs.manifestsBundle }}
 
@@ -95,6 +95,6 @@ jobs:
            id: kustomize-args-bake
 
          - name: Validate created manifest with arguments ${{ matrix.os }}
-           uses: Azure/k8s-lint@v3
+           uses: Azure/k8s-lint@v4
            with:
               manifests: ${{ steps.kustomize-args-bake.outputs.manifestsBundle }}
