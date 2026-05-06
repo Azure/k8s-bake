@@ -38,7 +38,7 @@ describe('Testing all functions in kubectl-util file.', () => {
       )
 
       await expect(kubectlUtil.downloadKubectl('v1.15.0')).rejects.toThrow(
-         'Failed to download the kubectl from https://storage.googleapis.com/kubernetes-release/release/v1.15.0/bin/windows/amd64/kubectl.exe.  Error: Unable to download kubectl.'
+         'Failed to download the kubectl from https://dl.k8s.io/v1.15.0/bin/windows/amd64/kubectl.exe.  Error: Unable to download kubectl.'
       )
       expect(toolCache.find).toHaveBeenCalledWith('kubectl', 'v1.15.0')
       expect(toolCache.downloadTool).toHaveBeenCalled()

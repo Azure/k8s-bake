@@ -149,7 +149,7 @@ describe('Test all functions in utilities file', () => {
       vi.spyOn(os, 'type').mockReturnValue('Linux')
       vi.spyOn(os, 'arch').mockReturnValue('x64')
       const kubectlLinuxUrl =
-         'https://storage.googleapis.com/kubernetes-release/release/v1.15.0/bin/linux/amd64/kubectl'
+         'https://dl.k8s.io/v1.15.0/bin/linux/amd64/kubectl'
 
       expect(utils.getDownloadUrl('kubectl', 'v1.15.0')).toBe(kubectlLinuxUrl)
       expect(os.type).toHaveBeenCalled()
@@ -160,7 +160,7 @@ describe('Test all functions in utilities file', () => {
       vi.spyOn(os, 'type').mockReturnValue('Linux')
       vi.spyOn(os, 'arch').mockReturnValue('arm64')
       const kubectlLinuxUrl =
-         'https://storage.googleapis.com/kubernetes-release/release/v1.15.0/bin/linux/arm64/kubectl'
+         'https://dl.k8s.io/v1.15.0/bin/linux/arm64/kubectl'
 
       expect(utils.getDownloadUrl('kubectl', 'v1.15.0')).toBe(kubectlLinuxUrl)
       expect(os.type).toHaveBeenCalled()
@@ -170,7 +170,7 @@ describe('Test all functions in utilities file', () => {
    test('getDownloadUrl() - return the URL to download kubectl for Darwin', () => {
       vi.spyOn(os, 'type').mockReturnValue('Darwin')
       const kubectlDarwinUrl =
-         'https://storage.googleapis.com/kubernetes-release/release/v1.15.0/bin/darwin/amd64/kubectl'
+         'https://dl.k8s.io/v1.15.0/bin/darwin/amd64/kubectl'
 
       expect(utils.getDownloadUrl('kubectl', 'v1.15.0')).toBe(kubectlDarwinUrl)
       expect(os.type).toHaveBeenCalled()
@@ -180,7 +180,7 @@ describe('Test all functions in utilities file', () => {
       vi.spyOn(os, 'type').mockReturnValue('Windows_NT')
 
       const kubectlWindowsUrl =
-         'https://storage.googleapis.com/kubernetes-release/release/v1.15.0/bin/windows/amd64/kubectl.exe'
+         'https://dl.k8s.io/v1.15.0/bin/windows/amd64/kubectl.exe'
       expect(utils.getDownloadUrl('kubectl', 'v1.15.0')).toBe(kubectlWindowsUrl)
       expect(os.type).toHaveBeenCalled()
    })
