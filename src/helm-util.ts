@@ -56,12 +56,12 @@ export async function downloadHelm(version: string): Promise<string> {
       )
    }
 
-   fs.chmodSync(helmpath, '777')
+   fs.chmodSync(helmpath, '755')
    return helmpath
 }
 
 export function findHelm(rootFolder: string): string {
-   fs.chmodSync(rootFolder, '777')
+   fs.chmodSync(rootFolder, '755')
    const filelist: string[] = []
    walkSync(rootFolder, filelist, helmToolName + getExecutableExtension())
    if (!filelist) {

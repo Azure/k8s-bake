@@ -74,7 +74,7 @@ export async function setCachedToolPath(toolName: string, version: string) {
    }
 
    if (toolName == 'helm') {
-      fs.chmodSync(downloadPath, '777')
+      fs.chmodSync(downloadPath, '755')
       const unzipedHelmPath = await toolCache.extractZip(downloadPath)
       cachedToolpath = await toolCache.cacheDir(
          unzipedHelmPath,
