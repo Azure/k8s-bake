@@ -26,7 +26,7 @@ describe('Testing all functions in kubectl-util file.', () => {
       expect(os.type).toHaveBeenCalled()
       expect(fs.chmodSync).toHaveBeenCalledWith(
          path.join('pathToCachedTool', 'kubectl.exe'),
-         '777'
+         '755'
       )
    })
 
@@ -56,7 +56,7 @@ describe('Testing all functions in kubectl-util file.', () => {
       expect(os.type).toHaveBeenCalled()
       expect(fs.chmodSync).toHaveBeenCalledWith(
          path.join('pathToCachedTool', 'kubectl.exe'),
-         '777'
+         '755'
       )
    })
 
@@ -101,7 +101,7 @@ describe('Testing all functions in kubectl-util file.', () => {
       expect(os.type).toHaveBeenCalled()
       expect(fs.chmodSync).toHaveBeenCalledWith(
          path.join('pathToCachedTool', 'kubectl.exe'),
-         '777'
+         '755'
       )
    })
 

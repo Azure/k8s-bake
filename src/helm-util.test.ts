@@ -112,7 +112,7 @@ describe('Testing all functions in helm-util file.', () => {
       expect(toolCache.find).toHaveBeenCalledWith('helm', 'v2.14.1')
       expect(fs.chmodSync).toHaveBeenCalledWith(
          path.join('pathToCachedDir', 'helm.exe'),
-         '777'
+         '755'
       )
    })
 
@@ -137,7 +137,7 @@ describe('Testing all functions in helm-util file.', () => {
       expect(toolCache.downloadTool).toHaveBeenCalledWith(
          'https://get.helm.sh/helm-v2.14.1-windows-amd64.zip'
       )
-      expect(fs.chmodSync).toHaveBeenCalledWith('pathToTool', '777')
+      expect(fs.chmodSync).toHaveBeenCalledWith('pathToTool', '755')
       expect(toolCache.extractZip).toHaveBeenCalledWith('pathToTool')
    })
 
@@ -168,11 +168,11 @@ describe('Testing all functions in helm-util file.', () => {
       expect(toolCache.downloadTool).toHaveBeenCalledWith(
          'https://get.helm.sh/helm-v4.0.0-windows-amd64.zip'
       )
-      expect(fs.chmodSync).toHaveBeenCalledWith('pathToTool', '777')
+      expect(fs.chmodSync).toHaveBeenCalledWith('pathToTool', '755')
       expect(toolCache.extractZip).toHaveBeenCalledWith('pathToTool')
       expect(fs.chmodSync).toHaveBeenCalledWith(
          path.join('pathToCachedDir', 'helm.exe'),
-         '777'
+         '755'
       )
    })
 
@@ -313,7 +313,7 @@ describe('Testing all functions in helm-util file.', () => {
       expect(helmUtil.findHelm('mainFolder')).toBe(
          path.join('mainFolder', 'helm.exe')
       )
-      expect(fs.chmodSync).toHaveBeenCalledWith('mainFolder', '777')
+      expect(fs.chmodSync).toHaveBeenCalledWith('mainFolder', '755')
       expect(fs.readdirSync).toHaveBeenCalledWith('mainFolder')
       expect(fs.statSync).toHaveBeenCalledWith(
          path.join('mainFolder', 'helm.exe')
