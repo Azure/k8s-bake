@@ -1,5 +1,23 @@
 # Changelog
 
+## [4.1.0] - 2026-06-17
+
+### Changed
+
+- #257 [Switch to current k8s download URLs](https://github.com/Azure/k8s-bake/pull/257)
+- #267 [Remove deprecated release workflow and pin actions to SHA](https://github.com/Azure/k8s-bake/pull/267)
+
+### Fixed
+
+- #270 [Use chmod 755 instead of 777 for downloaded helm binary and folder](https://github.com/Azure/k8s-bake/pull/270)
+
+### Security
+
+- #273 [Bump esbuild from 0.28.0 to 0.28.1](https://github.com/Azure/k8s-bake/pull/273)
+- #268 [Bump vitest from 4.1.7 to 4.1.8](https://github.com/Azure/k8s-bake/pull/268)
+- #263 [Bump @types/node from 25.6.2 to 25.9.0](https://github.com/Azure/k8s-bake/pull/263)
+- Version bumps
+
 ## [4.0.0] - 2026-04-17
 
 ### Changed
