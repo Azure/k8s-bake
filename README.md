@@ -34,6 +34,10 @@ The `helm-version` input supports semver-compatible version ranges. This is usef
 - `v3.12.1` - Use an exact version
 - `latest` - Use the latest stable release (may include breaking changes across major versions)
 
+#### Server-side `.Lookup`
+
+Set `helm-dry-run` to `client` or `server` to pass `--dry-run=<mode>` to `helm template`. Use `server` when your chart calls `.Lookup` and needs to resolve against the cluster your runner is authenticated to. Requires Helm >= 3.13. Any data resolved via `.Lookup` (including Secret values) will be embedded in the rendered manifests bundle.
+
 #### Bake using Kompose
 
 ```yaml

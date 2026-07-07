@@ -545,4 +545,138 @@ describe('Test all functions in run file', () => {
          }
       }
    )
+
+   test.each<[string, string]>([
+      ['server', 'server-side dry-run'],
+      ['client', 'client-side dry-run']
+   ])(
+      'HelmRenderEngine() - helm-dry-run=%s (%s) appends --dry-run to template',
+      async (mode) => {
+         vi.spyOn(helmUtil, 'getHelmPath').mockResolvedValue('pathToHelm')
+         vi.spyOn(core, 'getInput').mockImplementation((inputName) => {
+            if (inputName === 'helmChart') return 'pathToHelmChart'
+            if (inputName === 'releaseName') return 'releaseName'
+            if (inputName === 'renderEngine') return 'helm'
+            if (inputName === 'helm-dry-run') return mode
+            return ''
+         })
+         vi.spyOn(console, 'log').mockImplementation(() => {})
+         process.env['RUNNER_TEMP'] = 'tempDirPath'
+         vi.spyOn(fs, 'writeFileSync').mockImplementation(() => {})
+         vi.spyOn(utils, 'getCurrentTime').mockReturnValue(12345678)
+         vi.spyOn(core, 'setOutput').mockImplementation(() => {})
+
+         vi.spyOn(utils, 'execCommand').mockImplementation(
+            async (path, args) => {
+               if (args.includes('version')) {
+                  return {stdout: 'v3.13.0', stderr: '', code: 0}
+               }
+               return {stdout: 'template output', stderr: '', code: 0}
+            }
+         )
+
+         await new HelmRenderEngine().bake(true)
+
+         expect(utils.execCommand).toHaveBeenCalledWith(
+            'pathToHelm',
+            ['template', `--dry-run=${mode}`, 'releaseName', 'pathToHelmChart'],
+            {silent: true}
+         )
+      }
+   )
+
+   test('HelmRenderEngine() - omits --dry-run when helm-dry-run is unset', async () => {
+      vi.spyOn(helmUtil, 'getHelmPath').mockResolvedValue('pathToHelm')
+      vi.spyOn(core, 'getInput').mockImplementation((inputName) => {
+         if (inputName === 'helmChart') return 'pathToHelmChart'
+         if (inputName === 'releaseName') return 'releaseName'
+         if (inputName === 'renderEngine') return 'helm'
+         return ''
+      })
+      vi.spyOn(console, 'log').mockImplementation(() => {})
+      process.env['RUNNER_TEMP'] = 'tempDirPath'
+      vi.spyOn(fs, 'writeFileSync').mockImplementation(() => {})
+      vi.spyOn(utils, 'getCurrentTime').mockReturnValue(12345678)
+      vi.spyOn(core, 'setOutput').mockImplementation(() => {})
+
+      vi.spyOn(utils, 'execCommand').mockImplementation(async (path, args) => {
+         if (args.includes('version')) {
+            return {stdout: 'v3.13.0', stderr: '', code: 0}
+         }
+         return {stdout: 'template output', stderr: '', code: 0}
+      })
+
+      await new HelmRenderEngine().bake(true)
+
+      const templateCalls = (utils.execCommand as any).mock.calls.filter(
+         (call: [string, string[], unknown]) =>
+            Array.isArray(call[1]) && call[1][0] === 'template'
+      )
+      expect(templateCalls.length).toBeGreaterThan(0)
+      for (const call of templateCalls) {
+         expect(
+            (call[1] as string[]).some((a) => a.startsWith('--dry-run'))
+         ).toBe(false)
+      }
+   })
+
+   test('HelmRenderEngine() - rejects invalid helm-dry-run value', async () => {
+      vi.spyOn(helmUtil, 'getHelmPath').mockResolvedValue('pathToHelm')
+      vi.spyOn(core, 'getInput').mockImplementation((inputName) => {
+         if (inputName === 'helmChart') return 'pathToHelmChart'
+         if (inputName === 'renderEngine') return 'helm'
+         if (inputName === 'helm-dry-run') return 'server; rm -rf /'
+         return ''
+      })
+      vi.spyOn(console, 'log').mockImplementation(() => {})
+      const execSpy = vi.spyOn(utils, 'execCommand')
+
+      await expect(new HelmRenderEngine().bake(true)).rejects.toThrow(
+         /Invalid value for helm-dry-run/
+      )
+      expect(execSpy).not.toHaveBeenCalled()
+   })
+
+   test('HelmRenderEngine() - rejects helm-dry-run on Helm < 3.13', async () => {
+      vi.spyOn(helmUtil, 'getHelmPath').mockResolvedValue('pathToHelm')
+      vi.spyOn(core, 'getInput').mockImplementation((inputName) => {
+         if (inputName === 'helmChart') return 'pathToHelmChart'
+         if (inputName === 'renderEngine') return 'helm'
+         if (inputName === 'helm-dry-run') return 'server'
+         return ''
+      })
+      vi.spyOn(console, 'log').mockImplementation(() => {})
+      vi.spyOn(utils, 'execCommand').mockImplementation(async (path, args) => {
+         if (args.includes('version')) {
+            return {stdout: 'v3.12.0', stderr: '', code: 0}
+         }
+         return {stdout: '', stderr: '', code: 0}
+      })
+
+      await expect(new HelmRenderEngine().bake(true)).rejects.toThrow(
+         /helm-dry-run requires Helm v3\.13 or newer/
+      )
+   })
+
+   test('HelmRenderEngine() - rejects helm-dry-run on Helm v2', async () => {
+      vi.spyOn(helmUtil, 'getHelmPath').mockResolvedValue('pathToHelm')
+      vi.spyOn(core, 'getInput').mockImplementation((inputName) => {
+         if (inputName === 'helmChart') return 'pathToHelmChart'
+         if (inputName === 'renderEngine') return 'helm'
+         if (inputName === 'helm-dry-run') return 'client'
+         return ''
+      })
+      vi.spyOn(console, 'log').mockImplementation(() => {})
+      vi.spyOn(core, 'warning').mockImplementation(() => {})
+      vi.spyOn(utils, 'execCommand').mockImplementation(async (path, args) => {
+         if (args.includes('version')) {
+            return {stdout: 'v2.17.0', stderr: '', code: 0}
+         }
+         return {stdout: '', stderr: '', code: 0}
+      })
+
+      await expect(new HelmRenderEngine().bake(true)).rejects.toThrow(
+         /helm-dry-run requires Helm v3\.13 or newer/
+      )
+   })
 })

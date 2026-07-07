@@ -12,6 +12,9 @@ import {getHelmPath, NameValuePair} from './helm-util.js'
 import {getKubectlPath} from './kubectl-util.js'
 import {getKomposePath} from './kompose-util.js'
 
+const HELM_DRY_RUN_MODES = ['client', 'server'] as const
+type HelmDryRunMode = (typeof HELM_DRY_RUN_MODES)[number]
+
 abstract class RenderEngine {
    public bake!: (isSilent: boolean) => Promise<any>
    protected getTemplatePath = () => {
@@ -32,6 +35,8 @@ export class HelmRenderEngine extends RenderEngine {
       const helmPath = await getHelmPath()
       const chartPath = core.getInput('helmChart', {required: true})
 
+      const dryRunMode = this.getDryRunMode()
+
       const options = {
          silent: isSilent
       } as ExecOptions
@@ -42,14 +47,22 @@ export class HelmRenderEngine extends RenderEngine {
       await utilities.execCommand(helmPath, dependencyArgs, options)
 
       console.log('Getting helm version..')
-      let isV3OrNewer = true
-      await this.isHelmV3OrNewer(helmPath)
-         .then((result) => {
-            isV3OrNewer = result
-         })
-         .catch(() => {
-            isV3OrNewer = false
-         })
+      const versionInfo = await this.getHelmVersionInfo(helmPath)
+      const isV3OrNewer = versionInfo !== null && versionInfo.major >= 3
+
+      if (
+         dryRunMode &&
+         (!versionInfo ||
+            versionInfo.major < 3 ||
+            (versionInfo.major === 3 && versionInfo.minor < 13))
+      ) {
+         const detected = versionInfo
+            ? `${versionInfo.major}.${versionInfo.minor}.${versionInfo.patch}`
+            : 'unknown'
+         throw new Error(
+            `helm-dry-run requires Helm v3.13 or newer. Detected: ${detected}.`
+         )
+      }
 
       try {
          if (!isV3OrNewer) {
@@ -69,7 +82,11 @@ export class HelmRenderEngine extends RenderEngine {
       }
 
       console.log('Creating the template argument string..')
-      const args = await this.getHelmTemplateArgs(chartPath, isV3OrNewer)
+      const args = await this.getHelmTemplateArgs(
+         chartPath,
+         isV3OrNewer,
+         dryRunMode
+      )
 
       console.log('Running helm template command..')
       const result = await utilities.execCommand(helmPath, args, options)
@@ -77,6 +94,19 @@ export class HelmRenderEngine extends RenderEngine {
       const pathToBakedManifest = this.getTemplatePath()
       fs.writeFileSync(pathToBakedManifest, result.stdout)
       core.setOutput('manifestsBundle', pathToBakedManifest)
+   }
+
+   private getDryRunMode(): HelmDryRunMode | undefined {
+      const raw = core.getInput('helm-dry-run', {required: false})
+      if (!raw) return undefined
+      if (!(HELM_DRY_RUN_MODES as readonly string[]).includes(raw)) {
+         throw new Error(
+            `Invalid value for helm-dry-run: "${raw}". Expected one of: ${HELM_DRY_RUN_MODES.join(
+               ', '
+            )}.`
+         )
+      }
+      return raw as HelmDryRunMode
    }
 
    private getOverrideValues(overrides: string[]) {
@@ -111,11 +141,15 @@ export class HelmRenderEngine extends RenderEngine {
 
    private async getHelmTemplateArgs(
       chartPath: string,
-      isV3OrNewer: boolean
+      isV3OrNewer: boolean,
+      dryRunMode?: HelmDryRunMode
    ): Promise<string[]> {
       const releaseName = core.getInput('releaseName', {required: false})
       let args: string[] = []
       args.push('template')
+      if (dryRunMode) {
+         args.push(`--dry-run=${dryRunMode}`)
+      }
       const templateArgs = await getTemplateArguments()
       args = args.concat(templateArgs)
 
@@ -166,19 +200,28 @@ export class HelmRenderEngine extends RenderEngine {
       return args
    }
 
-   private async isHelmV3OrNewer(path: string) {
-      let result = await utilities.execCommand(
-         path,
-         ['version', '--template', '{{.Version}}'],
-         {silent: true}
-      )
-      const versionPart = result.stdout.split('.')[0].replace('v', '')
-      const majorVersion = parseInt(versionPart, 10)
-      if (isNaN(majorVersion)) {
-         throw new Error(`Unable to parse Helm version from: ${result.stdout}`)
+   private async getHelmVersionInfo(
+      helmPath: string
+   ): Promise<{major: number; minor: number; patch: number} | null> {
+      try {
+         const result = await utilities.execCommand(
+            helmPath,
+            ['version', '--template', '{{.Version}}'],
+            {silent: true}
+         )
+         const match = result.stdout
+            .trim()
+            .replace(/^v/, '')
+            .match(/^(\d+)\.(\d+)\.(\d+)/)
+         if (!match) return null
+         return {
+            major: parseInt(match[1], 10),
+            minor: parseInt(match[2], 10),
+            patch: parseInt(match[3], 10)
+         }
+      } catch {
+         return null
       }
-      // Helm v3+ doesn't require init (Tiller was removed)
-      return majorVersion >= 3
    }
 }
 
