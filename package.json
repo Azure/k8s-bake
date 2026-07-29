@@ -24,11 +24,11 @@
       "prepare": "husky"
    },
    "devDependencies": {
-      "@types/node": "^26.0.1",
+      "@types/node": "^26.1.1",
       "@types/semver": "^7.7.1",
       "esbuild": "^0.28.1",
-      "prettier": "^3.9.3",
-      "typescript": "^6.0.2",
-      "vitest": "^4.1.9"
+      "prettier": "^3.9.5",
+      "typescript": "^7.0.2",
+      "vitest": "^4.1.10"
    }
 }
