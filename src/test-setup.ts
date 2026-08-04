@@ -6,7 +6,9 @@ vi.mock('@actions/core', () => ({
    setFailed: vi.fn(),
    warning: vi.fn(),
    debug: vi.fn(),
-   info: vi.fn()
+   info: vi.fn(),
+   saveState: vi.fn(),
+   getState: vi.fn()
 }))
 
 vi.mock('@actions/tool-cache', () => ({

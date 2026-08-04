@@ -181,6 +181,13 @@ const downloadLinks: Record<string, Record<string, string>> = {
 export const LATEST = 'latest'
 export const MIN_KUBECTL_CLIENT_VERSION = '1.14'
 
+export {
+   BAKE_OUTPUT_DIRNAME,
+   BAKED_MANIFEST_PREFIX,
+   BAKED_MANIFEST_PATTERN,
+   CLEANUP_STATE_KEY
+} from './constants.js'
+
 const helmReleasesUrl = 'https://api.github.com/repos/helm/helm/releases'
 
 export interface HelmRelease {

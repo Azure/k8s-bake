@@ -16,7 +16,18 @@ import * as core from '@actions/core'
 import {ExecOptions} from '@actions/exec'
 
 describe('Test all functions in run file', () => {
-   afterEach(() => vi.restoreAllMocks())
+   // These exercise the RUNNER_TEMP fallback, which only applies without a
+   // workspace. CI runs inside Actions where one is set, so clear it.
+   let savedWorkspace: string | undefined
+   beforeEach(() => {
+      savedWorkspace = process.env['GITHUB_WORKSPACE']
+      delete process.env['GITHUB_WORKSPACE']
+   })
+   afterEach(() => {
+      if (savedWorkspace === undefined) delete process.env['GITHUB_WORKSPACE']
+      else process.env['GITHUB_WORKSPACE'] = savedWorkspace
+      vi.restoreAllMocks()
+   })
 
    test("KustomizeRenderEngine() - throw error if kubectl doesn't meet required version", async () => {
       vi.spyOn(kubectlUtil, 'getKubectlPath').mockResolvedValue('pathToKubectl')
@@ -198,7 +209,7 @@ describe('Test all functions in run file', () => {
       )
    })
 
-   test('KomposeRenderEngine() - throw error if unable to find temp directory', async () => {
+   test('KomposeRenderEngine() - throw error if no output location can be determined', async () => {
       vi.spyOn(core, 'getInput').mockReturnValue('pathToKompose')
       vi.spyOn(ioUtil, 'exists').mockResolvedValue(true)
       vi.spyOn(komposeUtil, 'getKomposePath').mockResolvedValue('pathToKompose')
@@ -208,7 +219,7 @@ describe('Test all functions in run file', () => {
       vi.spyOn(console, 'log').mockImplementation(() => {})
 
       await expect(new KomposeRenderEngine().bake(false)).rejects.toThrow(
-         'Unable to create temp directory.'
+         'Unable to determine an output directory'
       )
       expect(komposeUtil.getKomposePath).toHaveBeenCalled()
    })
@@ -265,12 +276,10 @@ describe('Test all functions in run file', () => {
       vi.spyOn(core, 'setFailed').mockImplementation(() => {})
 
       await expect(run()).rejects.toThrow(
-         'Failed to run bake action. Error: Error: Unable to create temp directory.'
+         'Unable to determine an output directory'
       )
       expect(core.setFailed).toHaveBeenCalledWith(
-         expect.stringContaining(
-            'Failed to run bake action. Error: Error: Unable to create temp directory.'
-         )
+         expect.stringContaining('Unable to determine an output directory')
       )
    })
 

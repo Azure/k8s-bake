@@ -49,3 +49,4 @@ branding:
 runs:
    using: 'node24'
    main: 'lib/index.js'
+   post: 'lib/cleanup.js'
