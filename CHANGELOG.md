@@ -1,5 +1,22 @@
 # Changelog
 
+## [4.1.1] - 2026-08-06
+
+### Fixed
+
+- #289 [Write baked manifest into the workspace](https://github.com/Azure/k8s-bake/pull/289)
+
+### Security
+
+- #290 [Bump undici from 6.27.0 to 6.28.0](https://github.com/Azure/k8s-bake/pull/290)
+- #288 [Bump github/codeql-action and Azure/action-release-workflows in /.github/workflows](https://github.com/Azure/k8s-bake/pull/288)
+- #287 [Bump @types/node from 26.1.1 to 26.1.2 and prettier from 3.9.5 to 3.9.6](https://github.com/Azure/k8s-bake/pull/287)
+- #285 [Bump actions/checkout, actions/setup-node, and github/codeql-action in /.github/workflows](https://github.com/Azure/k8s-bake/pull/285)
+- #283 [Bump @types/node, prettier, typescript from 6.0.2 to 7.0.2, and vitest](https://github.com/Azure/k8s-bake/pull/283)
+- #278 [Bump @types/node from 26.0.0 to 26.0.1 and prettier from 3.8.4 to 3.9.3](https://github.com/Azure/k8s-bake/pull/278)
+- #277 [Bump actions/checkout from 6.0.3 to 7.0.0 in /.github/workflows](https://github.com/Azure/k8s-bake/pull/277)
+- #276 [Bump semver from 7.8.4 to 7.8.5 and @types/node from 25.9.3 to 26.0.0](https://github.com/Azure/k8s-bake/pull/276)
+
 ## [4.1.0] - 2026-06-17
 
 ### Changed
