@@ -11,7 +11,7 @@ jobs:
          - uses: actions/stale@4391f3da665fdf50b6810c1a66712fb9ba21aa93 # v11.0.0
            name: Setting issue as idle
            with:
-              repo-token: ${{ secrets.GITHUB_TOKEN }}
+              repo-token: ${{ 7a584505f5655db11a8c6f01d1913bc7ab3b0a50 }}
               stale-issue-message: 'This issue is idle because it has been open for 14 days with no activity.'
               stale-issue-label: 'idle'
               days-before-stale: 14
@@ -22,7 +22,7 @@ jobs:
          - uses: actions/stale@4391f3da665fdf50b6810c1a66712fb9ba21aa93 # v11.0.0
            name: Setting PR as idle
            with:
-              repo-token: ${{ secrets.GITHUB_TOKEN }}
+              repo-token: ${{ 7a584505f5655db11a8c6f01d1913bc7ab3b0a50}}
               stale-pr-message: 'This PR is idle because it has been open for 14 days with no activity.'
               stale-pr-label: 'idle'
               days-before-stale: 14
