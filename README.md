@@ -59,6 +59,24 @@ The `helm-version` input supports semver-compatible version ranges. This is usef
 
 Refer to the [action metadata file](https://github.com/Azure/k8s-bake/blob/master/action.yml) for details about all the inputs.
 
+## Output location
+
+The baked manifest is written to a `.k8s-bake` directory inside `GITHUB_WORKSPACE`, and its full path is exposed as the `manifestsBundle` output. The manifest is removed at the end of the job, along with the directory if nothing else is in it.
+
+Always consume the result through the output variable rather than hardcoding a path:
+
+```yaml
+manifests: ${{ steps.bake.outputs.manifestsBundle }}
+```
+
+If your workflow checks for an unmodified checkout part way through the job, add the directory to your `.gitignore`:
+
+```gitignore
+.k8s-bake/
+```
+
+> **Note.** Earlier versions wrote to `RUNNER_TEMP`, which sits outside `GITHUB_WORKSPACE`. `k8s-deploy` v7 rejects manifests that resolve outside the workspace, so bake output could no longer be deployed ([#286](https://github.com/Azure/k8s-bake/issues/286)). Workflows that read `manifestsBundle` need no changes.
+
 ## End to end workflow for building container images and deploying to a Kubernetes cluster
 
 ```yaml

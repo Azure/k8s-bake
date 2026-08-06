@@ -12,19 +12,46 @@ import {getHelmPath, NameValuePair} from './helm-util.js'
 import {getKubectlPath} from './kubectl-util.js'
 import {getKomposePath} from './kompose-util.js'
 
+// Prefers $GITHUB_WORKSPACE/.k8s-bake/, falling back to $RUNNER_TEMP when there
+// is no workspace. k8s-deploy v7 rejects manifests resolving outside the
+// workspace, so RUNNER_TEMP output can no longer be deployed (#286).
+export function getBakedManifestPath(): string {
+   const fileName =
+      utilities.BAKED_MANIFEST_PREFIX +
+      utilities.getCurrentTime().toString() +
+      '.yaml'
+
+   const workspace = process.env['GITHUB_WORKSPACE']
+   if (!!workspace) {
+      const outputDirectory = path.join(
+         workspace,
+         utilities.BAKE_OUTPUT_DIRNAME
+      )
+      fs.mkdirSync(outputDirectory, {recursive: true})
+      // Filename, not path: mkdirSync succeeds whether or not the directory
+      // already existed, so bake owns only the file it writes.
+      core.saveState(utilities.CLEANUP_STATE_KEY, fileName)
+      return path.join(outputDirectory, fileName)
+   }
+
+   const tempDirectory = process.env['RUNNER_TEMP']
+   if (!!tempDirectory) {
+      core.warning(
+         'GITHUB_WORKSPACE is not set; writing the baked manifest to RUNNER_TEMP. ' +
+            'k8s-deploy v7 and newer reject manifests outside the workspace.'
+      )
+      return path.join(tempDirectory, fileName)
+   }
+
+   throw Error(
+      'Unable to determine an output directory. Run in an environment where ' +
+         'GITHUB_WORKSPACE or RUNNER_TEMP is set.'
+   )
+}
+
 abstract class RenderEngine {
    public bake!: (isSilent: boolean) => Promise<any>
-   protected getTemplatePath = () => {
-      const tempDirectory = process.env['RUNNER_TEMP']
-      if (!!tempDirectory) {
-         return path.join(
-            tempDirectory,
-            'baked-template-' + utilities.getCurrentTime().toString() + '.yaml'
-         )
-      } else {
-         throw Error('Unable to create temp directory.')
-      }
-   }
+   protected getTemplatePath = () => getBakedManifestPath()
 }
 
 export class HelmRenderEngine extends RenderEngine {
