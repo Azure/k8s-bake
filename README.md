@@ -9,7 +9,7 @@ Sets output variable 'manifestsBundle' which contains the location of the manife
 #### Bake using helm
 
 ```yaml
-- uses: azure/k8s-bake@v3
+- uses: azure/k8s-bake@v4
    with:
       renderEngine: 'helm'
       helmChart: './aks-helloworld/'
@@ -37,7 +37,7 @@ The `helm-version` input supports semver-compatible version ranges. This is usef
 #### Bake using Kompose
 
 ```yaml
-- uses: azure/k8s-bake@v3
+- uses: azure/k8s-bake@v4
   with:
      renderEngine: 'kompose'
      dockerComposeFile: './docker-compose.yml'
@@ -47,7 +47,7 @@ The `helm-version` input supports semver-compatible version ranges. This is usef
 #### Bake using Kubernetes Kustomize
 
 ```yaml
-- uses: azure/k8s-bake@v3
+- uses: azure/k8s-bake@v4
   with:
      renderEngine: 'kustomize'
      kustomizationPath: './kustomizeexample/'
@@ -57,7 +57,7 @@ The `helm-version` input supports semver-compatible version ranges. This is usef
      kubectl-version: 'latest'
 ```
 
-Refer to the [action metadata file](https://github.com/Azure/k8s-bake/blob/master/action.yml) for details about all the inputs.
+Refer to the [action metadata file](https://github.com/Azure/k8s-bake/blob/main/action.yml) for details about all the inputs.
 
 ## Output location
 
@@ -86,9 +86,9 @@ jobs:
    build:
       runs-on: ubuntu-latest
       steps:
-         - uses: actions/checkout@master
+         - uses: actions/checkout@v7
 
-         - uses: Azure/docker-login@v1
+         - uses: Azure/docker-login@v2
            with:
               login-server: contoso.azurecr.io
               username: ${{ secrets.REGISTRY_USERNAME }}
@@ -98,18 +98,18 @@ jobs:
               docker build . -t contoso.azurecr.io/k8sdemo:${{ github.sha }}
               docker push contoso.azurecr.io/k8sdemo:${{ github.sha }}
 
-         - uses: Azure/k8s-set-context@v3
+         - uses: Azure/k8s-set-context@v5
            with:
               kubeconfig: ${{ secrets.KUBE_CONFIG }}
 
-         - uses: Azure/k8s-create-secret@v4
+         - uses: Azure/k8s-create-secret@v6
            with:
               container-registry-url: contoso.azurecr.io
               container-registry-username: ${{ secrets.REGISTRY_USERNAME }}
               container-registry-password: ${{ secrets.REGISTRY_PASSWORD }}
               secret-name: demo-k8s-secret
 
-         - uses: azure/k8s-bake@v3
+         - uses: azure/k8s-bake@v4
            with:
               renderEngine: 'helm'
               helmChart: './aks-helloworld/'
@@ -119,7 +119,7 @@ jobs:
               helm-version: 'latest'
            id: bake
 
-         - uses: Azure/k8s-deploy@v4
+         - uses: Azure/k8s-deploy@v7
            with:
               manifests: ${{ steps.bake.outputs.manifestsBundle }}
               images: |
