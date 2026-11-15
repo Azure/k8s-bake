@@ -11,7 +11,7 @@
       "@actions/io": "^3.0.2",
       "@actions/tool-cache": "^4.0.0",
       "husky": "^9.1.7",
-      "semver": "^7.8.5"
+      "semver": "^7.8.6"
    },
    "main": "lib/index.js",
    "scripts": {
@@ -24,12 +24,12 @@
       "prepare": "husky"
    },
    "devDependencies": {
-      "@types/node": "^26.6.5",
+      "@types/node": "^26.6.6",
       "@types/semver": "^7.8.0",
       "esbuild": "^0.28.2",
       "prettier": "^3.9.10",
       "typescript": "^7.0.2",
-      "vite": "^8.3.5",
-      "vitest": "^5.0.5"
+      "vite": "^8.3.6",
+      "vitest": "^5.1.0"
    }
 }
